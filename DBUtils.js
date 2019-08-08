@@ -13,10 +13,10 @@ var poolConfig = {
 
 // TODO: edit this
 var connectionConfig = {
-    userName: 'root',
-    password: 'rootPROJ9',
-    server: 'localhost', //'ass3alinadror.database.windows.net',
-    options: { encrypt: true, database: 'wushudb' }
+    userName:   'AlinaDror',    //'root',
+    password:   'DrorAlina2331',    //'rootPROJ9',
+    server:      'wushu.database.windows.net', //'localhost', //'ass3alinadror.database.windows.net',
+    options: { encrypt: true, database: 'WushuDB' }
 };
 
 //create the pool
