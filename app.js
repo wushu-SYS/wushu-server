@@ -1,7 +1,9 @@
 var app =require ("express")();
 var DButilsAzure = require('./DButils');
 var bodyParser = require("body-parser");
-
+var Enum = require('enum');
+var userType = new Enum({'Manger': 1, 'Coach': 2, 'Sportsman': 3});
+var cors = require('cors')
 
 const jwt = require("jsonwebtoken");
 const Cryptr = require('cryptr');
@@ -11,6 +13,15 @@ const validation = require('node-input-validator');
 const mutual_user_module = require("./Mutual/user_module");
 const coach_user_module = require("./Coach/user_module");
 const sportsman_user_module = require("./Sportsman/user_module");
+
+app.use(cors())
+app.options('*', cors())
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 app.use(bodyParser.urlencoded({extend:true}));
 app.use(bodyParser.json());
@@ -22,14 +33,16 @@ app.use("/private", (req, res, next) => {
         req.decoded = decoded;
         next();
     } catch (exception) {
+        console.log(token)
         res.status(400).send("Invalid token.");
     }
 });
 app.post("/login", (req, res) => {
     mutual_user_module._login(req, res)
 });
+
 app.post("/private/registerSportman", function(req, res){
-    if(jwt.decode(req.header("x-auth-token")).access!=3)
+    if(jwt.decode(req.header("x-auth-token")).access!=userType.get("Sportsman"))
         coach_user_module._registerSportman(req,res)
     else
         res.status(400).send("Permission denied");
@@ -85,27 +98,3 @@ app.listen(3000,()=>{
     console.log("wu-shu project");
     console.log("----------------------------------");
 });
-
-/*var mysql = require('mysql');
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'rootPROJ9',
-    database : 'wushudb'
-});
-
-connection.connect(function(err) {
-    if (err) {
-        console.error('error connecting: ' + err.stack);
-        return;
-    }
-
-    console.log('connected as id ' + connection.threadId);
-});
-
-connection.query('SELECT * from competitions', function (error, results, fields) {
-    if (error) throw error;
-    console.log('The solution is: ', results[0].solution);
-});
-
-connection.end();*/

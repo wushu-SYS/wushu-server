@@ -30,12 +30,11 @@ function registerSportman(req,res) {
                         res.status(400).send("The userName already exists " + inUser)
                     }
                 })
-
-            DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,address,sportclub) 
-                VALUES ('${(req.body.Id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.address}','${req.body.sportclub}')`)
+            DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,birthdate,address,sportclub) 
+                VALUES ('${(req.body.Id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
                 .then(async () => {
-                     await insertPassword(req, 3, 1)
-                     await insertCoach(req)
+                     //await insertPassword(req, 3, 1)
+                     //await insertCoach(req)
                     res.status(200).send("Registration completed successfully")
                 })
                 .catch((eror)=>{
