@@ -43,7 +43,10 @@ function uploadeInsurance(req,res) {
         })
 
 }
+function watchProfile(req,res){
 
+}
 
 module.exports._uploadeMedical = uploadeMedical;
 module.exports._uploadInsurances=uploadeInsurance;
+module.exports._watchProfile=watchProfile;
