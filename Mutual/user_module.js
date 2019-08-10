@@ -9,39 +9,41 @@ const cryptr = new Cryptr(secret);
 function login(req,res) {
     var firstname;
     var id;
-    DButilsAzure.execQuery(`select Id,password,usertype from user_Passwords
+    DButilsAzure.execQuery(`select * from user_Passwords
             where Id = '${req.body.userID}'`)// AND password = '${pass}'`)
-        .then((result) => {
-            if(result.length == 0)
-                res.status(401).send("Access denied. Error in user's details")
+        .then(async (result) => {
+            if(result.length === 0)
+                res.status(401).send("Access denied. Error in user's details");
             else{
                 var pass =cryptr.decrypt(result[0].password);
-                if(pass==(req.body.password))
+                if(pass===(req.body.password)) {
                     switch (result[0].usertype) {
                         case 1:
-                            DButilsAzure.execQuery(`select firstname from user_Manger where Id= '${result[0].Id}'`)
-                                .then((result1)=>{
-                                    firstname=result1[0].firstname
-                                    id=result[0].Id
-                                })
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where Id= '${result[0].Id}'`);
                             break;
                         case 2:
-                            console.log("coach")
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Couch where Id= '${result[0].Id}'`);
                             break;
                         case 3:
-                            DButilsAzure.execQuery(`select firstname from user_Sportman where Id= '${result[0].Id}'`)
-                                .then((result1)=>{
-                                    firstname=result1[0].firstname
-                                    id=result[0].Id
-                                })
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportman where Id= '${result[0].Id}'`);
                             break;
                     }
+                    firstname = result1[0].firstname;
+                    lastname = result[0].lastname;
+                }
                 else
-                    res.status(401).send("Access denied. Error in user's details")
+                    res.status(401).send("Access denied. Error in user's details");
                 payload = { id: result[0].Id, name: firstname, access:result[0].usertype};
                 options = { expiresIn: "1d" };
                 const token = jwt.sign(payload, secret, options);
-                res.send(token);
+                resultJson = {
+                    'token' : token,
+                    'firstname' : firstname,
+                    'lastname' : lastname,
+                    'access' : result[0].usertype,
+                    'isFirstTime' : result[0].isfirstlogin
+                };
+                res.send(resultJson);
             }})
         .catch(function(err){
             console.log(err)
