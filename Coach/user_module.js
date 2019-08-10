@@ -30,9 +30,10 @@ function registerSportman(req,res) {
                         res.status(400).send("The userName already exists " + inUser)
                     }
                 })
-            DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,birthdate,address,sportclub) 
-                VALUES ('${(req.body.Id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
+            DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,birthdate,address,sportclub,sex) 
+                VALUES ('${(req.body.Id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                 .then(async () => {
+                     //await insertSportsmanCategory(req)
                      //await insertPassword(req, 3, 1)
                      //await insertCoach(req)
                     res.status(200).send("Registration completed successfully")
@@ -43,6 +44,21 @@ function registerSportman(req,res) {
         }
     })
 
+}
+
+function watchProfile(req,res){
+
+}
+
+
+
+async function insertSportsmanCategory(req){
+    console.log("insert sportsman Category");
+    DButilsAzure.execQuery(`INSERT INTO sportsman_category (Id,category,branch)
+                    Values ('${req.body.Id}','${req.body.category}','${req.body.branch}')`)
+        .catch((error)=>{
+            res.status(400).send(error)
+        })
 }
 async function insertPassword(req, number, number2) {
     console.log("insert password");
@@ -65,3 +81,4 @@ async function insertCoach(req) {
 
 
 module.exports._registerSportman = registerSportman;
+module.exports._watchProfile =watchProfile;

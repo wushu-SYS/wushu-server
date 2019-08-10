@@ -13,18 +13,20 @@ const validation = require('node-input-validator');
 const mutual_user_module = require("./Mutual/user_module");
 const coach_user_module = require("./Coach/user_module");
 const sportsman_user_module = require("./Sportsman/user_module");
+const manger_user_module =require("./Manger/user_module");
+const multer = require('multer');
+global.__basedir = __dirname;
+
+
+app.use(bodyParser.urlencoded({extend:true}));
+app.use(bodyParser.json());
+
 
 app.use(cors())
 app.options('*', cors())
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
 
-app.use(bodyParser.urlencoded({extend:true}));
-app.use(bodyParser.json());
+
 app.use("/private", (req, res, next) => {
     const token = req.header("x-auth-token");
     if (!token) res.status(401).send("Access denied. No token provided.");
@@ -47,9 +49,26 @@ app.post("/private/registerSportman", function(req, res){
     else
         res.status(400).send("Permission denied");
 });
+app.post("/private/registerCoach",function (req,res) {
+    if(jwt.decode(req.header("x-auth-token")).access==userType.get("Manger"))
+        manger_user_module._registerCoach(req,res)
+    else
+        res.status(400).send("Permission denied")
 
-const multer = require('multer');
-global.__basedir = __dirname;
+})
+app.post("/private/watchProfile",function (req,res) {
+    if(jwt.decode(req.header("x-auth-token")).access==userType.get("Manger"))
+        manger_user_module._watchProfile(req,res)
+    else if(jwt.decode(req.header("x-auth-token")).access==userType.get("Coach"))
+        coach_user_module._watchProfile(req,res)
+    else if(jwt.decode(req.header("x-auth-token")).access==userType.get("Sportsman"))
+        sportsman_user_module._watchProfile(req,res)
+    else
+        res.status(400).send("Permission denied")
+
+})
+
+
 const storagePhoto = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, __basedir + '/uploads/Photos/')
