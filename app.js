@@ -110,6 +110,16 @@ app.post('/private/uploadInsurance', uploadInsurances.single("file"), (req, res)
     sportsman_user_module._uploadInsurances(req,res);
 });
 
+
+app.get('/downloadExcelSportsman', (req, res) =>{
+    mutual_user_module._downloadSportsmanExcel(req,res);
+});
+
+app.post("/private/changePassword",function (req,res) {
+        mutual_user_module._changePass(req,res)
+})
+
+
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");

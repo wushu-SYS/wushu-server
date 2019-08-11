@@ -65,7 +65,26 @@ function uploadPhoto(req,res){
     }
     res.status(200).send("File upload successfully")
 }
+function downlaodExcel(req,res){
+    res.download('./Resources/Files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {
+})
+}
 
+function changePassword(req ,res){
+    var id =jwt.decode(req.header("x-auth-token")).id;
+    DButilsAzure.execQuery(`UPDATE user_Password SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
+        .then(()=>{
+            res.status(200).send("password update successfully")
+            }
+        )
+        .catch((error)=>{
+            res.status(400).send(error);
+        })
+
+
+}
 
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
+module.exports._downloadSportsmanExcel=downlaodExcel;
+module.exports._changePass=changePassword;
