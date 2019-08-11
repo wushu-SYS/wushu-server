@@ -70,17 +70,25 @@ function downlaodExcel(req,res){
 })
 }
 
-function changePassword(req ,res){
+async function changePassword(req ,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
-    DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
-        .then(()=>{
-            res.status(200).send("password update successfully")
-            }
-        )
-        .catch((error)=>{
-            res.status(400).send(error);
+    await DButilsAzure.execQuery(`Select password from user_Passwords where Id='${id}';`)
+        .then((result)=>{
+            if(cryptr.decrypt(result[0].password)==req.body.password)
+                res.status(401).send("Password are the same cant change")
+            else
+                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
+                    .then(()=>{
+                            res.status(200).send("password update successfully")
+                        }
+                    )
+                    .catch((error)=>{
+                        res.status(404).send(error);
+                    })
         })
-
+        .catch((error)=>{
+            res.status(404).send(error);
+        })
 
 }
 
