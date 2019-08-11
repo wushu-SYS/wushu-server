@@ -72,7 +72,7 @@ function downlaodExcel(req,res){
 
 function changePassword(req ,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
-    DButilsAzure.execQuery(`UPDATE user_Password SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
+    DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
         .then(()=>{
             res.status(200).send("password update successfully")
             }
