@@ -102,11 +102,11 @@ app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) =>
     mutual_user_module._uploadPhoto(req,res);
 });
 
-app.post('/private/uploadMedicalFile', uploadMedicals.single("file"), (req, res) =>{
+app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) =>{
     sportsman_user_module._uploadeMedical(req,res);
 });
 
-app.post('/private/uploadInsurance', uploadInsurances.single("file"), (req, res) =>{
+app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) =>{
     sportsman_user_module._uploadInsurances(req,res);
 });
 
@@ -117,6 +117,11 @@ app.get('/downloadExcelSportsman', (req, res) =>{
 
 app.post("/private/changePassword",function (req,res) {
         mutual_user_module._changePass(req,res)
+})
+
+app.post("/private/getCoaches",function (req,res) {
+    coach_user_module._getCoaches(req,res)
+
 })
 
 

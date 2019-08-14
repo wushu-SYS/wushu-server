@@ -69,7 +69,6 @@ function downlaodExcel(req,res){
     res.download('./Resources/Files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {
 })
 }
-
 async function changePassword(req ,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
     await DButilsAzure.execQuery(`Select password from user_Passwords where Id='${id}';`)
@@ -91,6 +90,7 @@ async function changePassword(req ,res){
         })
 
 }
+
 
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
