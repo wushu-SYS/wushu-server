@@ -125,6 +125,12 @@ app.post("/private/getCoaches",function (req,res) {
 })
 
 
+app.post("/private/getClubs",function (req,res) {
+    mutual_user_module._getSportClubs(req,res)
+
+})
+
+
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");

@@ -7,50 +7,60 @@ const cryptr = new Cryptr(secret);
 
 
 function registerSportman(req,res) {
-    let validator = new validation( req.body, {
-        Id:'required|integer',
-        firstname:'required|lengthBetween:2,10',
-        lastname:'required|lengthBetween:2,10',
-        phone:'required|lengthBetween:0,10|integer',
-        address:'required',
-        email:'required|email',
-        sportclub :'required|integer'
-    });
+/*
+    let validator = new validation(req.body, {
+        id: 'required|integer',
+        firstname: 'required|lengthBetween:2,10',
+        lastname: 'required|lengthBetween:2,10',
+        phone: 'required|lengthBetween:0,15|',
+        address: 'required',
+        email: 'required|email',
+        sportclub: 'required',
+        sex: 'required',
+        branch: 'required'
 
+    });
     validator.check().then(function (matched) {
-        if(!matched){
+        if (!matched) {
             res.status(400).send(validator.errors);
-        }
-        else{
+        } else {
+
+
+ */
             DButilsAzure.execQuery("select Id from user_Sportsman")
-                .then( (result)=> {
+                .then((result) => {
                     var inUser = req.body.Id;
                     var reqUser = result
                     if (reqUser.some(item => item.Id == inUser)) {
                         res.status(400).send("The userName already exists " + inUser)
+                    } else {
+                        DButilsAzure.execQuery(`select id from sportclub where name = '${req.body.sportclub}'`)
+                            .then((result) => {
+                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,birthdate,address,sportclub,sex) 
+                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${result}','${req.body.sex}')`)
+                                    .then( async() => {
+                                        await insertSportsmanCategory(req)
+                                        await insertPassword(req, 3, 1)
+                                        await insertCoach(req)
+                                        res.status(200).send("Registration completed successfully")
+                                    })
+                                    .catch((eror) => {
+                                        res.status(400).send(eror)
+                                    })
+                            })
+                            .catch((error) => {
+                                res.status(400).send(error)
+                            })
                     }
                 })
-            DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id,firstname,lastname,phone,email,birthdate,address,sportclub,sex) 
-                VALUES ('${(req.body.Id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
-                .then(async () => {
-                     //await insertSportsmanCategory(req)
-                     //await insertPassword(req, 3, 1)
-                     //await insertCoach(req)
-                    res.status(200).send("Registration completed successfully")
-                })
-                .catch((eror)=>{
-                    res.status(400).send(eror)
-                })
-        }
-    })
+      //  }
 
+    //})
 }
 
 function watchProfile(req,res){
 
 }
-
-
 function getCoaches(req,res){
     DButilsAzure.execQuery(` Select Id,firstname,lastname from user_Coach`)
         .then((result) => {
@@ -62,10 +72,12 @@ function getCoaches(req,res){
 }
 
 
+
+
 async function insertSportsmanCategory(req){
     console.log("insert sportsman Category");
-    DButilsAzure.execQuery(`INSERT INTO sportsman_category (Id,category,branch)
-                    Values ('${req.body.Id}','${req.body.category}','${req.body.branch}')`)
+    DButilsAzure.execQuery(`INSERT INTO sportsman_category (Id,branch)
+                    Values ('${req.body.id}','${req.body.branch}')`)
         .catch((error)=>{
             res.status(400).send(error)
         })
@@ -73,7 +85,7 @@ async function insertSportsmanCategory(req){
 async function insertPassword(req, number, number2) {
     console.log("insert password");
     DButilsAzure.execQuery(`INSERT INTO user_Passwords (Id,password,usertype,isfirstlogin)
-                    Values ('${req.body.Id}','${cryptr.encrypt(req.body.Id)}','${number}','${number2}')`)
+                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${number}','${number2}')`)
         .catch((error)=>{
             res.status(400).send(error)
         })
@@ -81,7 +93,7 @@ async function insertPassword(req, number, number2) {
 async function insertCoach(req) {
     console.log("insert coach");
     DButilsAzure.execQuery(`INSERT INTO sportsman_coach (Idsportman,Idcoach)
-                    Values ('${req.body.Id}','${req.body.coachId}')`)
+                    Values ('${req.body.id}','${req.body.idCoach}')`)
         .catch((error)=>{
             res.status(400).send(error)
         })
