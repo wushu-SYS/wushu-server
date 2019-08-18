@@ -120,7 +120,7 @@ app.post("/private/changePassword",function (req,res) {
 })
 
 app.post("/private/getCoaches",function (req,res) {
-    coach_user_module._getCoaches(req,res)
+    manger_user_module._getCoaches(req,res)
 
 })
 

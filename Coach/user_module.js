@@ -74,15 +74,7 @@ function registerSportman(req, res) {
 
         }
 
-        function getCoaches(req, res) {
-            DButilsAzure.execQuery(` Select Id,firstname,lastname from user_Coach`)
-                .then((result) => {
-                    res.status(200).send(result)
-                })
-                .catch((eror) => {
-                    res.status(400).send(eror)
-                })
-        }
+
 
 
         async function insertSportsmanCategory(req) {
@@ -115,4 +107,3 @@ function registerSportman(req, res) {
 
         module.exports._registerSportman = registerSportman;
         module.exports._watchProfile = watchProfile;
-        module.exports._getCoaches = getCoaches;
