@@ -65,7 +65,7 @@ function uploadPhoto(req,res){
     }
     res.status(200).send("File upload successfully")
 }
-function downlaodExcel(req,res){
+function downlaodExcelSportsman(req,res){
     res.download('./Resources/Files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {
 })
 }
@@ -102,9 +102,15 @@ function getSportclub(req,res)
         })
 }
 
+function downlaodExcelCoach(req,res){
+    res.download('./Resources/Files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {
+    })
+}
+
 
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
-module.exports._downloadSportsmanExcel=downlaodExcel;
+module.exports._downloadSportsmanExcel=downlaodExcelSportsman;
 module.exports._changePass=changePassword;
 module.exports._getSportClubs=getSportclub;
+module.exports._downloadcoachExcel=downlaodExcelCoach;

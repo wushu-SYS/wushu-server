@@ -114,6 +114,9 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
 app.get('/downloadExcelSportsman', (req, res) =>{
     mutual_user_module._downloadSportsmanExcel(req,res);
 });
+app.get('/downloadExcelCoach', (req, res) =>{
+    mutual_user_module._downloadcoachExcel(req,res);
+});
 
 app.post("/private/changePassword",function (req,res) {
         mutual_user_module._changePass(req,res)
