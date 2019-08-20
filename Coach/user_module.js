@@ -46,11 +46,15 @@ function registerSportman(req, res) {
                     if (result.some(item => item.Id === inUser)) {
                         res.status(400).send("The userName already exists " + inUser)
                     } else {
-                        DButilsAzure.execQuery(`select id from sportclub where name = '${req.body.sportclub}'`)
+                        DButilsAzure.execQuery(`select id from sportclub where id = '${req.body.sportclub}'`)
                             .then((result) => {
+                                if(result.size == 0)
+                                    res.status(400).send("sportclub dosn't exists");
                                 req.body.birthdate = ( [ initial[1], initial[0], initial[2] ].join('/'));
                                 DButilsAzure.execQuery(`select id from user_Coach where Id = '${req.body.idCoach}'`)
                                     .then((result) => {
+                                        if(result.size == 0)
+                                            res.status(400).send("coach dosn't exists");
                                         console.log(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
                                      VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`);
                                         DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
