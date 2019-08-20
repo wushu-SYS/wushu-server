@@ -8,9 +8,9 @@ const cryptr = new Cryptr(secret);
 
 function registerCoach(req,res) {
     let validator = new validation(req.body, {
-        id: 'required|integer|minLength:9|maxLength:9',
-        firstname: 'required|lengthBetween:2,10',
-        lastname: 'required|lengthBetween:2,10',
+        id: 'required|integer|minLength:9|maxLength:10',
+        firstname: 'required|lengthBetween:1,10',
+        lastname: 'required|lengthBetween:1,10',
         phone: 'required|minLength:10|maxLength:10|integer',
         address: 'required',
         email: 'required|email',
