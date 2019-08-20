@@ -51,20 +51,31 @@ function registerSportman(req, res) {
                                 req.body.birthdate = ( [ initial[1], initial[0], initial[2] ].join('/'));
                                 DButilsAzure.execQuery(`select id from user_Coach where Id = '${req.body.idCoach}'`)
                                     .then((result) => {
+                                        console.log(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
+                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`);
                                         DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
-                                        VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${result}','${req.body.sex}')`)
+                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                                             .then(async () => {
                                                 await insertSportsmanCategory(req);
                                                 await insertPassword(req, 3, 1);
                                                 await insertCoach(req);
                                                 res.status(200).send("Registration completed successfully")
                                             })
+                                            .catch((error) => {
+                                                res.status(400).send("1" +error)
+                                            })
                                     })
+                                    .catch((error) => {
+                                        res.status(400).send("2"+error)
+                                    })
+                            })
+                            .catch((error) => {
+                                res.status(400).send("3"+error)
                             })
                     }
                 })
                 .catch((error) => {
-                    res.status(400).send(error)
+                    res.status(400).send("4"+error)
                 })
             }
         });
