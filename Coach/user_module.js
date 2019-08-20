@@ -52,7 +52,7 @@ function registerSportman(req, res) {
                                 DButilsAzure.execQuery(`select id from user_Coach where Id = '${req.body.idCoach}'`)
                                     .then((result) => {
                                         DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
-                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${result}','${req.body.sex}')`)
+                                        VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${result}','${req.body.sex}')`)
                                             .then(async () => {
                                                 await insertSportsmanCategory(req);
                                                 await insertPassword(req, 3, 1);
