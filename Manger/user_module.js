@@ -4,13 +4,14 @@ const jwt = require("jsonwebtoken");
 const Cryptr = require('cryptr');
 secret = "wushuSecret";
 const cryptr = new Cryptr(secret);
+const mutual = require("../Mutual/user_module");
 
 
 function registerCoach(req,res) {
     let validator = new validation(req.body, {
-        id: 'required|integer|minLength:9|maxLength:10',
-        firstname: 'required|lengthBetween:1,10',
-        lastname: 'required|lengthBetween:1,10',
+        id: 'required|integer|minLength:9|maxLength:9',
+        firstname: 'required|lengthBetween:2,10',
+        lastname: 'required|lengthBetween:2,10',
         phone: 'required|minLength:10|maxLength:10|integer',
         address: 'required',
         email: 'required|email',
@@ -38,22 +39,30 @@ function registerCoach(req,res) {
             res.status(400).send("The birthdate must be a valid date");
         }
         else {
-            DButilsAzure.execQuery("select Id from user_Coach")
+            DButilsAzure.execQuery(`select Id from user_Coach where Id = '${req.body.id}'`)
                 .then((result) => {
-                    var inUser = req.body.Id;
-                    if (result.some(item => item.Id === inUser)) {
-                        res.status(400).send("The userName already exists " + inUser)
+                    if (result.length > 0) {
+                        res.status(403).send("The userName already registered")
                     } else {
-                        DButilsAzure.execQuery(`select id from sportclub where name = '${req.body.sportclub}'`)
+                        DButilsAzure.execQuery(`select id from sportclub where id = '${req.body.sportclub}'`)
                             .then((result) => {
+                                if (result.length === 0)
+                                    res.status(400).send("sportclub dosn't exists");
                                 req.body.birthdate = ( [ initial[1], initial[0], initial[2] ].join('/'));
-                                DButilsAzure.execQuery(` INSERT INTO user_Coach (Id, firstname, lastname, phone, email, birthdate, address, sportclub) 
-                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${result}')`)
+                                DButilsAzure.execQuery(` INSERT INTO user_Coach (Id, firstname, lastname, phone, email, birthdate, address, sportclub)
+                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
                                             .then(async () => {
                                                 await insertCoachTeam(req);
-                                                res.status(200).send("Registration completed successfully")
+                                                await mutual._insertPassword(req, 2, 1);
+                                                res.status(200).send("Registration completed successfully");
                                             })
-                                    })
+                                            .catch((error) => {
+                                                res.status(400).send(error)
+                                            })
+                            })
+                            .catch((error) => {
+                                res.status(400).send(error)
+                            })
                     }
                 })
                 .catch((error) => {

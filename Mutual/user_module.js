@@ -4,13 +4,16 @@ const Cryptr = require('cryptr');
 secret = "wushuSecret";
 const cryptr = new Cryptr(secret);
 
-
+const userType = {
+    MANAGER: 1,
+    COACH: 2,
+    SPORTMAN: 3
+}
 
 function login(req,res) {
     var firstname;
     var id;
-    DButilsAzure.execQuery(`select * from user_Passwords
-            where Id = '${req.body.userID}'`)// AND password = '${pass}'`)
+    DButilsAzure.execQuery(`select * from user_Passwords where Id = '${req.body.userID}'`)// AND password = '${pass}'`)
         .then(async (result) => {
             if(result.length === 0)
                 res.status(401).send("Access denied. Error in user's details");
@@ -22,10 +25,10 @@ function login(req,res) {
                             result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where Id= '${result[0].Id}'`);
                             break;
                         case 2:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Couch where Id= '${result[0].Id}'`);
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Coach where Id= '${result[0].Id}'`);
                             break;
                         case 3:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportman where Id= '${result[0].Id}'`);
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportsman where Id= '${result[0].Id}'`);
                             break;
                     }
                     firstname = result1[0].firstname;
@@ -90,6 +93,14 @@ async function changePassword(req ,res){
         })
 
 }
+async function insertPassword(req, number, number2) {
+    console.log("insert password");
+    DButilsAzure.execQuery(`INSERT INTO user_Passwords (Id,password,usertype,isfirstlogin)
+                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${number}','${number2}')`)
+        .catch((error) => {
+            res.status(400).send(error)
+        })
+}
 
 function getSportclub(req,res)
 {
@@ -108,9 +119,11 @@ function downlaodExcelCoach(req,res){
 }
 
 
+//module.exports._userType = userType;
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
 module.exports._downloadSportsmanExcel=downlaodExcelSportsman;
 module.exports._changePass=changePassword;
 module.exports._getSportClubs=getSportclub;
 module.exports._downloadcoachExcel=downlaodExcelCoach;
+module.exports._insertPassword=insertPassword;
