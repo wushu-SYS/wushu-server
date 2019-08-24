@@ -8,7 +8,7 @@ const userType = {
     MANAGER: 1,
     COACH: 2,
     SPORTMAN: 3
-}
+};
 
 function login(req,res) {
     var firstname;
@@ -93,10 +93,10 @@ async function changePassword(req ,res){
         })
 
 }
-async function insertPassword(req, number, number2) {
+async function insertPassword(req, userType, isFirstTime) {
     console.log("insert password");
     DButilsAzure.execQuery(`INSERT INTO user_Passwords (Id,password,usertype,isfirstlogin)
-                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${number}','${number2}')`)
+                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${userType}','${isFirstTime}')`)
         .catch((error) => {
             res.status(400).send(error)
         })
@@ -119,7 +119,7 @@ function downlaodExcelCoach(req,res){
 }
 
 
-//module.exports._userType = userType;
+module.exports._userType = userType;
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
 module.exports._downloadSportsmanExcel=downlaodExcelSportsman;

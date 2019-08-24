@@ -39,7 +39,7 @@ function registerCoach(req,res) {
             res.status(400).send("The birthdate must be a valid date");
         }
         else {
-            DButilsAzure.execQuery(`select Id from user_Coach where Id = '${req.body.id}'`)
+            DButilsAzure.execQuery(`select Id from user_Passwords where Id = '${req.body.id}'`)
                 .then((result) => {
                     if (result.length > 0) {
                         res.status(403).send("The userName already registered")
@@ -48,17 +48,19 @@ function registerCoach(req,res) {
                             .then((result) => {
                                 if (result.length === 0)
                                     res.status(400).send("sportclub dosn't exists");
-                                req.body.birthdate = ( [ initial[1], initial[0], initial[2] ].join('/'));
-                                DButilsAzure.execQuery(` INSERT INTO user_Coach (Id, firstname, lastname, phone, email, birthdate, address, sportclub)
+                                else {
+                                    req.body.birthdate = ([initial[1], initial[0], initial[2]].join('/'));
+                                    DButilsAzure.execQuery(` INSERT INTO user_Coach (Id, firstname, lastname, phone, email, birthdate, address, sportclub)
                                      VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
-                                            .then(async () => {
-                                                await insertCoachTeam(req);
-                                                await mutual._insertPassword(req, 2, 1);
-                                                res.status(200).send("Registration completed successfully");
-                                            })
-                                            .catch((error) => {
-                                                res.status(400).send(error)
-                                            })
+                                        .then(async () => {
+                                            await insertCoachTeam(req);
+                                            await mutual._insertPassword(req, mutual._userType.COACH, 1);
+                                            res.status(200).send("Registration completed successfully");
+                                        })
+                                        .catch((error) => {
+                                            res.status(400).send(error)
+                                        })
+                                }
                             })
                             .catch((error) => {
                                 res.status(400).send(error)

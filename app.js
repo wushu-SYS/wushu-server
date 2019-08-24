@@ -2,7 +2,7 @@ var app =require ("express")();
 var DButilsAzure = require('./DButils');
 var bodyParser = require("body-parser");
 var Enum = require('enum');
-var userType = new Enum({'Manger': 1, 'Coach': 2, 'Sportsman': 3});
+userType = new Enum({'Manger': 1, 'Coach': 2, 'Sportsman': 3});
 var cors = require('cors')
 
 const jwt = require("jsonwebtoken");
