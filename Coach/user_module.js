@@ -23,7 +23,7 @@ function registerSportman(req, res) {
         branch: 'required'
     });
     var regex = new RegExp("^[\u0590-\u05fe]+$");
-    var initial = req.body.birthdate.split("-");
+    var initial = req.body.birthdate.split("/");
     validator.check().then(function (matched) {
         if (!matched) {
             res.status(400).send(validator.errors);
