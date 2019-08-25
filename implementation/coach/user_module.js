@@ -1,14 +1,6 @@
-var DButilsAzure = require('../DButils');
-const validation = require('node-input-validator');
-const jwt = require("jsonwebtoken");
-const Cryptr = require('cryptr');
-secret = "wushuSecret";
-const cryptr = new Cryptr(secret);
-const mutual = require("../Mutual/user_module");
-
+const mutual = require("../common/user_module");
 
 function registerSportman(req, res) {
-
     let validator = new validation(req.body, {
         id: 'required|integer|minLength:9|maxLength:9',
         firstname: 'required|lengthBetween:2,10',
@@ -52,13 +44,11 @@ function registerSportman(req, res) {
                                             if (result.length === 0)
                                                 res.status(400).send("coach dosn't exists");
                                             else {
-                                                console.log(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
-                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`);
-                                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex) 
-                                     VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
+                                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
+                                                        VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                                                     .then(async () => {
                                                         await insertSportsmanCategory(req);
-                                                        await mutual._insertPassword(req, mutual._userType.SPORTMAN, 1);
+                                                        await mutual._insertPassword(req, userType.SPORTSMAN, 1);
                                                         await insertCoach(req);
                                                         res.status(200).send("Registration completed successfully")
                                                     })
@@ -87,7 +77,6 @@ function registerSportman(req, res) {
 function watchProfile(req, res) {
 
 }
-
 
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");

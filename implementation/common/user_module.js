@@ -1,14 +1,6 @@
-var DButilsAzure = require('../DButils');
-const jwt = require("jsonwebtoken");
 const Cryptr = require('cryptr');
 secret = "wushuSecret";
 const cryptr = new Cryptr(secret);
-
-const userType = {
-    MANAGER: 1,
-    COACH: 2,
-    SPORTMAN: 3
-};
 
 function login(req,res) {
     var firstname;
@@ -69,9 +61,8 @@ function uploadPhoto(req,res){
     res.status(200).send("File upload successfully")
 }
 function downlaodExcelSportsman(req,res){
-    res.download('./Resources/Files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {
-})
-}
+    res.download('././resources/files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {}
+)}
 async function changePassword(req ,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
     await DButilsAzure.execQuery(`Select password from user_Passwords where Id='${id}';`)
@@ -93,17 +84,16 @@ async function changePassword(req ,res){
         })
 
 }
-async function insertPassword(req, userType, isFirstTime) {
+async function insertPassword(req, type, isFirstTime) {
     console.log("insert password");
     DButilsAzure.execQuery(`INSERT INTO user_Passwords (Id,password,usertype,isfirstlogin)
-                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${userType}','${isFirstTime}')`)
+                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${type}','${isFirstTime}')`)
         .catch((error) => {
             res.status(400).send(error)
         })
 }
 
-function getSportclub(req,res)
-{
+function getSportclub(req,res){
     DButilsAzure.execQuery(` Select id,name from sportclub`)
         .then((result) => {
             res.status(200).send(result)
@@ -114,12 +104,9 @@ function getSportclub(req,res)
 }
 
 function downlaodExcelCoach(req,res){
-    res.download('./Resources/Files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {
-    })
-}
+    res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
+)}
 
-
-module.exports._userType = userType;
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
 module.exports._downloadSportsmanExcel=downlaodExcelSportsman;

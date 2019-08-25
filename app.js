@@ -1,31 +1,29 @@
+DButilsAzure = require('./dBUtils');
 var app =require ("express")();
-var DButilsAzure = require('./DButils');
 var bodyParser = require("body-parser");
 var Enum = require('enum');
-userType = new Enum({'Manger': 1, 'Coach': 2, 'Sportsman': 3});
-var cors = require('cors')
-
-const jwt = require("jsonwebtoken");
-const Cryptr = require('cryptr');
+var cors = require('cors');
+jwt = require("jsonwebtoken");
+validation = require('node-input-validator');
 secret = "wushuSecret";
-const cryptr = new Cryptr(secret);
-const validation = require('node-input-validator');
-const mutual_user_module = require("./Mutual/user_module");
-const coach_user_module = require("./Coach/user_module");
-const sportsman_user_module = require("./Sportsman/user_module");
-const manger_user_module =require("./Manger/user_module");
+const mutual_user_module = require("./implementation/common/user_module");
+const coach_user_module = require("./implementation/coach/user_module");
+const sportsman_user_module = require("./implementation/sportsman/user_module");
+const manger_user_module =require("./implementation/manger/user_module");
 const multer = require('multer');
-global.__basedir = __dirname;
 
+//userType = new Enum({'Manger': 1, 'Coach': 2, 'sportsman': 3});
+userType = {
+    MANAGER: 1,
+    COACH: 2,
+    SPORTSMAN: 3
+}
+global.__basedir = __dirname;
 
 app.use(bodyParser.urlencoded({extend:true}));
 app.use(bodyParser.json());
-
-
 app.use(cors())
 app.options('*', cors())
-
-
 
 app.use("/private", (req, res, next) => {
     const token = req.header("x-auth-token");
@@ -44,30 +42,29 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/private/registerSportman", function(req, res){
-    if(jwt.decode(req.header("x-auth-token")).access!=userType.get("Sportsman"))
+    if(jwt.decode(req.header("x-auth-token")).access!=userType.SPORTSMAN)
         coach_user_module._registerSportman(req,res)
     else
         res.status(400).send("Permission denied");
 });
 app.post("/private/registerCoach",function (req,res) {
-    if(jwt.decode(req.header("x-auth-token")).access==userType.get("Manger"))
+    if(jwt.decode(req.header("x-auth-token")).access==userType.MANAGER)
         manger_user_module._registerCoach(req,res)
     else
         res.status(400).send("Permission denied")
 
 })
 app.post("/private/watchProfile",function (req,res) {
-    if(jwt.decode(req.header("x-auth-token")).access==userType.get("Manger"))
+    if(jwt.decode(req.header("x-auth-token")).access==userType.MANAGER)
         manger_user_module._watchProfile(req,res)
-    else if(jwt.decode(req.header("x-auth-token")).access==userType.get("Coach"))
+    else if(jwt.decode(req.header("x-auth-token")).access==userType.COACH)
         coach_user_module._watchProfile(req,res)
-    else if(jwt.decode(req.header("x-auth-token")).access==userType.get("Sportsman"))
+    else if(jwt.decode(req.header("x-auth-token")).access==userType.SPORTSMAN)
         sportsman_user_module._watchProfile(req,res)
     else
         res.status(400).send("Permission denied")
 
 })
-
 
 const storagePhoto = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -79,7 +76,7 @@ const storagePhoto = multer.diskStorage({
 });
 const uploadMedical = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, __basedir + '/uploads/Sportsman/MedicalScan/')
+        cb(null, __basedir + '/uploads/sportsman/MedicalScan/')
     },
     filename: (req, file, cb) => {
         cb(null, String(jwt.decode(req.header("x-auth-token")).id+".jpeg"))
@@ -87,29 +84,24 @@ const uploadMedical = multer.diskStorage({
 });
 const uploadInsurance = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, __basedir + '/uploads/Sportsman/InsuranceScan/')
+        cb(null, __basedir + '/uploads/sportsman/InsuranceScan/')
     },
     filename: (req, file, cb) => {
         cb(null, String(jwt.decode(req.header("x-auth-token")).id+".jpeg"))
     }
 });
-
 const uploadPhotos = multer({storage: storagePhoto});
 const uploadMedicals = multer({storage: uploadMedical});
 const uploadInsurances=multer({storage: uploadInsurance})
-
 app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) =>{
     mutual_user_module._uploadPhoto(req,res);
 });
-
 app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) =>{
     sportsman_user_module._uploadeMedical(req,res);
 });
-
 app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) =>{
     sportsman_user_module._uploadInsurances(req,res);
 });
-
 
 app.get('/downloadExcelSportsman', (req, res) =>{
     mutual_user_module._downloadSportsmanExcel(req,res);
@@ -126,8 +118,6 @@ app.post("/private/getCoaches",function (req,res) {
     manger_user_module._getCoaches(req,res)
 
 })
-
-
 app.post("/private/getClubs",function (req,res) {
     mutual_user_module._getSportClubs(req,res)
 

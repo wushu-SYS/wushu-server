@@ -1,11 +1,4 @@
-var DButilsAzure = require('../DButils');
-const validation = require('node-input-validator');
-const jwt = require("jsonwebtoken");
-const Cryptr = require('cryptr');
-secret = "wushuSecret";
-const cryptr = new Cryptr(secret);
-const mutual = require("../Mutual/user_module");
-
+const mutual = require("../common/user_module");
 
 function registerCoach(req,res) {
     let validator = new validation(req.body, {
@@ -54,7 +47,7 @@ function registerCoach(req,res) {
                                      VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
                                         .then(async () => {
                                             await insertCoachTeam(req);
-                                            await mutual._insertPassword(req, mutual._userType.COACH, 1);
+                                            await mutual._insertPassword(req, userType.COACH, 1);
                                             res.status(200).send("Registration completed successfully");
                                         })
                                         .catch((error) => {
