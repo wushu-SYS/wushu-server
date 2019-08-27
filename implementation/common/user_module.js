@@ -33,6 +33,7 @@ function login(req,res) {
                 const token = jwt.sign(payload, secret, options);
                 resultJson = {
                     'token' : token,
+                    'id' : result[0].Id,
                     'firstname' : firstname,
                     'lastname' : lastname,
                     'access' : result[0].usertype,
@@ -107,10 +108,35 @@ function downlaodExcelCoach(req,res){
     res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
 )}
 
+function getSportsmen(req, res){
+    DButilsAzure.execQuery(`Select Id,firstname,lastname from user_Sportsman`)
+        .then((result) => {
+            res.status(200).send(result)
+        })
+        .catch((eror) => {
+            res.status(400).send(eror)
+        })
+}
+function getCoachSportamen(req, res, id){
+    DButilsAzure.execQuery(` Select Id,firstname,lastname
+                    from user_Sportsman
+                    join sportsman_coach
+                    on user_Sportsman.Id = sportsman_coach.Idsportman
+                    where sportsman_coach.Idcoach = '${id}'`)
+        .then((result) => {
+            res.status(200).send(result)
+        })
+        .catch((eror) => {
+            res.status(400).send(eror)
+        })
+}
+
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
 module.exports._downloadSportsmanExcel=downlaodExcelSportsman;
 module.exports._changePass=changePassword;
 module.exports._getSportClubs=getSportclub;
+module.exports._getSportsmen = getSportsmen;
+module.exports._getCoachSportsmen = getCoachSportamen;
 module.exports._downloadcoachExcel=downlaodExcelCoach;
 module.exports._insertPassword=insertPassword;

@@ -6,7 +6,7 @@ var cors = require('cors');
 jwt = require("jsonwebtoken");
 validation = require('node-input-validator');
 secret = "wushuSecret";
-const mutual_user_module = require("./implementation/common/user_module");
+const common_user_module = require("./implementation/common/user_module");
 const coach_user_module = require("./implementation/coach/user_module");
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 const manger_user_module =require("./implementation/manger/user_module");
@@ -38,7 +38,7 @@ app.use("/private", (req, res, next) => {
     }
 });
 app.post("/login", (req, res) => {
-    mutual_user_module._login(req, res)
+    common_user_module._login(req, res)
 });
 
 app.post("/private/registerSportman", function(req, res){
@@ -94,7 +94,7 @@ const uploadPhotos = multer({storage: storagePhoto});
 const uploadMedicals = multer({storage: uploadMedical});
 const uploadInsurances=multer({storage: uploadInsurance})
 app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) =>{
-    mutual_user_module._uploadPhoto(req,res);
+    common_user_module._uploadPhoto(req,res);
 });
 app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) =>{
     sportsman_user_module._uploadeMedical(req,res);
@@ -104,24 +104,31 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
 });
 
 app.get('/downloadExcelSportsman', (req, res) =>{
-    mutual_user_module._downloadSportsmanExcel(req,res);
+    common_user_module._downloadSportsmanExcel(req,res);
 });
 app.get('/downloadExcelCoach', (req, res) =>{
-    mutual_user_module._downloadcoachExcel(req,res);
+    common_user_module._downloadcoachExcel(req,res);
 });
 
 app.post("/private/changePassword",function (req,res) {
-        mutual_user_module._changePass(req,res)
-})
+        common_user_module._changePass(req,res)
+});
 
 app.post("/private/getCoaches",function (req,res) {
     manger_user_module._getCoaches(req,res)
-
-})
+});
+app.post("/private/getSportsmen", function (req, res) {
+    if(jwt.decode(req.header("x-auth-token")).access === userType.MANAGER)
+        common_user_module._getSportsmen(req,res);
+    else if(jwt.decode(req.header("x-auth-token")).access === userType.COACH) {
+        id = jwt.decode(req.header("x-auth-token")).id;
+        common_user_module._getCoachSportsmen(req, res, id);
+    }
+});
 app.post("/private/getClubs",function (req,res) {
-    mutual_user_module._getSportClubs(req,res)
+    common_user_module._getSportClubs(req,res)
 
-})
+});
 
 
 //start the server

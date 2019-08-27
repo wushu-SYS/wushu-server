@@ -1,4 +1,4 @@
-const mutual = require("../common/user_module");
+const common = require("../common/user_module");
 
 function registerSportman(req, res) {
     let validator = new validation(req.body, {
@@ -48,7 +48,7 @@ function registerSportman(req, res) {
                                                         VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                                                     .then(async () => {
                                                         await insertSportsmanCategory(req);
-                                                        await mutual._insertPassword(req, userType.SPORTSMAN, 1);
+                                                        await common._insertPassword(req, userType.SPORTSMAN, 1);
                                                         await insertCoach(req);
                                                         res.status(200).send("Registration completed successfully")
                                                     })
