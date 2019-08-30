@@ -109,7 +109,7 @@ function downlaodExcelCoach(req,res){
 )}
 
 function getSportsmen(req, res){
-    DButilsAzure.execQuery(`Select Id,firstname,lastname from user_Sportsman`)
+    DButilsAzure.execQuery(`Select Id,firstname,lastname,photo from user_Sportsman`)
         .then((result) => {
             res.status(200).send(result)
         })
@@ -118,7 +118,7 @@ function getSportsmen(req, res){
         })
 }
 function getCoachSportamen(req, res, id){
-    DButilsAzure.execQuery(` Select Id,firstname,lastname
+    DButilsAzure.execQuery(` Select Id,firstname,lastname,photo
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.Id = sportsman_coach.Idsportman
