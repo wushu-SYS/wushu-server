@@ -1,6 +1,8 @@
 const Cryptr = require('cryptr');
 secret = "wushuSecret";
 const cryptr = new Cryptr(secret);
+const paginate = require('express-paginate');
+//const Users = db.model('Users')
 
 function login(req,res) {
     var firstname;
@@ -108,8 +110,25 @@ function downlaodExcelCoach(req,res){
     res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
 )}
 
+function getNumSportsmen(req, res){
+
+}
+function getNumCoachSportamen(req, res) {
+
+}
 function getSportsmen(req, res){
-    DButilsAzure.execQuery(`Select Id,firstname,lastname,photo from user_Sportsman`)
+    var query = '';
+    var conditions = buildConditions(req);
+    if(req.query.branch != undefined)
+        query = `Select user_Sportsman.Id, firstname, lastname, photo from user_Sportsman join sportsman_category
+            on user_Sportsman.Id = sportsman_category.Id`;
+    else
+        query = 'Select Id, firstname, lastname, photo from user_Sportsman';
+    query += conditions;
+    query += buildOrderBy(req);
+    console.log(query);
+
+    DButilsAzure.execQuery( query)
         .then((result) => {
             res.status(200).send(result)
         })
@@ -118,17 +137,61 @@ function getSportsmen(req, res){
         })
 }
 function getCoachSportamen(req, res, id){
-    DButilsAzure.execQuery(` Select Id,firstname,lastname,photo
+    var query = '';
+    var conditions = buildConditions(req, id);
+    if(req.query.branch != undefined)
+        query = `Select user_Sportsman.Id,firstname,lastname,photo
+                    from user_Sportsman
+                    join sportsman_category
+                    on user_Sportsman.Id = sportsman_category.Id
+                    join sportsman_coach
+                    on user_Sportsman.Id = sportsman_coach.Idsportman`;
+    else
+        query = `Select Id,firstname,lastname,photo
                     from user_Sportsman
                     join sportsman_coach
-                    on user_Sportsman.Id = sportsman_coach.Idsportman
-                    where sportsman_coach.Idcoach = '${id}'`)
+                    on user_Sportsman.Id = sportsman_coach.Idsportman`;
+    query += conditions;
+    query += buildOrderBy(req);
+
+    DButilsAzure.execQuery(query)
         .then((result) => {
             res.status(200).send(result)
         })
         .catch((eror) => {
             res.status(400).send(eror)
         })
+}
+function buildConditions(req, id){
+    let club = req.query.club;
+    let sex = req.query.sex;
+    let branch = req.query.branch;
+    let value = req.query.value;
+    var conditions = [];
+
+    if(id !== null && id != undefined) {
+        conditions.push(`sportsman_coach.Idcoach = '${id}'`);
+    }
+    if(value !== '' && value !== undefined) {
+        conditions.push("(firstname like '%" + value + "%' or lastname like '%" + value + "%')");
+    }
+    if(branch !== '' && branch !== undefined){
+        conditions.push("branch like '" + branch + "'");
+    }
+    if(club !== '' && club !== undefined){
+        conditions.push("sportclub like " + club);
+    }
+    if(sex !== '' && sex !== undefined){
+        conditions.push("sex like '" + sex + "'");
+    }
+    return conditions.length ? ' where ' + conditions.join(' and ') : '';
+}
+function buildOrderBy(req){
+    let sort = req.query.sort;
+    if(sort !== '' && sort !== undefined && sort === 'desc')
+        return ' order by firstname desc';
+    else
+        return ' order by firstname';
 }
 
 module.exports._login = login;
@@ -138,5 +201,7 @@ module.exports._changePass=changePassword;
 module.exports._getSportClubs=getSportclub;
 module.exports._getSportsmen = getSportsmen;
 module.exports._getCoachSportsmen = getCoachSportamen;
+module.exports._getNumSportsmen = getNumSportsmen;
+module.exports._getNumCoachSportsmen = getNumCoachSportamen;
 module.exports._downloadcoachExcel=downlaodExcelCoach;
 module.exports._insertPassword=insertPassword;

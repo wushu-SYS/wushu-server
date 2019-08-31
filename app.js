@@ -114,6 +114,14 @@ app.post("/private/changePassword",function (req,res) {
         common_user_module._changePass(req,res)
 });
 
+app.post("/private/numSportsmen", function (req, res) {
+    if(jwt.decode(req.header("x-auth-token")).access === userType.MANAGER)
+        common_user_module._getNumSportsmen(req,res);
+    else if(jwt.decode(req.header("x-auth-token")).access === userType.COACH) {
+        id = jwt.decode(req.header("x-auth-token")).id;
+        common_user_module._getNumCoachSportsmen(req, res, id);
+    }
+});
 app.post("/private/getCoaches",function (req,res) {
     manger_user_module._getCoaches(req,res)
 });
