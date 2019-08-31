@@ -73,11 +73,6 @@ function registerSportman(req, res) {
         }
     });
 }
-
-function watchProfile(req, res) {
-
-}
-
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");
     DButilsAzure.execQuery(`INSERT INTO sportsman_category (Id,branch)
@@ -86,7 +81,6 @@ async function insertSportsmanCategory(req) {
             res.status(400).send(error)
         })
 }
-
 async function insertCoach(req) {
     console.log("insert coach");
     DButilsAzure.execQuery(`INSERT INTO sportsman_coach (Idsportman,Idcoach)
@@ -96,6 +90,4 @@ async function insertCoach(req) {
         })
 }
 
-
 module.exports._registerSportman = registerSportman;
-module.exports._watchProfile = watchProfile;
