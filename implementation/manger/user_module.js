@@ -32,7 +32,7 @@ function registerCoach(req,res) {
             res.status(400).send("The birthdate must be a valid date");
         }
         else {
-            DButilsAzure.execQuery(`select Id from user_Passwords where Id = '${req.body.id}'`)
+            DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
                 .then((result) => {
                     if (result.length > 0) {
                         res.status(403).send("The userName already registered")
@@ -43,7 +43,7 @@ function registerCoach(req,res) {
                                     res.status(400).send("sportclub dosn't exists");
                                 else {
                                     req.body.birthdate = ([initial[1], initial[0], initial[2]].join('/'));
-                                    DButilsAzure.execQuery(` INSERT INTO user_Coach (Id, firstname, lastname, phone, email, birthdate, address, sportclub)
+                                    DButilsAzure.execQuery(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub)
                                      VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
                                         .then(async () => {
                                             await insertCoachTeam(req);
@@ -68,7 +68,7 @@ function registerCoach(req,res) {
 }
 async function insertCoachTeam(req) {
     console.log("insert coach team");
-    DButilsAzure.execQuery(`INSERT INTO coach_team (Id,branch,teamname)
+    DButilsAzure.execQuery(`INSERT INTO coach_team (id,branch,teamname)
                     Values ('${req.body.id}','${req.body.branch}','${req.body.teamname}')`)
         .catch((error) => {
             res.status(400).send(error)

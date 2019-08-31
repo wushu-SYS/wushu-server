@@ -28,7 +28,7 @@ function registerSportman(req, res) {
         } else if (req.body.sex != "זכר" && req.body.sex != "נקבה") {
             res.status(400).send("The sex field is not valid");
         } else {
-            DButilsAzure.execQuery(`select Id from user_Passwords where Id = '${req.body.id}'`)
+            DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
                 .then((result) => {
                     if (result.length > 0) {
                         res.status(403).send("The userName already registered")
@@ -39,12 +39,12 @@ function registerSportman(req, res) {
                                     res.status(400).send("sportclub dosn't exists");
                                 else {
                                     req.body.birthdate = ([initial[1], initial[0], initial[2]].join('/'));
-                                    DButilsAzure.execQuery(`select id from user_Coach where Id = '${req.body.idCoach}'`)
+                                    DButilsAzure.execQuery(`select id from user_Coach where id = '${req.body.idCoach}'`)
                                         .then((result) => {
                                             if (result.length === 0)
                                                 res.status(400).send("coach dosn't exists");
                                             else {
-                                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (Id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
+                                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
                                                         VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                                                     .then(async () => {
                                                         await insertSportsmanCategory(req);
@@ -75,7 +75,7 @@ function registerSportman(req, res) {
 }
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");
-    DButilsAzure.execQuery(`INSERT INTO sportsman_category (Id,branch)
+    DButilsAzure.execQuery(`INSERT INTO sportsman_category (id,branch)
                     Values ('${req.body.id}','${req.body.branch}')`)
         .catch((error) => {
             res.status(400).send(error)
@@ -83,7 +83,7 @@ async function insertSportsmanCategory(req) {
 }
 async function insertCoach(req) {
     console.log("insert coach");
-    DButilsAzure.execQuery(`INSERT INTO sportsman_coach (Idsportman,Idcoach)
+    DButilsAzure.execQuery(`INSERT INTO sportsman_coach (idSportman,idCoach)
                     Values ('${req.body.id}','${req.body.idCoach}')`)
         .catch((error) => {
             res.status(400).send(error)

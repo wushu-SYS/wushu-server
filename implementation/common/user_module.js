@@ -5,7 +5,7 @@ const cryptr = new Cryptr(secret);
 function login(req,res) {
     var firstname;
     var id;
-    DButilsAzure.execQuery(`select * from user_Passwords where Id = '${req.body.userID}'`)// AND password = '${pass}'`)
+    DButilsAzure.execQuery(`select * from user_Passwords where id = '${req.body.userID}'`)// AND password = '${pass}'`)
         .then(async (result) => {
             if(result.length === 0)
                 res.status(401).send("Access denied. Error in user's details");
@@ -14,13 +14,13 @@ function login(req,res) {
                 if(pass===(req.body.password)) {
                     switch (result[0].usertype) {
                         case 1:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where Id= '${result[0].Id}'`);
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where id= '${result[0].id}'`);
                             break;
                         case 2:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Coach where Id= '${result[0].Id}'`);
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Coach where id= '${result[0].id}'`);
                             break;
                         case 3:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportsman where Id= '${result[0].Id}'`);
+                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportsman where id= '${result[0].id}'`);
                             break;
                     }
                     firstname = result1[0].firstname;
@@ -28,12 +28,12 @@ function login(req,res) {
                 }
                 else
                     res.status(401).send("Access denied. Error in user's details");
-                payload = { id: result[0].Id, name: firstname, access:result[0].usertype};
+                payload = { id: result[0].id, name: firstname, access:result[0].usertype};
                 options = { expiresIn: "1d" };
                 const token = jwt.sign(payload, secret, options);
                 resultJson = {
                     'token' : token,
-                    'id' : result[0].Id,
+                    'id' : result[0].id,
                     'firstname' : firstname,
                     'lastname' : lastname,
                     'access' : result[0].usertype,
@@ -50,13 +50,13 @@ function uploadPhoto(req,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
     switch (jwt.decode(req.header("x-auth-token")).access) {
         case 1:
-            DButilsAzure.execQuery(`UPDATE user_Manger SET picture ='${"./uploades/Photos/"+id+".jpeg"}' WHERE Id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Manger SET picture ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
             break;
         case 2:
-            DButilsAzure.execQuery(`UPDATE user_Coach SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE Id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Coach SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
             break;
         case 3:
-            DButilsAzure.execQuery(`UPDATE user_Sportsman SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE Id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Sportsman SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
             break;
     }
     res.status(200).send("File upload successfully")
@@ -66,12 +66,12 @@ function downloadExcelSportsman(req,res){
 )}
 async function changePassword(req ,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
-    await DButilsAzure.execQuery(`Select password from user_Passwords where Id='${id}';`)
+    await DButilsAzure.execQuery(`Select password from user_Passwords where id='${id}';`)
         .then((result)=>{
             if(cryptr.decrypt(result[0].password)==req.body.password)
                 res.status(401).send("Password are the same cant change")
             else
-                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where Id='${id}';`)
+                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where id='${id}';`)
                     .then(()=>{
                             res.status(200).send("password update successfully")
                         }
@@ -87,7 +87,7 @@ async function changePassword(req ,res){
 }
 async function insertPassword(req, type, isFirstTime) {
     console.log("insert password");
-    DButilsAzure.execQuery(`INSERT INTO user_Passwords (Id,password,usertype,isfirstlogin)
+    DButilsAzure.execQuery(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
                     Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${type}','${isFirstTime}')`)
         .catch((error) => {
             res.status(400).send(error)
@@ -98,13 +98,13 @@ function downlaodExcelCoach(req,res){
 )}
 
 // function sportsmanProfile(req, res){
-//     DButilsAzure.execQuery(`Select * from user_Sportsman where Id like ${req.body.Id}`)
+//     DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
 //         .then((result) => {
 //             if(jwt.decode(req.header("x-auth-token")).access===userType.MANAGER)
 //                 res.status(200).send(result);
 //             else if(jwt.decode(req.header("x-auth-token")).access===userType.COACH)
 //                 res.status(500).send("NEED TO IMPLEMENT IT");
-//             else if(jwt.decode(req.header("x-auth-token")).access === userType.SPORTSMAN && jwt.decode(req.header("x-auth-token")).id === result[0].Id)
+//             else if(jwt.decode(req.header("x-auth-token")).access === userType.SPORTSMAN && jwt.decode(req.header("x-auth-token")).id === result[0].id)
 //                 res.status(200).send(result);
 //             else
 //                 res.status(400).send("Permission denied")

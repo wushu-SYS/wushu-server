@@ -6,7 +6,7 @@ function buildConditions_forGetSportsmen(req, id){
     var conditions = [];
 
     if(id !== null && id != undefined) {
-        conditions.push(`sportsman_coach.Idcoach = '${id}'`);
+        conditions.push(`sportsman_coach.idCoach = '${id}'`);
     }
     if(value !== '' && value !== undefined) {
         conditions.push("(firstname like '%" + value + "%' or lastname like '%" + value + "%')");
@@ -31,7 +31,7 @@ function buildOrderBy_forGetSportsmen(req){
 }
 
 function sportsmanProfile(req, res){
-    DButilsAzure.execQuery(`Select * from user_Sportsman where Id like ${req.body.id}`)
+    DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
         .then((result) => {
             res.status(200).send(result)
         })

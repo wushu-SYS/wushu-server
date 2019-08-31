@@ -1,5 +1,5 @@
 function getCoaches(req, res) {
-    DButilsAzure.execQuery(` Select Id,firstname,lastname from user_Coach`)
+    DButilsAzure.execQuery(` Select id,firstname,lastname from user_Coach`)
         .then((result) => {
             res.status(200).send(result)
         })

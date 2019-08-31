@@ -7,17 +7,17 @@ function getSportsmen(req, res, id){
     var query = '';
     var conditions = common_sportsman_module._buildConditions_forGetSportsmen(req, id);
     if(req.query.branch !== undefined)
-        query = `Select user_Sportsman.Id,firstname,lastname,photo
+        query = `Select user_Sportsman.id,firstname,lastname,photo
                     from user_Sportsman
                     join sportsman_category
-                    on user_Sportsman.Id = sportsman_category.Id
+                    on user_Sportsman.id = sportsman_category.id
                     join sportsman_coach
-                    on user_Sportsman.Id = sportsman_coach.Idsportman`;
+                    on user_Sportsman.id = sportsman_coach.idSportman`;
     else
-        query = `Select Id,firstname,lastname,photo
+        query = `Select id,firstname,lastname,photo
                     from user_Sportsman
                     join sportsman_coach
-                    on user_Sportsman.Id = sportsman_coach.Idsportman`;
+                    on user_Sportsman.id = sportsman_coach.idSportman`;
     query += conditions;
     query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
 
