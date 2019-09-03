@@ -118,12 +118,6 @@ app.post("/private/changePassword",function (req,res) {
     common_user_module._changePass(req,res)
 });
 
-app.post("/private/numSportsmen", function (req, res) {
-    if(access === userType.MANAGER)
-        manger_sportsman_module._getNumSportsmen(req, res);
-    else if(access === userType.COACH)
-        coach_sportsman_module._getNumSportsmen(req, res, id);
-});
 app.post("/private/getCoaches",function (req,res) {
     if(access !== userType.SPORTSMAN)
         common_couches_module._getCoaches(req, res);
