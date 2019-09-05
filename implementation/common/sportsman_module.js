@@ -33,7 +33,7 @@ function buildOrderBy_forGetSportsmen(req){
 function sportsmanProfile(req, res){
     DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
         .then((result) => {
-            res.status(200).send(result)
+            res.status(200).send(result[0])
         })
         .catch((error) => {
             res.status(400).send(error)
