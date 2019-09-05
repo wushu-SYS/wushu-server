@@ -1,17 +1,18 @@
-const Cryptr = require('cryptr');
-secret = "wushuSecret";
-const cryptr = new Cryptr(secret);
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 function login(req,res) {
+    var isAuthorized=false;
     var firstname;
+    var lastname;
     var id;
     DButilsAzure.execQuery(`select * from user_Passwords where id = '${req.body.userID}'`)// AND password = '${pass}'`)
         .then(async (result) => {
             if(result.length === 0)
                 res.status(401).send("Access denied. Error in user's details");
             else{
-                var pass =cryptr.decrypt(result[0].password);
-                if(pass===(req.body.password)) {
+                isAuthorized =bcrypt.compareSync(req.body.password, result[0].password);
+                if(isAuthorized) {
                     switch (result[0].usertype) {
                         case 1:
                             result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where id= '${result[0].id}'`);
@@ -24,7 +25,7 @@ function login(req,res) {
                             break;
                     }
                     firstname = result1[0].firstname;
-                    lastname = result[0].lastname;
+                    lastname = result1[0].lastname;
                 }
                 else
                     res.status(401).send("Access denied. Error in user's details");
@@ -65,20 +66,24 @@ function downloadExcelSportsman(req,res){
     res.download('././resources/files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {}
 )}
 async function changePassword(req ,res){
+    var isThesame=false;
     var id =jwt.decode(req.header("x-auth-token")).id;
     await DButilsAzure.execQuery(`Select password from user_Passwords where id='${id}';`)
         .then((result)=>{
-            if(cryptr.decrypt(result[0].password)==req.body.password)
+            isThesame =bcrypt.compareSync(req.body.password, result[0].password);
+              if(isThesame)
                 res.status(401).send("Password are the same cant change")
-            else
-                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${cryptr.encrypt(req.body.password)}',isFirstLogin = 0 where id='${id}';`)
-                    .then(()=>{
-                            res.status(200).send("password update successfully")
-                        }
-                    )
-                    .catch((error)=>{
-                        res.status(404).send(error);
-                    })
+            else {
+                  var hash = bcrypt.hashSync(req.body.password, saltRounds);
+                  DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${hash}',isFirstLogin = 0 where id='${id}';`)
+                      .then(() => {
+                              res.status(200).send("password update successfully")
+                          }
+                      )
+                      .catch((error) => {
+                          res.status(404).send(error);
+                      })
+              }
         })
         .catch((error)=>{
             res.status(404).send(error);
@@ -86,9 +91,9 @@ async function changePassword(req ,res){
 
 }
 async function insertPassword(req, type, isFirstTime) {
-    console.log("insert password");
+    var hash = bcrypt.hashSync(req.body.id, saltRounds);
     DButilsAzure.execQuery(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
-                    Values ('${req.body.id}','${cryptr.encrypt(req.body.id)}','${type}','${isFirstTime}')`)
+                    Values ('${req.body.id}','${hash}','${type}','${isFirstTime}')`)
         .catch((error) => {
             res.status(400).send(error)
         })
