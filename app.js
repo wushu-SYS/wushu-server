@@ -20,6 +20,7 @@ const coach_user_module = require("./implementation/coach/user_module");
 
 const manger_sportsman_module =require("./implementation/manger/sportsman_module");
 const manger_user_module =require("./implementation/manger/user_module");
+const manger_competition_module=require("./implementation/manger/competition_module");
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
@@ -29,6 +30,12 @@ userType = {
     COACH: 2,
     SPORTSMAN: 3
 };
+
+eventType={
+    competition: 'תחרות',
+    event : 'אירוע'
+}
+
 global.__basedir = __dirname;
 
 app.use(bodyParser.urlencoded({extend:true}));
@@ -148,7 +155,12 @@ app.post("/private/sportsmanProfile",function (req,res) {
             common_sportsman_module._sportsmanProfile(id, res);
     }
 });
-
+app.post("/private/addCompetition", function (req, res) {
+    if(access === userType.MANAGER)
+        manger_competition_module._addCompetition(req, res);
+    else
+        res.status(400).send("Permission denied")
+});
 
 //start the server
 app.listen(3000,()=>{
