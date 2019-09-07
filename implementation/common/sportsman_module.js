@@ -30,8 +30,13 @@ function buildOrderBy_forGetSportsmen(req){
         return ' order by firstname';
 }
 
-function sportsmanProfile(req, res){
-    DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
+function sportsmanProfile(id, res){
+    DButilsAzure.execQuery(`Select user_Sportsman.id, user_Sportsman.firstname as sfirstname, user_Sportsman.lastname as slastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club
+                                    from user_Sportsman
+                                    join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
+                                    join user_Coach on sportsman_coach.idCoach = user_Coach.id
+                                    join sportclub on user_Sportsman.sportclub = sportclub.id
+                                    where user_Sportsman.id like ${id}`)
         .then((result) => {
             res.status(200).send(result[0])
         })
