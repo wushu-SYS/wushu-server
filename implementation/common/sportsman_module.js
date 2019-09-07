@@ -1,7 +1,7 @@
 function buildConditions_forGetSportsmen(req, id){
     let club = req.query.club;
     let sex = req.query.sex;
-    let branch = req.query.branch;
+    let sportStyle = req.query.sportStyle;
     let value = req.query.value;
     var conditions = [];
 
@@ -11,8 +11,8 @@ function buildConditions_forGetSportsmen(req, id){
     if(value !== '' && value !== undefined) {
         conditions.push("(firstname like '%" + value + "%' or lastname like '%" + value + "%')");
     }
-    if(branch !== '' && branch !== undefined){
-        conditions.push("branch like '" + branch + "'");
+    if(sportStyle !== '' && sportStyle !== undefined){
+        conditions.push("sportStyle like '" + sportStyle + "'");
     }
     if(club !== '' && club !== undefined){
         conditions.push("sportclub like " + club);

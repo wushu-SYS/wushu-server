@@ -12,7 +12,7 @@ function registerSportman(req, res) {
         idCoach: 'required',
         birthdate: 'required',
         sex: 'required',
-        branch: 'required'
+        sportStyle: 'required'
     });
     var regex = new RegExp("^[\u0590-\u05fe]+$");
     var initial = req.body.birthdate.split("/");
@@ -75,8 +75,8 @@ function registerSportman(req, res) {
 }
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");
-    DButilsAzure.execQuery(`INSERT INTO sportsman_category (id,branch)
-                    Values ('${req.body.id}','${req.body.branch}')`)
+    DButilsAzure.execQuery(`INSERT INTO sportsman_category (id,sportStyle)
+                    Values ('${req.body.id}','${req.body.sportStyle}')`)
         .catch((error) => {
             res.status(400).send(error)
         })
