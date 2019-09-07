@@ -138,10 +138,14 @@ app.post("/private/getClubs",function (req,res) {
 });
 
 app.post("/private/sportsmanProfile",function (req,res) {
-    if(access === userType.SPORTSMAN && id !== req.body.id)
+    if(req.body.id !== undefined && access === userType.SPORTSMAN && id !== req.body.id)
         res.status(400).send("Permission denied");
-    else
-        common_sportsman_module._sportsmanProfile(req, res);
+    else {
+        if(req.body.id !==undefined)
+            common_sportsman_module._sportsmanProfile(req.body.id, res);
+        else
+            common_sportsman_module._sportsmanProfile(id, res);
+    }
 });
 
 
