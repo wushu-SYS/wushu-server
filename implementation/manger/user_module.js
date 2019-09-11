@@ -10,7 +10,7 @@ function registerCoach(req,res) {
         email: 'required|email',
         sportclub: 'required',
         birthdate: 'required',
-        branch: 'required',
+        sportStyle: 'required',
         teamname: 'required'
     });
     var regex = new RegExp("^[\u0590-\u05fe]+$");
@@ -68,8 +68,8 @@ function registerCoach(req,res) {
 }
 async function insertCoachTeam(req) {
     console.log("insert coach team");
-    DButilsAzure.execQuery(`INSERT INTO coach_team (id,branch,teamname)
-                    Values ('${req.body.id}','${req.body.branch}','${req.body.teamname}')`)
+    DButilsAzure.execQuery(`INSERT INTO coach_team (id,sportStyle,teamname)
+                    Values ('${req.body.id}','${req.body.sportStyle}','${req.body.teamname}')`)
         .catch((error) => {
             res.status(400).send(error)
         })

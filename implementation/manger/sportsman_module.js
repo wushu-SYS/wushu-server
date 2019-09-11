@@ -4,7 +4,7 @@ function getSportsmen(req, res){
     var query = '';
     var queryCount = '';
     var conditions = common_sportsman_module._buildConditions_forGetSportsmen(req);
-    if(req.query.branch != undefined) {
+    if(req.query.sportStyle != undefined) {
         query = `Select user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_category
             on user_Sportsman.id = sportsman_category.id`;
         queryCount = `Select count(*) as count from user_Sportsman join sportsman_category

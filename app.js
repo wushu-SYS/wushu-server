@@ -14,9 +14,11 @@ const common_couches_module = require("./implementation/common/couches_module");
 const common_sportclub_module = require("./implementation/common/sportclub_module");
 const common_sportsman_module = require("./implementation/common/sportsman_module");
 const common_user_module = require("./implementation/common/user_module");
+const common_competition_module = require("./implementation/common/competition_module");
 
 const coach_sportsman_module = require("./implementation/coach/sportsman_module");
 const coach_user_module = require("./implementation/coach/user_module");
+const coach_competition_module=require("./implementation/coach/competition_module");
 
 const manger_sportsman_module =require("./implementation/manger/sportsman_module");
 const manger_user_module =require("./implementation/manger/user_module");
@@ -162,6 +164,29 @@ app.post("/private/addCompetition", function (req, res) {
         res.status(400).send("Permission denied")
 });
 
+app.post("/private/getCompetitions",function (req,res) {
+    if(access===userType.MANAGER||access===userType.COACH)
+        manger_competition_module._getCompetition(req,res);
+    else
+        res.status(400).send("Permission denied")
+
+})
+app.post("/private/getCompetitionDetail",function (req,res) {
+    if(access===userType.MANAGER||access===userType.COACH||access===userType.SPORTSMAN)
+        common_competition_module._getDetail(req,res);
+    else
+        res.status(400).send("Permission denied")
+
+})
+
+app.post("/private/getCoachSportsman",function (req,res) {
+    if(access===userType.MANAGER||access===userType.COACH)
+        coach_competition_module._getCoachSportsman(req,res,id);
+    else
+        res.status(400).send("Permission denied")
+
+
+})
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");

@@ -6,18 +6,57 @@ var status={
 }
 
 function addCompetition(req, res) {
-    DButilsAzure.execQuery(` INSERT INTO events (location,type,date,startHour)
-                                    VALUES ('${req.body.location}','${eventType.competition}','${req.body.eventDate}','${req.body.startHour}');`)
-        .then((result) => {
-            DButilsAzure.execQuery(` INSERT INTO events_competition (branch,description,closeRegDate,closeRegTime,status)
-                                    VALUES ('${req.body.branch}','${req.body.description}','${req.body.closeDate}','${req.body.closeTime}','${status.open}');`)
+    let validator = new validation(req.body, {
+        location: 'required',
+        eventDate: 'required',
+        startHour: 'required',
+        sportStyle: 'required',
+        closeDate: 'required',
+        closeTime: 'required',
+        description: 'required',
+        city: 'required'
+    });
+    var regexHebrew = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
+    var regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
+    validator.check().then(function (matched) {
+        if (!matched) {
+            res.status(400).send(validator.errors);
+        } else if (!regexHebrew.test(req.body.description)) {
+            res.status(400).send("Description name must be in hebrew");
+        } else if (!regexHebrewAndNumbers.test(req.body.location)) {
+            res.status(400).send("Location name must be in hebrew");
+        } else if (req.body.eventDate.split("/").length != 3) {
+            res.status(400).send("The eventDate must be a valid date");
+        } else if (req.body.startHour.split(":").length != 2) {
+            res.status(400).send("The startHour must be a valid date");
+        } else if (req.body.closeDate.split("/").length != 3) {
+            res.status(400).send("The closeDate must be a valid date");
+        } else if (req.body.closeTime.split(":").length != 2) {
+            res.status(400).send("The closeTime must be a valid date");
+        } else if (req.body.sportStyle != 'טאולו' && req.body.sportStyle != 'סנדא') {
+            res.status(400).send("The sportStyle must be valid");
+        } else if (!regexHebrewAndNumbers.test(req.body.city)) {
+            res.status(400).send("city name must be in hebrew");
+        } else {
+            DButilsAzure.execQuery(` INSERT INTO events (location,type,date,startHour,city)
+                                    output inserted.idEvent
+                                    VALUES ('${req.body.location}','${eventType.competition}','${req.body.eventDate}','${req.body.startHour}','${req.body.city}');`)
+                .then((result) => {
+                    DButilsAzure.execQuery(` INSERT INTO events_competition (sportStyle,description,closeRegDate,closeRegTime,status,idEvent)
+                                    VALUES ('${req.body.sportStyle}','${req.body.description}','${req.body.closeDate}','${req.body.closeTime}','${status.open}','${result[0].idEvent}');`)
 
-                .then((result1)=>{
-                    res.status(200).send("Competition addded successfully")
+                        .then((result1) => {
+                            res.status(200).send("Competition addded successfully")
+                        })
+                        .catch((eror) => {
+                            res.status(400).send(eror)
+                        })
                 })
-                .catch((eror)=>{res.status(400).send(eror)})
-        })
-        .catch((eror) => {res.status(400).send(eror)})
+                .catch((eror) => {
+                    res.status(400).send(eror)
+                })
+        }
+    })
 }
 
 function editCompetition(req, res) {
@@ -26,7 +65,7 @@ function editCompetition(req, res) {
                                     where idEvent ='${req.body.eventId}';`)
         .then((result) => {
             DButilsAzure.execQuery(` Update events_competition 
-                                            set branch=${req.body.branch},description='${req.body.description}',closeRegDate='${req.body.closeDate}',closeRegTime='${req.body.closeTime}',status=''${req.body.status}
+                                            set sportStyle=${req.body.sportStyle},description='${req.body.description}',closeRegDate='${req.body.closeDate}',closeRegTime='${req.body.closeTime}',status=''${req.body.status}
                                             where idCompetition ='${req.body.idCompetition}';`)
                 .then((result1)=>{
                     res.status(200).send("Competition update successfully")
@@ -36,4 +75,15 @@ function editCompetition(req, res) {
         .catch((eror) => {res.status(400).send(eror)})
 }
 
+
+function getAllCompetitions(req ,res){
+    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
+                                   left join events on events_competition.idEvent = events.idEvent`)
+        .then((result) => {
+            res.status(200).send(result);
+        })
+        .catch((eror) => {res.status(400).send(eror)})
+}
+
 module.exports._addCompetition = addCompetition;
+module.exports._getCompetition =getAllCompetitions;
