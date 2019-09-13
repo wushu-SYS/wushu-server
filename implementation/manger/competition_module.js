@@ -85,5 +85,16 @@ function getAllCompetitions(req ,res){
         .catch((eror) => {res.status(400).send(eror)})
 }
 
+function getAllSportsman(req,res){
+     DButilsAzure.execQuery(`select id,firstname,lastname from user_Sportsman`)
+         .then((result) => {
+             res.status(200).send(result)
+         })
+         .catch((err) => {res.status(400).send(err)})
+}
+
+
+
 module.exports._addCompetition = addCompetition;
 module.exports._getCompetition =getAllCompetitions;
+module.exports._getAllSportsman =getAllSportsman;
