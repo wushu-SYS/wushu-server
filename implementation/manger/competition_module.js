@@ -75,14 +75,30 @@ function editCompetition(req, res) {
         .catch((eror) => {res.status(400).send(eror)})
 }
 
-
 function getAllCompetitions(req ,res){
-    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
-                                   left join events on events_competition.idEvent = events.idEvent`)
-        .then((result) => {
-            res.status(200).send(result);
+    let isOpen = req.query.isOpen != null && req.query.isOpen !== undefined ? (req.query.isOpen == 'true' ? 'פתוח' : 'סגור') : '';
+    let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
+                                   left join events on events_competition.idEvent = events.idEvent`;
+    let queryCount = `select count(*) as count from events_competition 
+                        left join events on events_competition.idEvent = events.idEvent`;
+    if(isOpen !== '') {
+        let whereStat = ` where events_competition.status like '${isOpen}'`;
+        query += whereStat;
+        queryCount += whereStat;
+    }
+    query += ` order by events.date`;
+
+    Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
+        .then(result => {
+            resultJson = {
+                competitions : result[0],
+                totalCount : result[1][0].count
+            };
+            res.status(200).send(resultJson);
         })
-        .catch((eror) => {res.status(400).send(eror)})
+        .catch((error) => {
+            res.status(400).send(error)
+        });
 }
 
 function getAllSportsman(req,res){
