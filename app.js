@@ -59,7 +59,7 @@ app.use("/private", (req, res, next) => {
         next();
     } catch (exception) {
         console.log(token)
-        res.status(400).send("Invalid token.");
+        res.status(400).send("Invalid token. Permission denied");
     }
 });
 app.post("/login", (req, res) => {
