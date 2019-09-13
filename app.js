@@ -180,8 +180,10 @@ app.post("/private/getCompetitionDetail",function (req,res) {
 })
 
 app.post("/private/getCoachSportsman",function (req,res) {
-    if(access===userType.MANAGER||access===userType.COACH)
+    if(access===userType.COACH)
         coach_competition_module._getCoachSportsman(req,res,id);
+    else if(access===userType.MANAGER)
+        manger_competition_module._getAllSportsman(req, res);
     else
         res.status(400).send("Permission denied")
 
