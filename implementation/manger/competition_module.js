@@ -76,16 +76,13 @@ function editCompetition(req, res) {
 }
 
 function getAllCompetitions(req ,res){
-    let isOpen = req.query.isOpen != null && req.query.isOpen !== undefined ? (req.query.isOpen == 'true' ? 'פתוח' : 'סגור') : '';
     let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
                                    left join events on events_competition.idEvent = events.idEvent`;
     let queryCount = `select count(*) as count from events_competition 
                         left join events on events_competition.idEvent = events.idEvent`;
-    if(isOpen !== '') {
-        let whereStat = ` where events_competition.status like '${isOpen}'`;
-        query += whereStat;
-        queryCount += whereStat;
-    }
+    let whereStat = buildConditions_forGetCompetitions(req);
+    query += whereStat;
+    queryCount += whereStat;
     query += ` order by events.date`;
 
     Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
@@ -99,6 +96,23 @@ function getAllCompetitions(req ,res){
         .catch((error) => {
             res.status(400).send(error)
         });
+}
+function buildConditions_forGetCompetitions(req){
+    let location = req.query.location;
+    let sportStyle = req.query.sportStyle;
+    let status = req.query.status;
+    var conditions = [];
+
+    if(location !== '' && location !== undefined) {
+        conditions.push("(events.city like '%" + location + "%' or events.location like '%" + location + "%')");
+    }
+    if(sportStyle !== '' && sportStyle !== undefined){
+        conditions.push("events_competition.sportStyle like '" + sportStyle + "'");
+    }
+    if(status !== '' && status !== undefined){
+        conditions.push("events_competition.status like '" + status + "'");
+    }
+    return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
 
 function getAllSportsman(req,res){
