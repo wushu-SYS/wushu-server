@@ -75,14 +75,44 @@ function editCompetition(req, res) {
         .catch((eror) => {res.status(400).send(eror)})
 }
 
-
 function getAllCompetitions(req ,res){
-    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
-                                   left join events on events_competition.idEvent = events.idEvent`)
-        .then((result) => {
-            res.status(200).send(result);
+    let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
+                                   left join events on events_competition.idEvent = events.idEvent`;
+    let queryCount = `select count(*) as count from events_competition 
+                        left join events on events_competition.idEvent = events.idEvent`;
+    let whereStat = buildConditions_forGetCompetitions(req);
+    query += whereStat;
+    queryCount += whereStat;
+    query += ` order by events.date`;
+
+    Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
+        .then(result => {
+            resultJson = {
+                competitions : result[0],
+                totalCount : result[1][0].count
+            };
+            res.status(200).send(resultJson);
         })
-        .catch((eror) => {res.status(400).send(eror)})
+        .catch((error) => {
+            res.status(400).send(error)
+        });
+}
+function buildConditions_forGetCompetitions(req){
+    let location = req.query.location;
+    let sportStyle = req.query.sportStyle;
+    let status = req.query.status;
+    var conditions = [];
+
+    if(location !== '' && location !== undefined) {
+        conditions.push("(events.city like '%" + location + "%' or events.location like '%" + location + "%')");
+    }
+    if(sportStyle !== '' && sportStyle !== undefined){
+        conditions.push("events_competition.sportStyle like '" + sportStyle + "'");
+    }
+    if(status !== '' && status !== undefined){
+        conditions.push("events_competition.status like '" + status + "'");
+    }
+    return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
 
 function getAllSportsman(req,res){
