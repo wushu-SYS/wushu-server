@@ -46,6 +46,7 @@ function registerCoach(req,res) {
                                     DButilsAzure.execQuery(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub)
                                      VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}')`)
                                         .then(async () => {
+                                            await sendMail(req)
                                             await insertCoachTeam(req);
                                             await mutual._insertPassword(req, userType.COACH, 1);
                                             res.status(200).send("Registration completed successfully");
@@ -74,5 +75,34 @@ async function insertCoachTeam(req) {
             res.status(400).send(error)
         })
 }
+async function sendMail(req) {
+    const send = require('gmail-send')({
+        user: 'wushuSys@gmail.com',
+        pass: 'ktrxyruavpyiqfav',
+        to:   req.body.email,
+        subject: 'רישום משתמש חדש wuhsu',
+    });
+    var textMsg = "שלום"+req.body.firstname+"\n"+
+                    "הינך רשום למערכת של התאחדות האו-שו"+"\n"
+                    "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי"+"\n"
+                    +"שם פרטי: "+req.body.firstname+"\n"
+                    +"שם משפחה: "+req.body.lastname+"\n"
+                    +"כתובת מגורים: "+req.body.address+"\n"
+                    +"פאלפון: "+req.body.phone+"\n"
+                    +"תאריך לידהי: "+req.body.birthdate+"\n"
+                    +"תעודת זהות: "+req.body.id+"\n"
+                    +" שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות"
+                    +"בברכה, מערכת או-שו"
+    send({
+        text:  textMsg,
+    }, (error, result, fullResult) => {
+        if (error) console.error(error);
+        console.log(result);
+    })
+
+}
 
 module.exports._registerCoach=registerCoach;
+
+
+

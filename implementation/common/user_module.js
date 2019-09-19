@@ -91,7 +91,7 @@ async function changePassword(req ,res){
 
 }
 async function insertPassword(req, type, isFirstTime) {
-    var hash = bcrypt.hashSync(req.body.id, saltRounds);
+    var hash = bcrypt.hashSync(req.body.id, 10);
     DButilsAzure.execQuery(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
                     Values ('${req.body.id}','${hash}','${type}','${isFirstTime}')`)
         .catch((error) => {

@@ -47,9 +47,10 @@ function registerSportman(req, res) {
                                                 DButilsAzure.execQuery(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
                                                         VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
                                                     .then(async () => {
-                                                        await insertSportsmanCategory(req);
+                                                        //await insertSportsmanCategory(req);
                                                         await common._insertPassword(req, userType.SPORTSMAN, 1);
                                                         await insertCoach(req);
+                                                        //await sendEmail(req);
                                                         res.status(200).send("Registration completed successfully")
                                                     })
                                                     .catch((error) => {
@@ -73,6 +74,7 @@ function registerSportman(req, res) {
         }
     });
 }
+/*
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");
     DButilsAzure.execQuery(`INSERT INTO sportsman_category (id,sportStyle)
@@ -81,6 +83,8 @@ async function insertSportsmanCategory(req) {
             res.status(400).send(error)
         })
 }
+
+ */
 async function insertCoach(req) {
     console.log("insert coach");
     DButilsAzure.execQuery(`INSERT INTO sportsman_coach (idSportman,idCoach)
@@ -88,6 +92,33 @@ async function insertCoach(req) {
         .catch((error) => {
             res.status(400).send(error)
         })
+}
+async function sendEmail(req) {
+    const send = require('gmail-send')({
+        user: 'wushuSys@gmail.com',
+        pass: 'ktrxyruavpyiqfav',
+        to:   req.body.email,
+        subject: 'רישום משתמש חדש wuhsu',
+    });
+    var textMsg = "שלום "+req.body.firstname+"\n"+
+        "הינך רשום למערכת של התאחדות האו-שו"+"\n"+
+             "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי"+"\n"
+    +"שם פרטי: "+req.body.firstname+"\n"
+    +"שם משפחה: "+req.body.lastname+"\n"
+    +"כתובת מגורים: "+req.body.address+"\n"
+    +"פאלפון: "+req.body.phone+"\n"
+    +"תאריך לידהי: "+req.body.birthdate+"\n"
+    +"תעודת זהות: "+req.body.id+"\n"
+    +" שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך"+"\n\n\n"
+    +"בברכה, " +"\n"+
+        "מערכת או-שו"
+    send({
+        text:  textMsg,
+    }, (error, result, fullResult) => {
+        if (error) console.error(error);
+        console.log(result);
+    })
+
 }
 
 module.exports._registerSportman = registerSportman;

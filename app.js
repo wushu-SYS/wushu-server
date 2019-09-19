@@ -189,21 +189,7 @@ app.post("/private/getCoachSportsman",function (req,res) {
 
 
 })
-/*
-const send = require('gmail-send')({
-    user: 'wushuSys@gmail.com',
-    pass: 'ktrxyruavpyiqfav',
-    to:   'poleia@post.bgu.ac.il',
-    subject: 'emil test',
-});
-send({
-    text:    'בדיקה תגידי אם קיבלת',
-}, (error, result, fullResult) => {
-    if (error) console.error(error);
-    console.log(result);
-})
 
- */
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");
