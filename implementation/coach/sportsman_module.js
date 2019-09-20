@@ -21,16 +21,27 @@ function getSportsmen(req, res, id){
     else if(req.query.competition !== undefined){
         query = `Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
-                    join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman
                     join sportsman_coach
-                    on user_Sportsman.id = sportsman_coach.idSportman`;
-        queryCount = `Select count(*)
+                    on user_Sportsman.id = sportsman_coach.idSportman
+                    where idCoach = ${id}
+                except
+                Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
-                    join competition_sportsman
+                    left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
+                    where idCompetition = ${req.query.competition}`;
+        queryCount = `Select count(*) as count from
+                (Select user_Sportsman.id, firstname, lastname, photo
+                    from user_Sportsman
                     join sportsman_coach
-                    on user_Sportsman.id = sportsman_coach.idSportman`;
+                    on user_Sportsman.id = sportsman_coach.idSportman
+                    where idCoach = ${id}
+                except
+                Select user_Sportsman.id, firstname, lastname, photo
+                    from user_Sportsman
+                    left join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    where idCompetition =  ${req.query.competition}) as t`;
     }
     else {
         query = `Select id,firstname,lastname,photo
@@ -42,9 +53,11 @@ function getSportsmen(req, res, id){
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     }
-    query += conditions;
-    queryCount += conditions;
-    query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
+    if(req.query.competition === undefined) {
+        query += conditions;
+        queryCount += conditions;
+        query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
+    }
 
     Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
         .then(result => {
