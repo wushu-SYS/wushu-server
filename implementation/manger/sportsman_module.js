@@ -10,6 +10,16 @@ function getSportsmen(req, res){
         queryCount = `Select count(*) as count from user_Sportsman join sportsman_category
             on user_Sportsman.id = sportsman_category.id`;
     }
+    else if(req.query.competition !== undefined){
+        query = `Select user_Sportsman.id, firstname, lastname, photo
+                    from user_Sportsman
+                    join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman`;
+        queryCount = `Select count(*) as count
+                    from user_Sportsman
+                    join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman`;
+    }
     else {
         query = 'Select id, firstname, lastname, photo from user_Sportsman';
         queryCount = 'Select count(*) as count from user_Sportsman';

@@ -2,6 +2,7 @@ function buildConditions_forGetSportsmen(req, id){
     let club = req.query.club;
     let sex = req.query.sex;
     let sportStyle = req.query.sportStyle;
+    let compId = req.query.competition;
     let value = req.query.value;
     var conditions = [];
 
@@ -19,6 +20,9 @@ function buildConditions_forGetSportsmen(req, id){
     }
     if(sex !== '' && sex !== undefined){
         conditions.push("sex like '" + sex + "'");
+    }
+    if(compId !== '' && compId !== undefined){
+        conditions.push(`idCompetition = ${compId}`);
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }

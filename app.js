@@ -190,6 +190,11 @@ app.post("/private/getCoachSportsman",function (req,res) {
 
 })
 
+app.post("/private/competitionSportsmen", function (req, res) {
+    if(access !== userType.SPORTSMAN)
+        common_competition_module._registerSportsmenToCompetition(req, res);
+})
+
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");

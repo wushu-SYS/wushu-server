@@ -18,6 +18,20 @@ function getSportsmen(req, res, id){
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     }
+    else if(req.query.competition !== undefined){
+        query = `Select user_Sportsman.id, firstname, lastname, photo
+                    from user_Sportsman
+                    join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    join sportsman_coach
+                    on user_Sportsman.id = sportsman_coach.idSportman`;
+        queryCount = `Select count(*)
+                    from user_Sportsman
+                    join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    join sportsman_coach
+                    on user_Sportsman.id = sportsman_coach.idSportman`;
+    }
     else {
         query = `Select id,firstname,lastname,photo
                     from user_Sportsman
