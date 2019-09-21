@@ -29,7 +29,8 @@ function getSportsmen(req, res){
                 Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     left join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman`;
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    where idCompetition = ${req.query.competition}) as t`;
             queryCount = `Select count(*) as count from
                 (Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
@@ -37,8 +38,8 @@ function getSportsmen(req, res){
                 Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     left join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman`;
-            conditions +=") as t";
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    where idCompetition = ${req.query.competition}) as t`;
         }
     }
     else {

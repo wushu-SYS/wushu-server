@@ -6,7 +6,7 @@ function buildConditions_forGetSportsmen(req, id){
     let value = req.query.value;
     var conditions = [];
 
-    if(id !== null && id != undefined) {
+    if(id !== null && id != undefined && (req.query.competitionOperator === undefined || req.query.competitionOperator === '==')) {
         conditions.push(`sportsman_coach.idCoach = '${id}'`);
     }
     if(value !== '' && value !== undefined) {
@@ -21,7 +21,7 @@ function buildConditions_forGetSportsmen(req, id){
     if(sex !== '' && sex !== undefined){
         conditions.push("sex like '" + sex + "'");
     }
-    if(compId !== '' && compId !== undefined){
+    if(compId !== '' && compId !== undefined && req.query.competitionOperator !== undefined && req.query.competitionOperator === '=='){
         conditions.push(`idCompetition = ${compId}`);
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
