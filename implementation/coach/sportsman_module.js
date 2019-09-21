@@ -18,30 +18,58 @@ function getSportsmen(req, res, id){
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     }
-    else if(req.query.competition !== undefined){
-        query = `Select user_Sportsman.id, firstname, lastname, photo
-                    from user_Sportsman
-                    join sportsman_coach
-                    on user_Sportsman.id = sportsman_coach.idSportman
-                    where idCoach = ${id}
-                except
-                Select user_Sportsman.id, firstname, lastname, photo
-                    from user_Sportsman
-                    left join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman
-                    where idCompetition = ${req.query.competition}`;
-        queryCount = `Select count(*) as count from
+    else if(req.query.competition !== undefined && req.query.competitionOperator !== undefined){
+        if(req.query.competitionOperator == '=='){
+            query = `select id, firstname, lastname, photo from
+                    (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                        from user_Sportsman
+                        join sportsman_coach
+                        on user_Sportsman.id = sportsman_coach.idSportman
+                        where sportsman_coach.idCoach = ${id}) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman`;
+            queryCount = `select count(*) as count from
+                    (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                        from user_Sportsman
+                        join sportsman_coach
+                        on user_Sportsman.id = sportsman_coach.idSportman
+                        where idCoach = ${id}) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman`;
+        }
+        else if(req.query.competitionOperator == '!='){
+            query = `Select id, firstname, lastname, photo from
                 (Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
                     where idCoach = ${id}
                 except
-                Select user_Sportsman.id, firstname, lastname, photo
+                select id, firstname, lastname,photo from
+                (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
                     from user_Sportsman
-                    left join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman
-                    where idCompetition =  ${req.query.competition}) as t`;
+                    join sportsman_coach
+                    on user_Sportsman.id = sportsman_coach.idSportman
+                    where sportsman_coach.idCoach = ${id}) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman`;
+            queryCount = `Select count(*) as count from
+                (Select user_Sportsman.id, firstname, lastname, photo
+                    from user_Sportsman
+                    join sportsman_coach
+                    on user_Sportsman.id = sportsman_coach.idSportman
+                    where idCoach = ${id}
+                except
+                select id, firstname, lastname,photo from
+                (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                    from user_Sportsman
+                    join sportsman_coach
+                    on user_Sportsman.id = sportsman_coach.idSportman
+                    where sportsman_coach.idCoach = ${id}) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman`;
+            conditions +=") as t";
+        }
     }
     else {
         query = `Select id,firstname,lastname,photo
@@ -53,11 +81,10 @@ function getSportsmen(req, res, id){
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     }
-    if(req.query.competition === undefined) {
-        query += conditions;
-        queryCount += conditions;
-        query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
-    }
+
+    query += conditions;
+    queryCount += conditions;
+    query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
 
     Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
         .then(result => {
@@ -68,7 +95,7 @@ function getSportsmen(req, res, id){
             res.status(200).send(resultJson);
         })
         .catch((error) => {
-            res.status(400).send(error)
+            res.status(400).send(error + query)
         });
 }
 
