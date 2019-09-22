@@ -104,6 +104,20 @@ function downlaodExcelCoach(req,res){
     res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
 )}
 
+async function deleteSportsman(req,res){
+    await DButilsAzure.execQuery(`DELETE FROM user_Sportsman WHERE id ='${req.body.userID}';`)
+        .then(async ()=>{
+              await DButilsAzure.execQuery(`DELETE FROM user_Passwords WHERE id ='${req.body.userID}';`)
+              await DButilsAzure.execQuery(`DELETE FROM sportman_files WHERE id ='${req.body.userID}';`)
+              await DButilsAzure.execQuery(`DELETE FROM sportsman_coach WHERE idSportman ='${req.body.userID}';`)
+            res.status(200).send("sportsman has been deleted")
+        })
+        .catch((error) => {
+            res.status(400).send(error)
+        })
+}
+
+
 // function sportsmanProfile(req, res){
 //     DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
 //         .then((result) => {
@@ -127,3 +141,4 @@ module.exports._downloadSportsmanExcel=downloadExcelSportsman;
 module.exports._changePass=changePassword;
 module.exports._downloadcoachExcel=downlaodExcelCoach;
 module.exports._insertPassword=insertPassword;
+module.exports.deleteSportsman=deleteSportsman;

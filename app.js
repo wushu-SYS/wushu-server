@@ -195,6 +195,12 @@ app.post("/private/competitionSportsmen", function (req, res) {
         common_competition_module._registerSportsmenToCompetition(req, res);
 })
 
+app.post("/private/deleteSportsmanProfile",function (req,res) {
+    if(access===userType.MANAGER||id===req.body.userID)
+        common_user_module.deleteSportsman(req,res)
+    else
+        res.status(400).send("Permission denied")
+})
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");
