@@ -38,6 +38,17 @@ function uploadeInsurance(req,res) {
         })
 
 }
+function updateProfile(req,res){
+    DButilsAzure.execQuery(`UPDATE user_Sportsman SET id ='${req.body.id}',firstname = '${req.body.firstname}', lastname = '${req.body.lastname}',phone = '${req.body.phone}',email = '${req.body.email}',birthdate = '${req.body.birthdate}',
+     address = '${req.body.address}',sex = '${req.body.sex}',where id ='${req.body.id}';`)
+        .then((result)=> {
+            res.status(200).send("Update successfully")
+        })
+        .catch((error)=>{
+            res.status(400).send(error)
+        })
+}
 
 module.exports._uploadeMedical = uploadeMedical;
 module.exports._uploadInsurances=uploadeInsurance;
+module.exports._updateSportsmanProfile=updateProfile;

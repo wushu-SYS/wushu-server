@@ -103,7 +103,6 @@ async function insertPassword(req, type, isFirstTime) {
 function downlaodExcelCoach(req,res){
     res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
 )}
-
 async function deleteSportsman(req,res){
     await DButilsAzure.execQuery(`DELETE FROM user_Sportsman WHERE id ='${req.body.userID}';`)
         .then(async ()=>{
@@ -118,22 +117,7 @@ async function deleteSportsman(req,res){
 }
 
 
-// function sportsmanProfile(req, res){
-//     DButilsAzure.execQuery(`Select * from user_Sportsman where id like ${req.body.id}`)
-//         .then((result) => {
-//             if(jwt.decode(req.header("x-auth-token")).access===userType.MANAGER)
-//                 res.status(200).send(result);
-//             else if(jwt.decode(req.header("x-auth-token")).access===userType.COACH)
-//                 res.status(500).send("NEED TO IMPLEMENT IT");
-//             else if(jwt.decode(req.header("x-auth-token")).access === userType.SPORTSMAN && jwt.decode(req.header("x-auth-token")).id === result[0].id)
-//                 res.status(200).send(result);
-//             else
-//                 res.status(400).send("Permission denied")
-//         })
-//         .catch((eror) => {
-//             res.status(400).send(eror)
-//         })
-// }
+
 
 module.exports._login = login;
 module.exports._uploadPhoto= uploadPhoto;
