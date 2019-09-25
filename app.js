@@ -201,6 +201,15 @@ app.post("/private/deleteSportsmanProfile",function (req,res) {
     else
         res.status(400).send("Permission denied")
 })
+
+app.post("/private/updateSportsmanProfile",function (req,res) {
+    if(access===userType.MANAGER||id===req.body.id)
+        sportsman_user_module._updateSportsmanProfile(req,res)
+    else
+        res.status(400).send("Permission denied")
+})
+
+
 //start the server
 app.listen(3000,()=>{
     console.log("Server has been started !!");
