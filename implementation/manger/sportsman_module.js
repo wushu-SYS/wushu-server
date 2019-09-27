@@ -12,7 +12,7 @@ function getSportsmen(req, res){
     }
     else if(req.query.competition !== undefined && req.query.competitionOperator !== undefined){
         if(req.query.competitionOperator === '=='){
-            query = `Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age
+            query = `Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman`;
