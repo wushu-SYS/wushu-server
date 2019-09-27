@@ -50,7 +50,7 @@ function sportsmanProfile(id, res){
 }
 
 function getCategories(req, res){
-    DButilsAzure.execQuery(`Select id,name from category`)
+    DButilsAzure.execQuery(`Select * from category order by name`)
         .then((result) => {
             res.status(200).send(result)
         })
