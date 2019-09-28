@@ -49,6 +49,17 @@ function sportsmanProfile(id, res){
         })
 }
 
+function getCategories(req, res){
+    DButilsAzure.execQuery(`Select * from category order by name`)
+        .then((result) => {
+            res.status(200).send(result)
+        })
+        .catch((error)=>{
+            res.status(400).send(error)
+        })
+}
+
 module.exports._buildConditions_forGetSportsmen = buildConditions_forGetSportsmen;
 module.exports._buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
 module.exports._sportsmanProfile = sportsmanProfile;
+module.exports._getCategories = getCategories;

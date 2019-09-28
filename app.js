@@ -146,6 +146,9 @@ app.post("/private/getClubs",function (req,res) {
     else
         res.status(400).send("Permission denied");
 });
+app.post("/private/getCategories", function (req, res) {
+   common_sportsman_module._getCategories(req, res);
+});
 
 app.post("/private/sportsmanProfile",function (req,res) {
     if(req.body.id !== undefined && access === userType.SPORTSMAN && id !== req.body.id)
@@ -207,7 +210,21 @@ app.post("/private/updateSportsmanProfile",function (req,res) {
         sportsman_user_module._updateSportsmanProfile(req,res)
     else
         res.status(400).send("Permission denied")
-})
+});
+
+app.post("/private/getRegistrationState", function (req, res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._getRegistrationState(req, res);
+    else
+        res.status(400).send("Permission denied")
+});
+
+app.post("/private/setCategoryRegistration", function (req, res) {
+   if(access===userType.MANAGER)
+       manger_competition_module._setCategoryRegistration(req, res);
+   else
+       res.status(400).send("Permission denied")
+});
 
 
 //start the server
