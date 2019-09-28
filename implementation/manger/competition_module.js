@@ -136,7 +136,20 @@ function getRegistrationState(req, res){
         .catch((err) => {res.status(400).send(err)})
 }
 
+function setCategoryRegistration(req, res){
+    let queryStack = [];
+    req.body.categoryForSportsman.forEach(function (categorySportsman) {
+        queryStack.push(DButilsAzure.execQuery(`update competition_sportsman
+                                                        set category = ${categorySportsman.categoryId}
+                                                        where idSportsman = ${categorySportsman.sportsmanId} and idCompetition = ${req.body.compId}`));
+                                                });
+    Promise.all(queryStack)
+        .then(result => {res.status(200).send("Successful update");})
+        .catch(error => { res.status(404).send(error)});
+}
+
 module.exports._addCompetition = addCompetition;
 module.exports._getCompetition =getAllCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
 module.exports._getRegistrationState = getRegistrationState;
+module.exports._setCategoryRegistration = setCategoryRegistration;

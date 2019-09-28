@@ -217,7 +217,14 @@ app.post("/private/getRegistrationState", function (req, res) {
         manger_competition_module._getRegistrationState(req, res);
     else
         res.status(400).send("Permission denied")
-})
+});
+
+app.post("/private/setCategoryRegistration", function (req, res) {
+   if(access===userType.MANAGER)
+       manger_competition_module._setCategoryRegistration(req, res);
+   else
+       res.status(400).send("Permission denied")
+});
 
 
 //start the server
