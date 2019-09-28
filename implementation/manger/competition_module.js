@@ -59,20 +59,25 @@ function addCompetition(req, res) {
     })
 }
 
-function editCompetition(req, res) {
-    DButilsAzure.execQuery(` Update events 
+async function editCompetition(req, res) {
+    await DButilsAzure.execQuery(` Update events_competition 
+                                            set sportStyle=${req.body.sportStyle},description='${req.body.description}',closeRegDate='${req.body.closeDate}',closeRegTime='${req.body.closeTime}'
+                                            where idCompetition ='${req.body.idCompetition}';`)
+        .then((result) => {
+            DButilsAzure.execQuery(` Update events 
                                     set location ='${req.body.location}',type='${eventType.competition}',date=''${req.body.eventDate}',startHour='${req.body.startHour}'
                                     where idEvent ='${req.body.eventId}';`)
-        .then((result) => {
-            DButilsAzure.execQuery(` Update events_competition 
-                                            set sportStyle=${req.body.sportStyle},description='${req.body.description}',closeRegDate='${req.body.closeDate}',closeRegTime='${req.body.closeTime}',status=''${req.body.status}
-                                            where idCompetition ='${req.body.idCompetition}';`)
-                .then((result1)=>{
+                .then((result1) => {
                     res.status(200).send("Competition update successfully")
+
                 })
-                .catch((eror)=>{res.status(400).send(eror)})
+                .catch((eror) => {
+                    res.status(400).send(eror)
+                })
         })
-        .catch((eror) => {res.status(400).send(eror)})
+        .catch((eror) => {
+            res.status(400).send(eror)
+        })
 }
 
 function getAllCompetitions(req ,res){
