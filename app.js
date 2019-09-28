@@ -26,7 +26,6 @@ const manger_competition_module=require("./implementation/manger/competition_mod
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
-//userType = new Enum({'Manger': 1, 'Coach': 2, 'sportsman': 3});
 userType = {
     MANAGER: 1,
     COACH: 2,
@@ -36,7 +35,7 @@ userType = {
 eventType={
     competition: 'תחרות',
     event : 'אירוע'
-}
+};
 
 global.__basedir = __dirname;
 
@@ -169,7 +168,7 @@ app.post("/private/addCompetition", function (req, res) {
 
 app.post("/private/getCompetitions",function (req,res) {
     if(access===userType.MANAGER||access===userType.COACH)
-        manger_competition_module._getCompetition(req,res);
+        manger_competition_module._getCompetitions(req,res);
     else
         res.status(400).send("Permission denied")
 
@@ -213,7 +212,7 @@ app.post("/private/updateSportsmanProfile",function (req,res) {
 });
 
 app.post("/private/getRegistrationState", function (req, res) {
-    if(access===userType.MANAGER)
+    if(access===userType.MANAGER || access===userType.COACH)
         manger_competition_module._getRegistrationState(req, res);
     else
         res.status(400).send("Permission denied")
@@ -225,6 +224,13 @@ app.post("/private/setCategoryRegistration", function (req, res) {
    else
        res.status(400).send("Permission denied")
 });
+
+app.post("/private/closeRegistration", function (req, res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._closeRegistration(req, res);
+    else
+        res.status(400).send("Permission denied")
+})
 
 
 //start the server

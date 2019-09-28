@@ -80,7 +80,7 @@ async function editCompetition(req, res) {
         })
 }
 
-function getAllCompetitions(req ,res){
+function getCompetitions(req ,res){
     let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
                                    left join events on events_competition.idEvent = events.idEvent`;
     let queryCount = `select count(*) as count from events_competition 
@@ -106,6 +106,7 @@ function buildConditions_forGetCompetitions(req){
     let location = req.query.location;
     let sportStyle = req.query.sportStyle;
     let status = req.query.status;
+    console.log(req.query.status);
     var conditions = [];
 
     if(location !== '' && location !== undefined) {
@@ -115,7 +116,11 @@ function buildConditions_forGetCompetitions(req){
         conditions.push("events_competition.sportStyle like '" + sportStyle + "'");
     }
     if(status !== '' && status !== undefined){
-        conditions.push("events_competition.status like '" + status + "'");
+        let statusCond = [];
+        status.split(',').forEach(s => {
+            statusCond.push("events_competition.status like '" + s + "'");
+        });
+        conditions.push("(" + statusCond.join(' or ') + ")");
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
@@ -153,8 +158,17 @@ function setCategoryRegistration(req, res){
         .catch(error => { res.status(404).send(error)});
 }
 
+function closeRegistration(req, res){
+    DButilsAzure.execQuery(`update events_competition set status = '${status.regclose}' where idCompetition = ${req.body.idComp}`)
+        .then((result) => {
+            res.status(200).send(result)
+        })
+        .catch((err) => {res.status(400).send(err)})
+}
+
 module.exports._addCompetition = addCompetition;
-module.exports._getCompetition =getAllCompetitions;
+module.exports._getCompetitions =getCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
 module.exports._getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
+module.exports._closeRegistration = closeRegistration;
