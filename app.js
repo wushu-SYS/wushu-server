@@ -231,7 +231,12 @@ app.post("/private/closeRegistration", function (req, res) {
     else
         res.status(400).send("Permission denied")
 })
-
+app.post("/private/addNewCategory", function (req, res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._addNewCategory(req, res);
+    else
+        res.status(400).send("Permission denied")
+})
 
 //start the server
 app.listen(3000,()=>{

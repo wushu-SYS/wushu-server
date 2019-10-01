@@ -166,9 +166,38 @@ function closeRegistration(req, res){
         .catch((err) => {res.status(400).send(err)})
 }
 
+function addNewCategory(req,res){
+    let validator = new validation(req.body, {
+        categoryName: 'required',
+        minAge: 'required',
+        maxAge: 'required',
+        sex: 'required'
+    });
+    var regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
+    validator.check().then(function (matched) {
+        if (!matched) {
+            res.status(400).send(validator.errors);
+        } else if (!regexHebrewAndNumbers.test(req.body.categoryName)) {
+            res.status(400).send("name must be in hebrew and numbers only");
+        }
+       else {
+            DButilsAzure.execQuery(` INSERT INTO category (name,minAge,maxAge,sex)
+                                    VALUES ('${req.body.categoryName}','${req.body.minAge}','${req.body.maxAge}','${req.body.sex}');`)
+                .then((result) => {
+                    res.status(200).send(result)
+                })
+                .catch((err) => {
+                    res.status(400).send(err)
+                })
+        }
+});
+}
+
+
 module.exports._addCompetition = addCompetition;
 module.exports._getCompetitions =getCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
 module.exports._getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
 module.exports._closeRegistration = closeRegistration;
+module.exports._addNewCategory = addNewCategory;
