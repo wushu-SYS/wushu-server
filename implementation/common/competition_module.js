@@ -1,6 +1,6 @@
 function getDetails(req ,res) {
     console.log(req)
-    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status, events.date ,events.location, events.startHour, events.city from events_competition
+    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
                                    left join events on events_competition.idEvent = events.idEvent
                                    where idCompetition= ${req.body.id}`)
         .then((result) => {

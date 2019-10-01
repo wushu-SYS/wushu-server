@@ -59,27 +59,6 @@ function addCompetition(req, res) {
     })
 }
 
-async function editCompetition(req, res) {
-    await DButilsAzure.execQuery(` Update events_competition 
-                                            set sportStyle=${req.body.sportStyle},description='${req.body.description}',closeRegDate='${req.body.closeDate}',closeRegTime='${req.body.closeTime}'
-                                            where idCompetition ='${req.body.idCompetition}';`)
-        .then((result) => {
-            DButilsAzure.execQuery(` Update events 
-                                    set location ='${req.body.location}',type='${eventType.competition}',date=''${req.body.eventDate}',startHour='${req.body.startHour}'
-                                    where idEvent ='${req.body.eventId}';`)
-                .then((result1) => {
-                    res.status(200).send("Competition update successfully")
-
-                })
-                .catch((eror) => {
-                    res.status(400).send(eror)
-                })
-        })
-        .catch((eror) => {
-            res.status(400).send(eror)
-        })
-}
-
 function getCompetitions(req ,res){
     let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
                                    left join events on events_competition.idEvent = events.idEvent`;
@@ -166,7 +145,7 @@ function closeRegistration(req, res){
         .catch((err) => {res.status(400).send(err)})
 }
 
-function addNewCategory(req,res){
+function addNewCategory(req,res) {
     let validator = new validation(req.body, {
         categoryName: 'required',
         minAge: 'required',
@@ -179,8 +158,7 @@ function addNewCategory(req,res){
             res.status(400).send(validator.errors);
         } else if (!regexHebrewAndNumbers.test(req.body.categoryName)) {
             res.status(400).send("name must be in hebrew and numbers only");
-        }
-       else {
+        } else {
             DButilsAzure.execQuery(` INSERT INTO category (name,minAge,maxAge,sex)
                                     VALUES ('${req.body.categoryName}','${req.body.minAge}','${req.body.maxAge}','${req.body.sex}');`)
                 .then((result) => {
@@ -190,9 +168,43 @@ function addNewCategory(req,res){
                     res.status(400).send(err)
                 })
         }
-});
+    });
 }
 
+async function updateCompetitionDetails(req,res) {
+  await  DButilsAzure.execQuery(` Update events_competition 
+                                            set sportStyle='${req.body.sportStyle}',description='${req.body.description}',closeRegDate='${req.body.closeRegDate}',closeRegTime='${req.body.closeRegTime}'
+                                            where idCompetition ='${req.body.competitionId}';`)
+        .then(async (result) => {
+           await DButilsAzure.execQuery(`select idEvent from events_competition where idCompetition ='${req.body.competitionId}';`)
+               .then(async (result1)=>{
+                   await DButilsAzure.execQuery(`Update events 
+                                    set location ='${req.body.location}',type='${eventType.competition}',date='${req.body.eventDate}',startHour='${req.body.evetTime}'
+                                    where idEvent ='${result1[0].idEvent}';`)
+                       .then((result2) => {
+                           res.status(200).send("Competition update successfully")
+                       })
+                       .catch((eror) => {
+                           res.status(400).send("1 "+eror)
+                       })
+               })
+               .catch((eror) => {
+                   res.status(400).send(eror)
+               })
+        })
+      .catch((eror) => {
+          res.status(400).send(eror)
+      })
+
+}
+
+function autoCloseRegCompetition(){
+    DButilsAzure.execQuery(`UPDATE events_competition SET status='סגור' WHERE closeRegDate<=Convert(Date,CURRENT_TIMESTAMP) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP);`)
+            .then((result) => {})
+        .catch((error)=>{
+            console.log(eror)
+        })
+}
 
 module.exports._addCompetition = addCompetition;
 module.exports._getCompetitions =getCompetitions;
@@ -201,3 +213,5 @@ module.exports._getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
 module.exports._closeRegistration = closeRegistration;
 module.exports._addNewCategory = addNewCategory;
+module.exports._updateCompetitionDetails = updateCompetitionDetails;
+module.exports._autoCloseRegCompetition =autoCloseRegCompetition;
