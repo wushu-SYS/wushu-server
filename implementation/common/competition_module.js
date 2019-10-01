@@ -16,8 +16,9 @@ function registerSportsmenToCompetition(req, res){
                                     WHERE NOT EXISTS (
                                         SELECT idCompetition, idSportsman FROM competition_sportsman WHERE idCompetition = ${req.body.compId} and idSportsman = ${sportsmanId}
                                     )`));
-    })
-    queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition='${req.body.compId} and idSportsman IN ('${req.body.deleteSportsman}');`));
+    });
+    if(req.body.deleteSportsman.length>0)
+        queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition='${req.body.compId}' and idSportsman IN (${req.body.deleteSportsman});`));
     Promise.all(queryStack)
         .then(result => {res.status(200).send("Successful registration");})
         .catch(error => { res.status(404).send(error)});
