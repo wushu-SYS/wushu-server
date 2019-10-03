@@ -1,6 +1,6 @@
 function getDetails(req ,res) {
     console.log(req)
-    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status, events.date ,events.location, events.startHour, events.city from events_competition
+    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
                                    left join events on events_competition.idEvent = events.idEvent
                                    where idCompetition= ${req.body.id}`)
         .then((result) => {
@@ -9,23 +9,16 @@ function getDetails(req ,res) {
         .catch((eror) => {res.status(400).send(eror)})
 }
 function registerSportsmenToCompetition(req, res){
-    // let valuesStack = [];
-    // req.body.sportsmenIds.forEach(function (sportsman) {
-    //     valuesStack.push("(" + req.body.compId + "," + sportsman + ")");
-    // });
-    // let stringArray = valuesStack.join(",");
-    // DButilsAzure.execQuery(`insert into competition_sportsman (idCompetition, idSportsman) values ${stringArray}`)
-    //     .then(result => { res.status(200).send("Successful registration"); })
-    //     .catch(error => { res.status(404).send(error)})
-
     let queryStack = [];
-    req.body.sportsmenIds.forEach(function (sportsmanId) {
+    req.body.insertSportsman.forEach(function (sportsmanId) {
         queryStack.push(DButilsAzure.execQuery(`INSERT INTO competition_sportsman (idCompetition, idSportsman)
                                     SELECT * FROM (select ${req.body.compId} as idCompetition, ${sportsmanId} as idSportsman) AS tmp
                                     WHERE NOT EXISTS (
                                         SELECT idCompetition, idSportsman FROM competition_sportsman WHERE idCompetition = ${req.body.compId} and idSportsman = ${sportsmanId}
                                     )`));
-    })
+    });
+    if(req.body.deleteSportsman.length>0)
+        queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition='${req.body.compId}' and idSportsman IN (${req.body.deleteSportsman});`));
     Promise.all(queryStack)
         .then(result => {res.status(200).send("Successful registration");})
         .catch(error => { res.status(404).send(error)});

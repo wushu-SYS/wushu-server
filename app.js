@@ -7,6 +7,9 @@ jwt = require("jsonwebtoken");
 validation = require('node-input-validator');
 secret = "wushuSecret";
 const multer = require('multer');
+var schedule = require('node-schedule');
+
+
 
 
 //import all modules
@@ -26,7 +29,14 @@ const manger_competition_module=require("./implementation/manger/competition_mod
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
-//userType = new Enum({'Manger': 1, 'Coach': 2, 'sportsman': 3});
+
+//server schedule Jobs
+var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function(){
+    console.log('close Register to Competition');
+    manger_competition_module._autoCloseRegCompetition();
+
+});
+
 userType = {
     MANAGER: 1,
     COACH: 2,
@@ -36,7 +46,7 @@ userType = {
 eventType={
     competition: 'תחרות',
     event : 'אירוע'
-}
+};
 
 global.__basedir = __dirname;
 
@@ -44,6 +54,9 @@ app.use(bodyParser.urlencoded({extend:true}));
 app.use(bodyParser.json());
 app.use(cors())
 app.options('*', cors())
+
+
+
 
 let id, access;
 app.use("/private", (req, res, next) => {
@@ -169,7 +182,7 @@ app.post("/private/addCompetition", function (req, res) {
 
 app.post("/private/getCompetitions",function (req,res) {
     if(access===userType.MANAGER||access===userType.COACH)
-        manger_competition_module._getCompetition(req,res);
+        manger_competition_module._getCompetitions(req,res);
     else
         res.status(400).send("Permission denied")
 
@@ -213,7 +226,7 @@ app.post("/private/updateSportsmanProfile",function (req,res) {
 });
 
 app.post("/private/getRegistrationState", function (req, res) {
-    if(access===userType.MANAGER)
+    if(access===userType.MANAGER || access===userType.COACH)
         manger_competition_module._getRegistrationState(req, res);
     else
         res.status(400).send("Permission denied")
@@ -226,6 +239,25 @@ app.post("/private/setCategoryRegistration", function (req, res) {
        res.status(400).send("Permission denied")
 });
 
+app.post("/private/closeRegistration", function (req, res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._closeRegistration(req, res);
+    else
+        res.status(400).send("Permission denied")
+})
+app.post("/private/addNewCategory", function (req, res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._addNewCategory(req, res);
+    else
+        res.status(400).send("Permission denied")
+})
+
+app.post("/private/updateCompetitionDetails",function (req,res) {
+    if(access===userType.MANAGER)
+        manger_competition_module._updateCompetitionDetails(req, res);
+    else
+        res.status(400).send("Permission denied")
+})
 
 //start the server
 app.listen(3000,()=>{
