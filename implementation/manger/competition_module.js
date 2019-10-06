@@ -113,16 +113,41 @@ function getAllSportsman(req,res){
 }
 
 function getRegistrationState(req, res){
-    DButilsAzure.execQuery(`Select user_Sportsman.id, firstname, lastname, category, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age
+    DButilsAzure.execQuery(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
+                    left join category as c
+                    on competition_sportsman.category = c.id
                     where competition_sportsman.idCompetition = ${req.body.compId}
                     order by age, firstname`)
         .then((result) => {
-            res.status(200).send(result)
+            res.status(200).send(sortUsers(result))
         })
         .catch((err) => {res.status(400).send(err)})
+}
+function sortUsers(users) {
+    let resultJson = [];
+    users.sort(
+        function(obj1, obj2){
+            let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
+            let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
+            return x-y;
+        });
+    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => ({id:id, name: id!=null ? users.find(u => u.category == id).categoryName : 'ללא קטגוריה'}));
+    let i=0;
+    usedCategories.forEach(category => {
+        let categoryUsers = {
+            category: category,
+            users: []
+        };
+        while (i < users.length && category.name === (users[i].categoryName ? users[i].categoryName : 'ללא קטגוריה')) {
+            categoryUsers.users.push(users[i]);
+            i++;
+        }
+        resultJson.push(categoryUsers);
+    });
+    return resultJson;
 }
 
 function setCategoryRegistration(req, res){
