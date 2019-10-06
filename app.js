@@ -79,7 +79,7 @@ app.post("/login", (req, res) => {
     common_user_module._login(req, res)
 });
 
-app.post("/private/registerSportman", function(req, res){
+app.post("/private/registerSportsman", function(req, res){
     if(access !== userType.SPORTSMAN)
         coach_user_module._registerSportman(req,res);
     else

@@ -1,7 +1,32 @@
 const common = require("../common/user_module");
 
-function registerSportman(req, res) {
+
+function checkDataBeforeRegistar(data) {
     let validator = new validation(req.body, {
+        ["ת.ז ספורטאי"]: 'required|integer|minLength:9|maxLength:9',
+        ["שם פרטי"]: 'required|lengthBetween:2,10',
+        ["שם משפחה"]: 'required|lengthBetween:2,10',
+       ["פאלפון"]: 'required|minLength:10|maxLength:10|integer',
+        ["כתובת"]: 'required',
+        ["אימייל"]: 'required|email',
+        ["מועדון ספורט"]: 'required',
+        ["ת.ז מאמן"]: 'required',
+        ["תאריך לידה"]: 'required',
+        ["מין"]: 'required',
+        ["ענף"]: 'required'
+    });
+
+
+}
+
+function registerSportman(req, res) {
+    checkDataBeforeRegistar(req.body)
+    var data =req.body
+    var row =data[0]
+
+    var tmp=Object.keys(row).map(function(_) { return row[_]; })
+    console.log(tmp[0])
+    /*let validator = new validation(req.body, {
         id: 'required|integer|minLength:9|maxLength:9',
         firstname: 'required|lengthBetween:2,10',
         lastname: 'required|lengthBetween:2,10',
@@ -73,6 +98,8 @@ function registerSportman(req, res) {
                 })
         }
     });
+
+     */
 }
 /*
 async function insertSportsmanCategory(req) {
