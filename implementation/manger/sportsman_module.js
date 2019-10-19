@@ -22,11 +22,11 @@ function getSportsmen(req, res){
                     on user_Sportsman.id = competition_sportsman.idSportsman`;
         }
         else if(req.query.competitionOperator === '!='){
-            query = `Select id, firstname, lastname, photo from
-                (Select user_Sportsman.id, firstname, lastname, photo
+            query = `Select id, firstname, lastname, photo, sex, age, sportclub from
+                (Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                 except
-                Select user_Sportsman.id, firstname, lastname, photo
+                Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                     left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
@@ -49,7 +49,6 @@ function getSportsmen(req, res){
     query += conditions;
     queryCount +=conditions;
     query += common_sportsman_module._buildOrderBy_forGetSportsmen(req);
-    console.log(query);
 
     Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
         .then(result => {

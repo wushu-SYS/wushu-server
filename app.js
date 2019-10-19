@@ -1,10 +1,13 @@
 DButilsAzure = require('./dBUtils');
+Constants = require('./constants');
 var app =require ("express")();
 var bodyParser = require("body-parser");
 var Enum = require('enum');
 var cors = require('cors');
 jwt = require("jsonwebtoken");
-validation = require('node-input-validator');
+//validation = require('node-input-validator');
+validator = require('validator');
+
 secret = "wushuSecret";
 const multer = require('multer');
 var schedule = require('node-schedule');

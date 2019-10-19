@@ -1,44 +1,70 @@
 const common = require("../common/user_module");
+const sysfunc=require("../commonFunc")
 
 
-function checkDataBeforeRegistar(data) {
-
+function checkDataBeforeRegistar(userToRegsiter) {
+    var isPassed =true
+    var errorUsers =new Object()
+    var res=[];
+    userToRegsiter.forEach(function (user) {
+            var tmpErr=checkUser(user)
+            user[5] =sysfunc.setBirtdateFormat(user[5])
+        if (tmpErr.length!=0)
+            isPassed=false;
+        errorUsers[user[0]]=tmpErr
+    })
+    res.isPassed =isPassed;
+    res.err =errorUsers;
+    return res;
 }
 
-function registerSportman(req, res) {
-    checkDataBeforeRegistar(req.body)
-    var data =req.body
-    var row =data[0]
+function checkUser(user) {
+    var err= [];
+    //id user
+    if(!validator.isInt(user[0].toString(),{gt: 100000000, lt: 1000000000}))
+        err.push(Constants.errorMsg.idSportmanErr)
+    //firstname
+    if(!validator.matches(user[1].toString(),Constants.hebRegex))
+        err.push(Constants.errorMsg.firstNameHeb)
+    //lastname
+    if(!validator.matches(user[2].toString(),Constants.hebRegex))
+        err.push(Constants.errorMsg.lastNameHeb)
+    //phone
+    if(!validator.isInt(user[3].toString())&&user[3].toString().length==10)
+        err.push(Constants.errorMsg.phoneErr)
+    //email
+    if(!validator.isEmail(user[6].toString()))
+        err.push(Constants.errorMsg.emailErr)
+    //sportClub
+    if(!validator.isInt(user[7].toString()))
+        err.push(Constants.errorMsg.sportClubErr)
+    //sex
+    if(!(user[8].toString() in Constants.sexEnum))
+        err.push(Constants.errorMsg.sexErr)
+    //branch
+    if(!(user[9].toString() in Constants.sportType))
+        err.push(Constants.errorMsg.sportTypeErr)
+        //id coach
+    if(!validator.isInt(user[10].toString(),{gt: 100000000, lt: 1000000000}))
+        err.push(Constants.errorMsg.idCoachErr)
+    /*if(err.length==0){
+        if(checkSportsmanExistsDB(user[0]))
+            err.push(Constants.errorMsg.idExists)
+        if(!checkCoachExistsDB(user[10]))
+            err.push(Constants.errorMsg.idCoachNotExists)
+    }
 
-    var tmp=Object.keys(row).map(function(_) { return row[_]; })
-    console.log(tmp[0])
-    /*let validator = new validation(req.body, {
-        id: 'required|integer|minLength:9|maxLength:9',
-        firstname: 'required|lengthBetween:2,10',
-        lastname: 'required|lengthBetween:2,10',
-        phone: 'required|minLength:10|maxLength:10|integer',
-        address: 'required',
-        email: 'required|email',
-        sportclub: 'required',
-        idCoach: 'required',
-        birthdate: 'required',
-        sex: 'required',
-        sportStyle: 'required'
-    });
-    var regex = new RegExp("^[\u0590-\u05fe]+$");
-    var initial = req.body.birthdate.split("/");
-    validator.check().then(function (matched) {
-        if (!matched) {
-            res.status(400).send(validator.errors);
-        } else if (!regex.test(req.body.firstname)) {
-            res.status(400).send("First name must be in hebrew");
-        } else if (!regex.test(req.body.lastname)) {
-            res.status(400).send("Last name must be in hebrew");
-        } else if (initial.length != 3) {
-            res.status(400).send("The birthdate must be a valid date");
-        } else if (req.body.sex != "זכר" && req.body.sex != "נקבה") {
-            res.status(400).send("The sex field is not valid");
-        } else {
+     */
+    return err;
+
+
+}
+function registerSportman(req, res) {
+    var ans=checkDataBeforeRegistar(sysfunc.getArrayFromJson(req.body))
+    if(!ans.isPassed)
+        res.send(ans.err)
+
+    /*
             DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
                 .then((result) => {
                     if (result.length > 0) {
@@ -82,8 +108,6 @@ function registerSportman(req, res) {
                 .catch((error) => {
                     res.status(400).send("4" + error)
                 })
-        }
-    });
 
      */
 }
@@ -107,12 +131,7 @@ async function insertCoach(req) {
         })
 }
 async function sendEmail(req) {
-    const send = require('gmail-send')({
-        user: 'wushuSys@gmail.com',
-        pass: 'ktrxyruavpyiqfav',
-        to:   req.body.email,
-        subject: 'רישום משתמש חדש wuhsu',
-    });
+    var subject= 'רישום משתמש חדש wuhsu'
     var textMsg = "שלום "+req.body.firstname+"\n"+
         "הינך רשום למערכת של התאחדות האו-שו"+"\n"+
              "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי"+"\n"
@@ -125,13 +144,6 @@ async function sendEmail(req) {
     +" שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך"+"\n\n\n"
     +"בברכה, " +"\n"+
         "מערכת או-שו"
-    send({
-        text:  textMsg,
-    }, (error, result, fullResult) => {
-        if (error) console.error(error);
-        console.log(result);
-    })
-
+    await sysfunc.sendEmail(req.body.email,textMsg,subject)
 }
-
 module.exports._registerSportman = registerSportman;

@@ -10,15 +10,16 @@ function getDetails(req ,res) {
 }
 function registerSportsmenToCompetition(req, res){
     let queryStack = [];
-    req.body.insertSportsman.forEach(function (sportsmanId) {
-        queryStack.push(DButilsAzure.execQuery(`INSERT INTO competition_sportsman (idCompetition, idSportsman)
-                                    SELECT * FROM (select ${req.body.compId} as idCompetition, ${sportsmanId} as idSportsman) AS tmp
+    req.body.insertSportsman.forEach(function (sportsmanIdCategory) {
+        queryStack.push(DButilsAzure.execQuery(`INSERT INTO competition_sportsman (idCompetition, idSportsman, category)
+                                    SELECT * FROM (select ${req.body.compId} as idCompetition, ${sportsmanIdCategory.id} as idSportsman, ${sportsmanIdCategory.category} as category) AS tmp
                                     WHERE NOT EXISTS (
-                                        SELECT idCompetition, idSportsman FROM competition_sportsman WHERE idCompetition = ${req.body.compId} and idSportsman = ${sportsmanId}
+                                        SELECT idCompetition, idSportsman, category FROM competition_sportsman WHERE idCompetition = ${req.body.compId} and idSportsman = ${sportsmanIdCategory.id} and category = ${sportsmanIdCategory.category}
                                     )`));
     });
-    if(req.body.deleteSportsman.length>0)
-        queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition='${req.body.compId}' and idSportsman IN (${req.body.deleteSportsman});`));
+    req.body.deleteSportsman.forEach(function (sportsmanIdCategory) {
+        queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition=${req.body.compId} and idSportsman = ${sportsmanIdCategory.id} and category = ${sportsmanIdCategory.category};`));
+    });
     Promise.all(queryStack)
         .then(result => {res.status(200).send("Successful registration");})
         .catch(error => { res.status(404).send(error)});
