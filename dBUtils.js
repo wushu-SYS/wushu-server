@@ -2,7 +2,10 @@ dbUtils = require('tedious-promises');
 var dbConfig = require('./config');
 var TYPES = require('tedious').TYPES;
 var ConnectionPool = require('tedious-connection-pool');
-var poolConfig = {}; // see tedious-connection-pool documentation
+var poolConfig = {
+    min: 1,
+    max: 3,
+    log: true}; // see tedious-connection-pool documentation
 var pool = new ConnectionPool(poolConfig, dbConfig);
 dbUtils.setConnectionPool(pool);
 var _ = require('lodash');
