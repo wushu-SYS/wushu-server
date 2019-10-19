@@ -1,6 +1,9 @@
 const mutual = require("../common/user_module");
 const sysfunc=require("../commonFunc")
 
+
+
+
 function registerCoach(req,res) {
     let validator = new validation(req.body, {
         id: 'required|integer|minLength:9|maxLength:9',
