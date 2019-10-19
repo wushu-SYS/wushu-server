@@ -1,10 +1,4 @@
 
-var status={
-    close: 'סגור',
-    open : 'פתוח',
-    regclose :'רישום סגור'
-}
-
 function addCompetition(req, res) {
     let validator = new validation(req.body, {
         location: 'required',
@@ -224,11 +218,14 @@ async function updateCompetitionDetails(req,res) {
 }
 
 function autoCloseRegCompetition(){
-    DButilsAzure.execQuery(`UPDATE events_competition SET status='סגור' WHERE closeRegDate<=Convert(Date,CURRENT_TIMESTAMP) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP);`)
-            .then((result) => {})
-        .catch((error)=>{
-            console.log(eror)
-        })
+    console.log('Start auto closed Register to Competition');
+    dbUtils.sql(`UPDATE events_competition SET status='${Constants.competitionStatus.regclose}' WHERE closeRegDate<=Convert(Date,CURRENT_TIMESTAMP) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP) and status='${Constants.competitionStatus.open}';`)
+        .execute()
+        .then(function(results) {
+            console.log("Finished auto closed register to competitions")
+        }).fail(function(err) {
+        console.log(err)
+    });
 }
 
 module.exports._addCompetition = addCompetition;

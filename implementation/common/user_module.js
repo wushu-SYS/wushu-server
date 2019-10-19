@@ -1,11 +1,25 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-function login(req,res) {
-    var isAuthorized=false;
-    var firstname;
-    var lastname;
-    var id;
+function checkUserDetailsForLogin(userData) {
+    var ans =new Object();
+    dbUtils.sql(`select * from user_Passwords where id = @id`)
+        .parameter('id', TYPES.Int, userData.userID)
+        .execute()
+        .then(async function(results) {
+            if(results.length===0) {
+                ans.isPassed = false
+                ans.err=Constants.errorMsg.errLoginDetails
+            }
+            else{
+                 ans.dbResults = results[0]
+                 ans.isPassed =bcrypt.compareSync(req.body.password, result[0].password);
+            }
+            return ans;
+        }).fail(function(err) {
+            console.log(err)
+    });
+    /*
     DButilsAzure.execQuery(`select * from user_Passwords where id = '${req.body.userID}'`)// AND password = '${pass}'`)
         .then(async (result) => {
             if(result.length === 0)
@@ -46,7 +60,39 @@ function login(req,res) {
             console.log(err)
             res.status(400).send(err)
         });
+
+     */
 }
+async function getUserDetails(userData) {
+    let result;
+    switch (userData.dbResults.usertype) {
+        case 1:
+            result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
+            break;
+        case 2:
+            result =await dbUtils.sql(`select firstname, lastname from user_Coach where id= '${userData.dbResults.id}'`).execute();
+            break;
+        case 3:
+            result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
+            break;
+    }
+    return result[0]
+
+}
+function buildToken(userDetails,userData){
+    payload = { id: userData.dbResults.id, name: userDetails.firstname, access:userData.dbResults.usertype};
+    options = { expiresIn: "1d" };
+    const token = jwt.sign(payload, secret, options);
+    return {
+        'token' : token,
+        'id' :userData.dbResults.id,
+        'firstname' : userDetails.firstname,
+        'lastname' : userDetails.lastname,
+        'access' : userData.dbResults.usertype,
+        'isFirstTime' : userData.dbResults.isfirstlogin
+    };
+}
+
 function uploadPhoto(req,res){
     var id =jwt.decode(req.header("x-auth-token")).id;
     switch (jwt.decode(req.header("x-auth-token")).access) {
@@ -118,8 +164,8 @@ async function deleteSportsman(req,res){
 
 
 
-
-module.exports._login = login;
+module.exports.buildToken=buildToken;
+module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports._uploadPhoto= uploadPhoto;
 module.exports._downloadSportsmanExcel=downloadExcelSportsman;
 module.exports._changePass=changePassword;

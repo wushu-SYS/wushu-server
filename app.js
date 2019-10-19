@@ -2,17 +2,17 @@ DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
 var app =require ("express")();
 var bodyParser = require("body-parser");
-var Enum = require('enum');
 var cors = require('cors');
 jwt = require("jsonwebtoken");
-//validation = require('node-input-validator');
 validator = require('validator');
 
 secret = "wushuSecret";
 const multer = require('multer');
 var schedule = require('node-schedule');
 
+global.__basedir = __dirname;
 
+let id, access;
 
 
 //import all modules
@@ -35,33 +35,13 @@ const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 //server schedule Jobs
 var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function(){
-    console.log('close Register to Competition');
     manger_competition_module._autoCloseRegCompetition();
-
 });
 
-userType = {
-    MANAGER: 1,
-    COACH: 2,
-    SPORTSMAN: 3
-};
-
-eventType={
-    competition: 'תחרות',
-    event : 'אירוע'
-};
-
-global.__basedir = __dirname;
-
+//app uses
 app.use(bodyParser.urlencoded({extend:true}));
 app.use(bodyParser.json());
 app.use(cors())
-app.options('*', cors())
-
-
-
-
-let id, access;
 app.use("/private", (req, res, next) => {
     const token = req.header("x-auth-token");
     if (!token) res.status(401).send("Access denied. No token provided.");
@@ -78,8 +58,21 @@ app.use("/private", (req, res, next) => {
         res.status(400).send("Invalid token. Permission denied");
     }
 });
-app.post("/login", (req, res) => {
-    common_user_module._login(req, res)
+
+
+//app options
+app.options('*', cors())
+
+
+
+
+app.post("/login", async (req, res) => {
+    let ans= await common_user_module.checkUserDetailsForLogin(req.body)
+    if(!ans.isPassed)
+        res.status(401).send(Constants.errorMsg.errLoginDetails)
+    let userDetails = await common_user_module.getUserDetails(ans)
+    let token = common_user_module.buildToken(userDetails,ans)
+    res.status(200).send(token)
 });
 
 app.post("/private/registerSportsman", async function(req, res){
