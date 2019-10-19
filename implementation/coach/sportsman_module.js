@@ -38,15 +38,15 @@ function getSportsmen(req, res, id){
                     on sportsman_coach.id = competition_sportsman.idSportsman`;
         }
         else if(req.query.competitionOperator == '!='){
-            query = `Select id, firstname, lastname, photo from
-                (Select user_Sportsman.id, firstname, lastname, photo
+            query = `Select id, firstname, lastname, photo, sportclub from
+                (Select user_Sportsman.id, firstname, lastname, photo, sportclub
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
                     where idCoach = ${id}
                 except
-                select id, firstname, lastname,photo from
-                (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                select id, firstname, lastname,photo, sportclub from
+                (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach, sportclub
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman

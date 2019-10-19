@@ -113,7 +113,7 @@ function getAllSportsman(req,res){
 }
 
 function getRegistrationState(req, res){
-    DButilsAzure.execQuery(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age
+    DButilsAzure.execQuery(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
