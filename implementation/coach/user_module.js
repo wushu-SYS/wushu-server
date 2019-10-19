@@ -2,16 +2,17 @@ const common = require("../common/user_module");
 const sysfunc=require("../commonFunc")
 
 
-function checkDataBeforeRegistar(userToRegsiter) {
+function checkDataBeforeRegister(userToRegsiter) {
     var isPassed =true
     var errorUsers =new Object()
     var res=[];
     userToRegsiter.forEach(function (user) {
             var tmpErr=checkUser(user)
             user[5] =sysfunc.setBirtdateFormat(user[5])
-        if (tmpErr.length!=0)
-            isPassed=false;
-        errorUsers[user[0]]=tmpErr
+        if (tmpErr.length!=0) {
+            isPassed = false;
+            errorUsers[user[0]] = tmpErr
+        }
     })
     res.isPassed =isPassed;
     res.err =errorUsers;
@@ -44,26 +45,28 @@ function checkUser(user) {
     //branch
     if(!(user[9].toString() in Constants.sportType))
         err.push(Constants.errorMsg.sportTypeErr)
-        //id coach
+    //id coach
     if(!validator.isInt(user[10].toString(),{gt: 100000000, lt: 1000000000}))
         err.push(Constants.errorMsg.idCoachErr)
-    /*if(err.length==0){
-        if(checkSportsmanExistsDB(user[0]))
-            err.push(Constants.errorMsg.idExists)
-        if(!checkCoachExistsDB(user[10]))
-            err.push(Constants.errorMsg.idCoachNotExists)
-    }
 
-     */
     return err;
 
 
 }
-function registerSportman(req, res) {
-    var ans=checkDataBeforeRegistar(sysfunc.getArrayFromJson(req.body))
-    if(!ans.isPassed)
-        res.send(ans.err)
 
+async function registerSportman(data) {
+    var ans=checkDataBeforeRegister(sysfunc.getArrayFromJson(data))
+    if(!ans.isPassed)
+        return ans
+    await dbUtils.sql("select * FROM user_Coach")
+         .execute()
+        .then(function(results) {
+            ans.results= results;
+        }).fail(function(err) {
+        // do something with the failure
+        console.log(err)
+    });
+    return ans
     /*
             DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
                 .then((result) => {

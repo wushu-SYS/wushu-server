@@ -30,15 +30,8 @@ function setBirthDateFormat (birthdate){
    return ([initial[1], initial[0], initial[2]].join('/'));
 
 }
-async function checkSportsmanExistsDB(id){
 
-}
-async function checkCoachExistsDB(id){
 
-}
-
-module.exports.checkCoachExistsDB=checkCoachExistsDB;
-module.exports.checkSportsmanExistsDB=checkSportsmanExistsDB;
 module.exports.setBirtdateFormat =setBirthDateFormat;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail =sendMail;

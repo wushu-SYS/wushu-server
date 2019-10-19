@@ -1,6 +1,30 @@
-//this is only an example, handling everything is yours responsibilty !
-//this is an example - open and close the connection in each request
+dbUtils = require('tedious-promises');
+var dbConfig = require('./config');
+var TYPES = require('tedious').TYPES;
+var ConnectionPool = require('tedious-connection-pool');
+var poolConfig = {}; // see tedious-connection-pool documentation
+var pool = new ConnectionPool(poolConfig, dbConfig);
+dbUtils.setConnectionPool(pool);
+var _ = require('lodash');
+dbUtils.setDefaultColumnRenamer(_.camelCase);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 var ConnectionPool = require('tedious-connection-pool');
 var Request = require('tedious').Request;
 var TYPES = require('tedious').TYPES;
@@ -86,3 +110,6 @@ exports.execQuery = function (query) {
     });
 
 };
+
+
+ */
