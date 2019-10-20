@@ -16,6 +16,7 @@ async function checkUserDetailsForLogin(userData) {
             }
         }).fail(function (err) {
             ans.isPassed = false;
+            ans.err = err;
             console.log(err)
         });
     return ans;
@@ -63,7 +64,6 @@ async function checkUserDetailsForLogin(userData) {
 
      */
 }
-
 async function getUserDetails(userData) {
     let result;
     switch (userData.dbResults.usertype) {
@@ -80,7 +80,6 @@ async function getUserDetails(userData) {
     return result[0]
 
 }
-
 function buildToken(userDetails, userData) {
     payload = {id: userData.dbResults.id, name: userDetails.firstname, access: userData.dbResults.usertype};
     options = {expiresIn: "1d"};
@@ -111,11 +110,6 @@ function uploadPhoto(req, res) {
     res.status(200).send("File upload successfully")
 }
 
-function downloadExcelSportsman(req, res) {
-    res.download('././resources/files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {
-        }
-    )
-}
 
 async function changePassword(req, res) {
     var isThesame = false;
@@ -154,12 +148,6 @@ async function insertPassword(req, type, isFirstTime) {
         })
 }
 
-function downlaodExcelCoach(req, res) {
-    res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {
-        }
-    )
-}
-
 async function deleteSportsman(req, res) {
     await DButilsAzure.execQuery(`DELETE FROM user_Sportsman WHERE id ='${req.body.userID}';`)
         .then(async () => {
@@ -178,8 +166,6 @@ module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
 module.exports._uploadPhoto = uploadPhoto;
-module.exports._downloadSportsmanExcel = downloadExcelSportsman;
 module.exports._changePass = changePassword;
-module.exports._downloadcoachExcel = downlaodExcelCoach;
 module.exports._insertPassword = insertPassword;
 module.exports.deleteSportsman = deleteSportsman;

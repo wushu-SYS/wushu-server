@@ -37,7 +37,12 @@ let errorMsg ={
     sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachNotExists :'ת.ז מאמן לא רשומה במערכת' ,
     errLoginDetails :'Access denied. Error in user\'s details',
-    accessDenied :'Access denied'
+    accessDenied :'Access denied',
+    failDownload : 'Fail to download resource'
+}
+
+var fileName = {
+    excelFormatRegisterSportsman : 'אקסל רישום ספורטאיים'
 }
 
 
@@ -48,5 +53,6 @@ module.exports = {
     hebRegex: regexHeb,
     sexEnum: sexEnum,
     sportType:sportType,
-    errorMsg:errorMsg
+    errorMsg:errorMsg,
+    fileName:fileName
 };

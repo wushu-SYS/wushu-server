@@ -1,6 +1,6 @@
 DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
-var app =require ("express")();
+var app = require("express")();
 var bodyParser = require("body-parser");
 var cors = require('cors');
 jwt = require("jsonwebtoken");
@@ -24,22 +24,22 @@ const common_competition_module = require("./implementation/common/competition_m
 
 const coach_sportsman_module = require("./implementation/coach/sportsman_module");
 const coach_user_module = require("./implementation/coach/user_module");
-const coach_competition_module=require("./implementation/coach/competition_module");
+const coach_competition_module = require("./implementation/coach/competition_module");
 
-const manger_sportsman_module =require("./implementation/manger/sportsman_module");
-const manger_user_module =require("./implementation/manger/user_module");
-const manger_competition_module=require("./implementation/manger/competition_module");
+const manger_sportsman_module = require("./implementation/manger/sportsman_module");
+const manger_user_module = require("./implementation/manger/user_module");
+const manger_competition_module = require("./implementation/manger/competition_module");
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 
 //server schedule Jobs
-var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function(){
+var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module._autoCloseRegCompetition();
 });
 
 //app uses
-app.use(bodyParser.urlencoded({extend:true}));
+app.use(bodyParser.urlencoded({extend: true}));
 app.use(bodyParser.json());
 app.use(cors())
 app.use("/private", (req, res, next) => {
@@ -64,12 +64,10 @@ app.use("/private", (req, res, next) => {
 app.options('*', cors())
 
 
-
-
 app.post("/login", async (req, res) => {
     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
-    if(!ans.isPassed)
-        res.status(401).send(Constants.errorMsg.errLoginDetails);
+    if (!ans.isPassed)
+        res.status(401).send(ans.err);
     else {
         let userDetails = await common_user_module.getUserDetails(ans);
         let token = common_user_module.buildToken(userDetails, ans);
@@ -77,20 +75,19 @@ app.post("/login", async (req, res) => {
     }
 });
 
-app.post("/private/registerSportsman", async function(req, res){
-    if(access !== userType.SPORTSMAN) {
+app.post("/private/registerSportsman", async function (req, res) {
+    if (access !== userType.SPORTSMAN) {
         var ans = await coach_user_module._registerSportman(req.body);
-        if(!ans.isPassed)
+        if (!ans.isPassed)
             res.send(ans.err)
         res.send(ans.results)
-    }
-    else
+    } else
         res.status(400).send("Permission denied");
 });
 
-app.post("/private/registerCoach",function (req,res) {
-    if(access === userType.MANAGER)
-        manger_user_module._registerCoach(req,res);
+app.post("/private/registerCoach", function (req, res) {
+    if (access === userType.MANAGER)
+        manger_user_module._registerCoach(req, res);
     else
         res.status(400).send("Permission denied")
 
@@ -101,7 +98,7 @@ const storagePhoto = multer.diskStorage({
         cb(null, __basedir + '/uploads/Photos/')
     },
     filename: (req, file, cb) => {
-        cb(null, String(id+".jpeg"))
+        cb(null, String(id + ".jpeg"))
     }
 });
 const uploadMedical = multer.diskStorage({
@@ -109,7 +106,7 @@ const uploadMedical = multer.diskStorage({
         cb(null, __basedir + '/uploads/sportsman/MedicalScan/')
     },
     filename: (req, file, cb) => {
-        cb(null, String(id+".jpeg"))
+        cb(null, String(id + ".jpeg"))
     }
 });
 const uploadInsurance = multer.diskStorage({
@@ -117,91 +114,91 @@ const uploadInsurance = multer.diskStorage({
         cb(null, __basedir + '/uploads/sportsman/InsuranceScan/')
     },
     filename: (req, file, cb) => {
-        cb(null, String(id+".jpeg"))
+        cb(null, String(id + ".jpeg"))
     }
 });
 const uploadPhotos = multer({storage: storagePhoto});
 const uploadMedicals = multer({storage: uploadMedical});
-const uploadInsurances=multer({storage: uploadInsurance});
-app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) =>{
-    common_user_module._uploadPhoto(req,res);
+const uploadInsurances = multer({storage: uploadInsurance});
+app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) => {
+    common_user_module._uploadPhoto(req, res);
 });
-app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) =>{
-    sportsman_user_module._uploadeMedical(req,res);
+app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) => {
+    sportsman_user_module._uploadeMedical(req, res);
 });
-app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) =>{
-    sportsman_user_module._uploadInsurances(req,res);
-});
-
-app.get('/downloadExcelSportsman', (req, res) =>{
-    common_user_module._downloadSportsmanExcel(req,res);
-});
-app.get('/downloadExcelCoach', (req, res) =>{
-    common_user_module._downloadcoachExcel(req,res);
+app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) => {
+    sportsman_user_module._uploadInsurances(req, res);
 });
 
-app.post("/private/changePassword",function (req,res) {
-    common_user_module._changePass(req,res)
+app.get('/downloadExcelFormatSportsman', (req, res) => {
+    res.download('resources/files/sportsmanExcel.xlsx');
+});
+app.get('/downloadExcelFormatCoach', (req, res) => {
+    res.download('resources/files/coachExcel.xlsx');
 });
 
-app.post("/private/getCoaches",function (req,res) {
-    if(access !== userType.SPORTSMAN)
+app.post("/private/changePassword", function (req, res) {
+    common_user_module._changePass(req, res)
+});
+
+app.post("/private/getCoaches", function (req, res) {
+    if (access !== Constants.userType.SPORTSMAN)
         common_couches_module._getCoaches(req, res);
     else
         res.status(400).send("Permission denied");
 });
 app.post("/private/getSportsmen", function (req, res) {
-    if(access === userType.MANAGER)
+    if (access === userType.MANAGER)
         manger_sportsman_module._getSportsmen(req, res);
-    else if(access === userType.COACH)
+    else if (access === userType.COACH)
         coach_sportsman_module._getSportsmen(req, res, id);
 });
-app.post("/private/getClubs",function (req,res) {
-    if(access !== userType.SPORTSMAN)
+app.post("/private/getClubs", function (req, res) {
+    if (access !== userType.SPORTSMAN)
         common_sportclub_module._getSportClubs(req, res);
     else
         res.status(400).send("Permission denied");
 });
 app.post("/private/getCategories", function (req, res) {
-   common_sportsman_module._getCategories(req, res);
+    common_sportsman_module._getCategories(req, res);
 });
 
-app.post("/private/sportsmanProfile",function (req,res) {
-    if(req.body.id !== undefined && access === userType.SPORTSMAN && id !== req.body.id)
+app.post("/private/sportsmanProfile", function (req, res) {
+    if (req.body.id !== undefined && access === userType.SPORTSMAN && id !== req.body.id)
         res.status(400).send("Permission denied");
     else {
-        if(req.body.id !==undefined)
+        if (req.body.id !== undefined)
             common_sportsman_module._sportsmanProfile(req.body.id, res);
         else
             common_sportsman_module._sportsmanProfile(id, res);
     }
 });
 app.post("/private/addCompetition", function (req, res) {
-    if(access === userType.MANAGER)
+    if (access === userType.MANAGER)
         manger_competition_module._addCompetition(req, res);
     else
         res.status(400).send("Permission denied")
 });
 
-app.post("/private/getCompetitions",function (req,res) {
-    if(access===userType.MANAGER||access===userType.COACH)
-        manger_competition_module._getCompetitions(req,res);
+app.post("/private/getCompetitions", function (req, res) {
+    if (access === userType.MANAGER || access === userType.COACH)
+        manger_competition_module._getCompetitions(req, res);
     else
         res.status(400).send("Permission denied")
 
 })
-app.post("/private/getCompetitionDetail",function (req,res) {
-    if(access===userType.MANAGER||access===userType.COACH||access===userType.SPORTSMAN)
-        common_competition_module._getDetail(req,res);
+app.post("/private/getCompetitionDetail", function (req, res) {
+    if (access === userType.MANAGER || access === userType.COACH || access === userType.SPORTSMAN)
+        common_competition_module._getDetail(req, res);
     else
         res.status(400).send("Permission denied")
 
 })
 
-app.post("/private/getCoachSportsman",function (req,res) {
-    if(access===userType.COACH)
-        coach_competition_module._getCoachSportsman(req,res,id);
-    else if(access===userType.MANAGER)
+app.post("/private/getCoachSportsman", function (req, res) {
+    if (access === userType.COACH)
+        coach_competition_module._getCoachSportsman(req, res, id);
+    else if (access === userType.MANAGER)
         manger_competition_module._getAllSportsman(req, res);
     else
         res.status(400).send("Permission denied")
@@ -210,60 +207,60 @@ app.post("/private/getCoachSportsman",function (req,res) {
 })
 
 app.post("/private/competitionSportsmen", function (req, res) {
-    if(access !== userType.SPORTSMAN)
+    if (access !== userType.SPORTSMAN)
         common_competition_module._registerSportsmenToCompetition(req, res);
 })
 
-app.post("/private/deleteSportsmanProfile",function (req,res) {
-    if(access===userType.MANAGER||id===req.body.userID)
-        common_user_module.deleteSportsman(req,res)
+app.post("/private/deleteSportsmanProfile", function (req, res) {
+    if (access === userType.MANAGER || id === req.body.userID)
+        common_user_module.deleteSportsman(req, res)
     else
         res.status(400).send("Permission denied")
 })
 
-app.post("/private/updateSportsmanProfile",function (req,res) {
-    if(access===userType.MANAGER||id===req.body.id)
-        sportsman_user_module._updateSportsmanProfile(req,res)
+app.post("/private/updateSportsmanProfile", function (req, res) {
+    if (access === userType.MANAGER || id === req.body.id)
+        sportsman_user_module._updateSportsmanProfile(req, res)
     else
         res.status(400).send("Permission denied")
 });
 
 app.post("/private/getRegistrationState", function (req, res) {
-    if(access===userType.MANAGER || access===userType.COACH)
+    if (access === userType.MANAGER || access === userType.COACH)
         manger_competition_module._getRegistrationState(req, res);
     else
         res.status(400).send("Permission denied")
 });
 
 app.post("/private/setCategoryRegistration", function (req, res) {
-   if(access===userType.MANAGER)
-       manger_competition_module._setCategoryRegistration(req, res);
-   else
-       res.status(400).send("Permission denied")
+    if (access === userType.MANAGER)
+        manger_competition_module._setCategoryRegistration(req, res);
+    else
+        res.status(400).send("Permission denied")
 });
 
 app.post("/private/closeRegistration", function (req, res) {
-    if(access===userType.MANAGER)
+    if (access === userType.MANAGER)
         manger_competition_module._closeRegistration(req, res);
     else
         res.status(400).send("Permission denied")
 })
 app.post("/private/addNewCategory", function (req, res) {
-    if(access===userType.MANAGER)
+    if (access === userType.MANAGER)
         manger_competition_module._addNewCategory(req, res);
     else
         res.status(400).send("Permission denied")
 })
 
-app.post("/private/updateCompetitionDetails",function (req,res) {
-    if(access===userType.MANAGER)
+app.post("/private/updateCompetitionDetails", function (req, res) {
+    if (access === userType.MANAGER)
         manger_competition_module._updateCompetitionDetails(req, res);
     else
         res.status(400).send("Permission denied")
 })
 
 //start the server
-app.listen(3000,()=>{
+app.listen(3000, () => {
     console.log("Server has been started !!");
     console.log("port 3000");
     console.log("wu-shu project");
