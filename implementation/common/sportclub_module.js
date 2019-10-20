@@ -10,7 +10,6 @@ async function getSportClubs() {
             ans.results = err
         });
     return ans;
-
 }
 
 module.exports.getSportClubs = getSportClubs;
