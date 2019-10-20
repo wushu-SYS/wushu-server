@@ -4,7 +4,7 @@ const saltRounds = 10;
 function checkUserDetailsForLogin(userData) {
     var ans =new Object();
     dbUtils.sql(`select * from user_Passwords where id = @id`)
-        .parameter('id', TYPES.Int, userData.userID)
+        .parameter('id', tediousTYPES.Int, userData.userID)
         .execute()
         .then(async function(results) {
             if(results.length===0) {
@@ -13,7 +13,7 @@ function checkUserDetailsForLogin(userData) {
             }
             else{
                  ans.dbResults = results[0]
-                 ans.isPassed =bcrypt.compareSync(req.body.password, result[0].password);
+                 ans.isPassed =bcrypt.compareSync(userData.password, results[0].password);
             }
             return ans;
         }).fail(function(err) {
