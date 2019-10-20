@@ -163,9 +163,11 @@ app.post("/private/getSportsmen", async function (req, res) {
     let ans;
     if (access === Constants.userType.MANAGER)
         ans = await manger_sportsman_module.getSportsmen(req.query);
-    else if (access === Constants.userType.COACH)
+    /*else if (access === Constants.userType.COACH)
         ans = coach_sportsman_module._getSportsmen(req, res, id);
+     */
     res.status(ans.status).send(ans.results);
+
 });
 app.post("/private/getClubs", function (req, res) {
     if (access !== userType.SPORTSMAN)

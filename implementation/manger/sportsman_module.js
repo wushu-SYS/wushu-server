@@ -1,6 +1,6 @@
 const common_sportsman_module = require('../common/sportsman_module');
 
-function getSportsmen(queryData){
+async function getSportsmen(queryData){
     let ans = new Object();
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData);
     let query = buildQuery_forGetSportsman(queryData);
@@ -8,22 +8,25 @@ function getSportsmen(queryData){
     query.queryCount +=conditions;
     query.query += common_sportsman_module.buildOrderBy_forGetSportsmen(queryData);
 
-    Promise.all([dbUtils.sql(query.query)
+   await Promise.all([dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
-        .parameter('value', tediousTYPES.Int, queryData.value)
-        .parameter('sportStyle', tediousTYPES.Int, queryData.sportStyle)
-        .parameter('club', tediousTYPES.Int, queryData.club)
-        .parameter('sex', tediousTYPES.Int, queryData.sex)
+        .parameter('value', tediousTYPES.NVarChar, queryData.value)
+        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+        .parameter('club', tediousTYPES.NVarChar, queryData.club)
+        .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
-        .execute(),
+        .execute()
+        .fail((err)=>{console.log(err)}),
         dbUtils.sql(query.queryCount)
             .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
-            .parameter('value', tediousTYPES.Int, queryData.value)
-            .parameter('sportStyle', tediousTYPES.Int, queryData.sportStyle)
-            .parameter('club', tediousTYPES.Int, queryData.club)
-            .parameter('sex', tediousTYPES.Int, queryData.sex)
+            .parameter('value', tediousTYPES.NVarChar, queryData.value)
+            .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+            .parameter('club', tediousTYPES.NVarChar, queryData.club)
+            .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
             .parameter('compId', tediousTYPES.Int, queryData.competition)
-            .execute()])
+            .execute()
+            .fail((err)=>{console.log(err)}),
+    ])
         .then(result => {
             ans.results = {
                 sportsmen : result[0],
@@ -35,6 +38,7 @@ function getSportsmen(queryData){
             ans.status = Constants.statusCode.badRequest;
             ans.results = error;
         });
+    return ans
 }
 
 function buildQuery_forGetSportsman(queryData){
@@ -84,4 +88,4 @@ function buildQuery_forGetSportsman(queryData){
     return query;
 }
 
-module.exports._getSportsmen = getSportsmen;
+module.exports.getSportsmen = getSportsmen;
