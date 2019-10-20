@@ -176,9 +176,9 @@ app.post("/private/getClubs", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
-app.post("/private/getCategories", function (req, res) {
+app.post("/private/getCategories", async function (req, res) {
     if (access != Constants.userType.SPORTSMAN) {
-        let ans = common_sportsman_module.getCategories();
+        let ans = await common_sportsman_module.getCategories();
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
