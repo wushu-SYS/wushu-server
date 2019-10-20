@@ -10,7 +10,7 @@ function buildConditions_forGetSportsmen(queryData, id){
         conditions.push(`sportsman_coach.idCoach = @idCoach`);
     }
     if(value !== '' && value !== undefined) {
-        conditions.push("(firstname like '%@value%' or lastname like '%@value%')");
+        conditions.push("(firstname like Concat('%', @value, '%') or lastname like Concat('%', @value, '%'))");
     }
     if(sportStyle !== '' && sportStyle !== undefined){
         conditions.push("sportStyle like @sportStyle");
