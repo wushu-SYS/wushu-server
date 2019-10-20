@@ -171,8 +171,10 @@ app.post("/private/getSportsmen", async function (req, res) {
 app.post("/private/getClubs", async function (req, res) {
     if (access !== Constants.userType.SPORTSMAN) {
         let ans = await common_sportclub_module.getSportClubs();
+        console.log(ans.results);
         res.status(ans.status).send(ans.results)
-    } else
+    }
+    else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
