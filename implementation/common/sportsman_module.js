@@ -35,19 +35,24 @@ function buildOrderBy_forGetSportsmen(queryData) {
         return ' order by firstname';
 }
 
-function sportsmanProfile(id, res) {
-    DButilsAzure.execQuery(`Select user_Sportsman.id, user_Sportsman.firstname as sfirstname, user_Sportsman.lastname as slastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club
+async function sportsmanProfile(id) {
+    let ans = new Object();
+    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as sfirstname, user_Sportsman.lastname as slastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club
                                     from user_Sportsman
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
                                     join user_Coach on sportsman_coach.idCoach = user_Coach.id
                                     join sportclub on user_Sportsman.sportclub = sportclub.id
-                                    where user_Sportsman.id like ${id}`)
-        .then((result) => {
-            res.status(200).send(result[0])
-        })
-        .catch((error) => {
-            res.status(400).send(error)
-        })
+                                    where user_Sportsman.id = @id`)
+        .parameter('id', tediousTYPES.Int, id)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = results[0]
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
 }
 
 async function getCategories() {
@@ -66,5 +71,5 @@ async function getCategories() {
 
 module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen;
 module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
-module.exports._sportsmanProfile = sportsmanProfile;
+module.exports.sportsmanProfile = sportsmanProfile;
 module.exports.getCategories = getCategories;
