@@ -20,50 +20,9 @@ async function checkUserDetailsForLogin(userData) {
             console.log(err)
         });
     return ans;
-    /*
-    DButilsAzure.execQuery(`select * from user_Passwords where id = '${req.body.userID}'`)// AND password = '${pass}'`)
-        .then(async (result) => {
-            if(result.length === 0)
-                res.status(401).send("Access denied. Error in user's details");
-            else{
-                isAuthorized =bcrypt.compareSync(req.body.password, result[0].password);
-                if(isAuthorized) {
-                    switch (result[0].usertype) {
-                        case 1:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Manger where id= '${result[0].id}'`);
-                            break;
-                        case 2:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Coach where id= '${result[0].id}'`);
-                            break;
-                        case 3:
-                            result1 = await DButilsAzure.execQuery(`select firstname, lastname from user_Sportsman where id= '${result[0].id}'`);
-                            break;
-                    }
-                    firstname = result1[0].firstname;
-                    lastname = result1[0].lastname;
-                }
-                else
-                    res.status(401).send("Access denied. Error in user's details");
-                payload = { id: result[0].id, name: firstname, access:result[0].usertype};
-                options = { expiresIn: "1d" };
-                const token = jwt.sign(payload, secret, options);
-                resultJson = {
-                    'token' : token,
-                    'id' : result[0].id,
-                    'firstname' : firstname,
-                    'lastname' : lastname,
-                    'access' : result[0].usertype,
-                    'isFirstTime' : result[0].isfirstlogin
-                };
-                res.send(resultJson);
-            }})
-        .catch(function(err){
-            console.log(err)
-            res.status(400).send(err)
-        });
 
-     */
 }
+
 async function getUserDetails(userData) {
     let result;
     switch (userData.dbResults.usertype) {
@@ -80,6 +39,7 @@ async function getUserDetails(userData) {
     return result[0]
 
 }
+
 function buildToken(userDetails, userData) {
     payload = {id: userData.dbResults.id, name: userDetails.firstname, access: userData.dbResults.usertype};
     options = {expiresIn: "1d"};
@@ -110,30 +70,37 @@ function uploadPhoto(req, res) {
     res.status(200).send("File upload successfully")
 }
 
+async function validateDiffPass(userData) {
+    var ans = new Object()
+    await dbUtils.sql(`Select password from user_Passwords where id= @id`)
+        .parameter('id', tediousTYPES.Int, userData.id)
+        .execute()
+        .then(function (results) {
+            ans.isPassed = !(bcrypt.compareSync(userData.newPass, results[0].password))
+            ans.err = Constants.errorMsg.samePassword
+        }).fail(function (err) {
+            console.log(err);
+            ans.isPassed = false;
+            ans.err = err
+        });
+    return ans;
+}
 
-async function changePassword(req, res) {
-    var isThesame = false;
-    var id = jwt.decode(req.header("x-auth-token")).id;
-    await DButilsAzure.execQuery(`Select password from user_Passwords where id='${id}';`)
-        .then((result) => {
-            isThesame = bcrypt.compareSync(req.body.password, result[0].password);
-            if (isThesame)
-                res.status(401).send("Password are the same cant change")
-            else {
-                var hash = bcrypt.hashSync(req.body.password, saltRounds);
-                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${hash}',isFirstLogin = 0 where id='${id}';`)
-                    .then(() => {
-                            res.status(200).send("password update successfully")
-                        }
-                    )
-                    .catch((error) => {
-                        res.status(404).send(error);
-                    })
-            }
-        })
-        .catch((error) => {
-            res.status(404).send(error);
-        })
+async function changeUserPassword(userData) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE user_Passwords SET password = @newPassword, isFirstLogin = 0 where id =@id`)
+        .parameter('newPassword', tediousTYPES.NVarChar, bcrypt.hashSync(userData.newPass, saltRounds))
+        .parameter('id', tediousTYPES.Int, userData.id)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.passUpdated
+        }).fail(function (err) {
+            console.log(err);
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans
 
 }
 
@@ -166,6 +133,7 @@ module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
 module.exports._uploadPhoto = uploadPhoto;
-module.exports._changePass = changePassword;
+module.exports.changeUserPassword = changeUserPassword;
 module.exports._insertPassword = insertPassword;
 module.exports.deleteSportsman = deleteSportsman;
+module.exports.validateDiffPass = validateDiffPass;

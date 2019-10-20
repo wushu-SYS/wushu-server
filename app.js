@@ -67,11 +67,11 @@ app.options('*', cors())
 app.post("/login", async (req, res) => {
     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
     if (!ans.isPassed)
-        res.status(401).send(ans.err);
+        res.status(Constants.statusCode.unauthorized).send(ans.err);
     else {
         let userDetails = await common_user_module.getUserDetails(ans);
         let token = common_user_module.buildToken(userDetails, ans);
-        res.status(200).send(token)
+        res.status(Constants.statusCode.ok).send(token)
     }
 });
 
@@ -137,8 +137,17 @@ app.get('/downloadExcelFormatCoach', (req, res) => {
     res.download('resources/files/coachExcel.xlsx');
 });
 
-app.post("/private/changePassword", function (req, res) {
-    common_user_module._changePass(req, res)
+app.post("/private/changePassword", async function (req, res) {
+    let userData = {
+        id: jwt.decode(req.header("x-auth-token")).id,
+        newPass: req.body.password
+    }
+    let ans = await common_user_module.validateDiffPass(userData);
+    if (ans.isPassed) {
+        ans = await common_user_module.changeUserPassword(userData);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(ans.err)
 });
 
 app.post("/private/getCoaches", function (req, res) {
