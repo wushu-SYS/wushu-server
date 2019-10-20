@@ -168,13 +168,15 @@ app.post("/private/getSportsmen", async function (req, res) {
 
 });
 
-
-app.post("/private/getClubs", function (req, res) {
-    if (access !== userType.SPORTSMAN)
-        common_sportclub_module._getSportClubs(req, res);
+app.post("/private/getClubs", async function (req, res) {
+    if (access !== Constants.userType.SPORTSMAN) {
+        let ans = await common_sportclub_module.getSportClubs();
+        res.send(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied");
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
+
 app.post("/private/getCategories", function (req, res) {
     common_sportsman_module._getCategories(req, res);
 });
