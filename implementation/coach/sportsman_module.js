@@ -14,7 +14,7 @@ async function getSportsmen(queryData, id) {
     let query = initQury(queryData, id);
 
     await Promise.all([dbUtils.sql(query.query)
-        .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
+        .parameter('idCoach', tediousTYPES.Int, id)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
         .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
@@ -26,7 +26,7 @@ async function getSportsmen(queryData, id) {
             ans.results = error;
         }),
         dbUtils.sql(query.queryCount)
-            .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
+            .parameter('idCoach', tediousTYPES.Int, id)
             .parameter('value', tediousTYPES.NVarChar, queryData.value)
             .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
             .parameter('club', tediousTYPES.NVarChar, queryData.club)
@@ -101,7 +101,7 @@ function buildQuery_forGetSportsman(queryData) {
                     where sportsman_coach.idCoach = @idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman
-                    where idCompetition = @reqQueryCompetition) as t`;
+                    where idCompetition = @compId) as t`;
             query.queryCount = `Select count(*) as count from
                 (Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
@@ -117,7 +117,7 @@ function buildQuery_forGetSportsman(queryData) {
                     where sportsman_coach.idCoach = @idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman
-                    where idCompetition = @reqQueryCompetition) as t`;
+                    where idCompetition = @compId) as t`;
         }
     } else {
         query.query = `Select id,firstname,lastname,photo

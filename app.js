@@ -154,8 +154,7 @@ app.post("/private/getCoaches", async function (req, res) {
     if (access !== Constants.userType.SPORTSMAN) {
         let ans = await common_couches_module.getCoaches();
         res.status(ans.status).send(ans.results);
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
@@ -168,6 +167,8 @@ app.post("/private/getSportsmen", async function (req, res) {
     res.status(ans.status).send(ans.results);
 
 });
+
+
 app.post("/private/getClubs", function (req, res) {
     if (access !== userType.SPORTSMAN)
         common_sportclub_module._getSportClubs(req, res);
