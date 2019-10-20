@@ -1,6 +1,6 @@
 dbUtils = require('tedious-promises');
 var dbConfig = require('./config');
-var TYPES = require('tedious').TYPES;
+tediousTYPES = require('tedious').TYPES;
 var ConnectionPool = require('tedious-connection-pool');
 var poolConfig = {
     min: 1,

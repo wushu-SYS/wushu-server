@@ -67,12 +67,14 @@ app.options('*', cors())
 
 
 app.post("/login", async (req, res) => {
-    let ans= await common_user_module.checkUserDetailsForLogin(req.body)
+    let ans = await common_user_module.checkUserDetailsForLogin(req.body);
     if(!ans.isPassed)
-        res.status(401).send(Constants.errorMsg.errLoginDetails)
-    let userDetails = await common_user_module.getUserDetails(ans)
-    let token = common_user_module.buildToken(userDetails,ans)
-    res.status(200).send(token)
+        res.status(401).send(Constants.errorMsg.errLoginDetails);
+    else {
+        let userDetails = await common_user_module.getUserDetails(ans);
+        let token = common_user_module.buildToken(userDetails, ans);
+        res.status(200).send(token)
+    }
 });
 
 app.post("/private/registerSportsman", async function(req, res){
