@@ -1,4 +1,4 @@
-function buildConditions_forGetSportsmen(queryData, id){
+function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
     let sex = queryData.sex;
     let sportStyle = queryData.sportStyle;
@@ -6,35 +6,36 @@ function buildConditions_forGetSportsmen(queryData, id){
     let value = queryData.value;
     var conditions = [];
 
-    if(id !== null && id != undefined && (queryData.competitionOperator === undefined || queryData.competitionOperator === '==')) {
+    if (id !== null && id != undefined && (queryData.competitionOperator === undefined || queryData.competitionOperator === '==')) {
         conditions.push(`sportsman_coach.idCoach = @idCoach`);
     }
-    if(value !== '' && value !== undefined) {
+    if (value !== '' && value !== undefined) {
         conditions.push("(firstname like Concat('%', @value, '%') or lastname like Concat('%', @value, '%'))");
     }
-    if(sportStyle !== '' && sportStyle !== undefined){
+    if (sportStyle !== '' && sportStyle !== undefined) {
         conditions.push("sportStyle like @sportStyle");
     }
-    if(club !== '' && club !== undefined){
+    if (club !== '' && club !== undefined) {
         conditions.push("sportclub like @club");
     }
-    if(sex !== '' && sex !== undefined){
+    if (sex !== '' && sex !== undefined) {
         conditions.push("sex like @sex");
     }
-    if(compId !== '' && compId !== undefined && queryData.competitionOperator !== undefined && queryData.competitionOperator === '=='){
+    if (compId !== '' && compId !== undefined && queryData.competitionOperator !== undefined && queryData.competitionOperator === '==') {
         conditions.push(`idCompetition = @compId`);
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
-function buildOrderBy_forGetSportsmen(queryData){
+
+function buildOrderBy_forGetSportsmen(queryData) {
     let sort = queryData.sort;
-    if(sort !== '' && sort !== undefined && sort === 'desc')
+    if (sort !== '' && sort !== undefined && sort === 'desc')
         return ' order by firstname desc';
     else
         return ' order by firstname';
 }
 
-function sportsmanProfile(id, res){
+function sportsmanProfile(id, res) {
     DButilsAzure.execQuery(`Select user_Sportsman.id, user_Sportsman.firstname as sfirstname, user_Sportsman.lastname as slastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club
                                     from user_Sportsman
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
@@ -49,17 +50,21 @@ function sportsmanProfile(id, res){
         })
 }
 
-function getCategories(req, res){
-    DButilsAzure.execQuery(`Select * from category order by name`)
-        .then((result) => {
-            res.status(200).send(result)
-        })
-        .catch((error)=>{
-            res.status(400).send(error)
-        })
+async function getCategories() {
+    let ans = new Object();
+    await dbUtils.sql(`Select * from category order by name`)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
 }
 
 module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen;
 module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
 module.exports._sportsmanProfile = sportsmanProfile;
-module.exports._getCategories = getCategories;
+module.exports.getCategories = getCategories;
