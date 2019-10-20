@@ -158,11 +158,14 @@ app.post("/private/getCoaches", async function (req, res) {
     else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
-app.post("/private/getSportsmen", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_sportsman_module._getSportsmen(req, res);
-    else if (access === userType.COACH)
-        coach_sportsman_module._getSportsmen(req, res, id);
+
+app.post("/private/getSportsmen", async function (req, res) {
+    let ans;
+    if (access === Constants.userType.MANAGER)
+        ans = await manger_sportsman_module.getSportsmen(req.query);
+    else if (access === Constants.userType.COACH)
+        ans = coach_sportsman_module._getSportsmen(req, res, id);
+    res.status(ans.status).send(ans.results);
 });
 app.post("/private/getClubs", function (req, res) {
     if (access !== userType.SPORTSMAN)
