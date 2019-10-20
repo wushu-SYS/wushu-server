@@ -1,24 +1,25 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-function checkUserDetailsForLogin(userData) {
-    var ans =new Object();
-    dbUtils.sql(`select * from user_Passwords where id = @id`)
+async function checkUserDetailsForLogin(userData) {
+    var ans = new Object();
+    await dbUtils.sql(`select * from user_Passwords where id = @id`)
         .parameter('id', tediousTYPES.Int, userData.userID)
         .execute()
-        .then(async function(results) {
-            if(results.length===0) {
-                ans.isPassed = false
-                ans.err=Constants.errorMsg.errLoginDetails
+        .then(function (results) {
+            if (results.length === 0) {
+                ans.isPassed = false;
+                ans.err = Constants.errorMsg.errLoginDetails
+            } else {
+                ans.dbResults = results[0];
+                ans.isPassed = bcrypt.compareSync(userData.password, results[0].password);
             }
-            else{
-                 ans.dbResults = results[0]
-                 ans.isPassed =bcrypt.compareSync(userData.password, results[0].password);
-            }
-            return ans;
-        }).fail(function(err) {
+        }).fail(function (err) {
+            ans.isPassed = false;
+            ans.err = err;
             console.log(err)
-    });
+        });
+    return ans;
     /*
     DButilsAzure.execQuery(`select * from user_Passwords where id = '${req.body.userID}'`)// AND password = '${pass}'`)
         .then(async (result) => {
@@ -70,7 +71,7 @@ async function getUserDetails(userData) {
             result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
             break;
         case 2:
-            result =await dbUtils.sql(`select firstname, lastname from user_Coach where id= '${userData.dbResults.id}'`).execute();
+            result = await dbUtils.sql(`select firstname, lastname from user_Coach where id= '${userData.dbResults.id}'`).execute();
             break;
         case 3:
             result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
@@ -79,63 +80,63 @@ async function getUserDetails(userData) {
     return result[0]
 
 }
-function buildToken(userDetails,userData){
-    payload = { id: userData.dbResults.id, name: userDetails.firstname, access:userData.dbResults.usertype};
-    options = { expiresIn: "1d" };
+function buildToken(userDetails, userData) {
+    payload = {id: userData.dbResults.id, name: userDetails.firstname, access: userData.dbResults.usertype};
+    options = {expiresIn: "1d"};
     const token = jwt.sign(payload, secret, options);
     return {
-        'token' : token,
-        'id' :userData.dbResults.id,
-        'firstname' : userDetails.firstname,
-        'lastname' : userDetails.lastname,
-        'access' : userData.dbResults.usertype,
-        'isFirstTime' : userData.dbResults.isfirstlogin
+        'token': token,
+        'id': userData.dbResults.id,
+        'firstname': userDetails.firstname,
+        'lastname': userDetails.lastname,
+        'access': userData.dbResults.usertype,
+        'isFirstTime': userData.dbResults.isfirstlogin
     };
 }
 
-function uploadPhoto(req,res){
-    var id =jwt.decode(req.header("x-auth-token")).id;
+function uploadPhoto(req, res) {
+    var id = jwt.decode(req.header("x-auth-token")).id;
     switch (jwt.decode(req.header("x-auth-token")).access) {
         case 1:
-            DButilsAzure.execQuery(`UPDATE user_Manger SET picture ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Manger SET picture ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
             break;
         case 2:
-            DButilsAzure.execQuery(`UPDATE user_Coach SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Coach SET photo ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
             break;
         case 3:
-            DButilsAzure.execQuery(`UPDATE user_Sportsman SET photo ='${"./uploades/Photos/"+id+".jpeg"}' WHERE id = ${id};`)
+            DButilsAzure.execQuery(`UPDATE user_Sportsman SET photo ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
             break;
     }
     res.status(200).send("File upload successfully")
 }
-function downloadExcelSportsman(req,res){
-    res.download('././resources/files/sportsmanExcel.xlsx', 'sportsmanExcel.xlsx', function (err) {}
-)}
-async function changePassword(req ,res){
-    var isThesame=false;
-    var id =jwt.decode(req.header("x-auth-token")).id;
+
+
+async function changePassword(req, res) {
+    var isThesame = false;
+    var id = jwt.decode(req.header("x-auth-token")).id;
     await DButilsAzure.execQuery(`Select password from user_Passwords where id='${id}';`)
-        .then((result)=>{
-            isThesame =bcrypt.compareSync(req.body.password, result[0].password);
-              if(isThesame)
+        .then((result) => {
+            isThesame = bcrypt.compareSync(req.body.password, result[0].password);
+            if (isThesame)
                 res.status(401).send("Password are the same cant change")
             else {
-                  var hash = bcrypt.hashSync(req.body.password, saltRounds);
-                  DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${hash}',isFirstLogin = 0 where id='${id}';`)
-                      .then(() => {
-                              res.status(200).send("password update successfully")
-                          }
-                      )
-                      .catch((error) => {
-                          res.status(404).send(error);
-                      })
-              }
+                var hash = bcrypt.hashSync(req.body.password, saltRounds);
+                DButilsAzure.execQuery(`UPDATE user_Passwords SET password='${hash}',isFirstLogin = 0 where id='${id}';`)
+                    .then(() => {
+                            res.status(200).send("password update successfully")
+                        }
+                    )
+                    .catch((error) => {
+                        res.status(404).send(error);
+                    })
+            }
         })
-        .catch((error)=>{
+        .catch((error) => {
             res.status(404).send(error);
         })
 
 }
+
 async function insertPassword(req, type, isFirstTime) {
     console.log(typeof saltRounds);
     console.log(typeof req.body.id);
@@ -146,15 +147,13 @@ async function insertPassword(req, type, isFirstTime) {
             res.status(400).send(error)
         })
 }
-function downlaodExcelCoach(req,res){
-    res.download('././resources/files/coachExcel.xlsx', 'coachExcel.xlsx', function (err) {}
-)}
-async function deleteSportsman(req,res){
+
+async function deleteSportsman(req, res) {
     await DButilsAzure.execQuery(`DELETE FROM user_Sportsman WHERE id ='${req.body.userID}';`)
-        .then(async ()=>{
-              await DButilsAzure.execQuery(`DELETE FROM user_Passwords WHERE id ='${req.body.userID}';`)
-              await DButilsAzure.execQuery(`DELETE FROM sportman_files WHERE id ='${req.body.userID}';`)
-              await DButilsAzure.execQuery(`DELETE FROM sportsman_coach WHERE idSportman ='${req.body.userID}';`)
+        .then(async () => {
+            await DButilsAzure.execQuery(`DELETE FROM user_Passwords WHERE id ='${req.body.userID}';`)
+            await DButilsAzure.execQuery(`DELETE FROM sportman_files WHERE id ='${req.body.userID}';`)
+            await DButilsAzure.execQuery(`DELETE FROM sportsman_coach WHERE idSportman ='${req.body.userID}';`)
             res.status(200).send("sportsman has been deleted")
         })
         .catch((error) => {
@@ -163,12 +162,10 @@ async function deleteSportsman(req,res){
 }
 
 
-
-module.exports.buildToken=buildToken;
+module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
-module.exports._uploadPhoto= uploadPhoto;
-module.exports._downloadSportsmanExcel=downloadExcelSportsman;
-module.exports._changePass=changePassword;
-module.exports._downloadcoachExcel=downlaodExcelCoach;
-module.exports._insertPassword=insertPassword;
-module.exports.deleteSportsman=deleteSportsman;
+module.exports.getUserDetails = getUserDetails;
+module.exports._uploadPhoto = uploadPhoto;
+module.exports._changePass = changePassword;
+module.exports._insertPassword = insertPassword;
+module.exports.deleteSportsman = deleteSportsman;
