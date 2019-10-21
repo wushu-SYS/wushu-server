@@ -21,7 +21,7 @@ async function getSportsmen(queryData) {
         .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
         .execute()
-        .fail((err) => {
+        .fail((error) => {
             ans.status = Constants.statusCode.badRequest;
             ans.results = error;
         }),
@@ -33,7 +33,7 @@ async function getSportsmen(queryData) {
             .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
             .parameter('compId', tediousTYPES.Int, queryData.competition)
             .execute()
-            .fail((err) => {
+            .fail((error) => {
                 ans.status = Constants.statusCode.badRequest;
                 ans.results = error;
             }),

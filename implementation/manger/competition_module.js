@@ -53,45 +53,79 @@ function addCompetition(req, res) {
     })
 }
 
-function getCompetitions(req ,res){
+function initQuery(queryData) {
     let query = `select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
                                    left join events on events_competition.idEvent = events.idEvent`;
     let queryCount = `select count(*) as count from events_competition 
                         left join events on events_competition.idEvent = events.idEvent`;
-    let whereStat = buildConditions_forGetCompetitions(req);
+    let whereStat = buildConditions_forGetCompetitions(queryData);
     query += whereStat;
     queryCount += whereStat;
     query += ` order by events.date`;
+    return {query, queryCount};
+}
 
-    Promise.all([DButilsAzure.execQuery(query), DButilsAzure.execQuery(queryCount)])
+async function getCompetitions(queryData){
+    let ans = new Object();
+    let query = initQuery(queryData);
+    // let array = queryData.status.split(',')
+    // console.log(array)
+    console.log(queryData.status)
+    await Promise.all([
+        dbUtils.sql(query.query)
+            .parameter('location', tediousTYPES.NVarChar, queryData.location)
+            .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+            .parameter('con1', tediousTYPES.NVarChar, queryData.status)
+            //.parameter('con2', tediousTYPES.NVarChar, queryData.status.split(',')[1] )
+            //.parameter('con3', tediousTYPES.Variant, queryData.status.split[2] ? queryData.status.split[2] : '')
+            .execute()
+            .fail((error) => {
+                ans.status = Constants.statusCode.badRequest;
+                ans.results = error;
+            }),
+        dbUtils.sql(query.queryCount)
+            .parameter('location', tediousTYPES.NVarChar, queryData.location)
+            .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+            .parameter('status', tediousTYPES.NVarChar, queryData.status)
+            .execute()
+            .fail((error) => {
+                ans.status = Constants.statusCode.badRequest;
+                ans.results = error;
+            })])
         .then(result => {
-            resultJson = {
-                competitions : result[0],
-                totalCount : result[1][0].count
+            console.log(query.query);
+            ans.results = {
+                sportsmen: result[0],
+                totalCount: result[1][0].count
             };
-            res.status(200).send(resultJson);
+            ans.status = Constants.statusCode.ok;
         })
         .catch((error) => {
-            res.status(400).send(error)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = error;
         });
+    return ans;
 }
-function buildConditions_forGetCompetitions(req){
-    let location = req.query.location;
-    let sportStyle = req.query.sportStyle;
-    let status = req.query.status;
-    console.log(req.query.status);
+function buildConditions_forGetCompetitions(queryData){
+    let location = queryData.location;
+    let sportStyle = queryData.sportStyle;
+    let status = queryData.status;
     var conditions = [];
 
     if(location !== '' && location !== undefined) {
-        conditions.push("(events.city like '%" + location + "%' or events.location like '%" + location + "%')");
+        conditions.push("(events.city like Concat('%', @location, '%') or events.location like Concat('%',  @location, '%'))");
     }
     if(sportStyle !== '' && sportStyle !== undefined){
-        conditions.push("events_competition.sportStyle like '" + sportStyle + "'");
+        conditions.push("events_competition.sportStyle like @sportStyle");
     }
     if(status !== '' && status !== undefined){
+        // conditions.push("events_competition.status in (@status)");
+
         let statusCond = [];
+        let i=1;
         status.split(',').forEach(s => {
-            statusCond.push("events_competition.status like '" + s + "'");
+            statusCond.push("events_competition.status like @con"+i);
+            i++;
         });
         conditions.push("(" + statusCond.join(' or ') + ")");
     }
@@ -229,7 +263,7 @@ function autoCloseRegCompetition(){
 }
 
 module.exports._addCompetition = addCompetition;
-module.exports._getCompetitions =getCompetitions;
+module.exports.getCompetitions =getCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
 module.exports._getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;

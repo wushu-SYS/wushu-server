@@ -200,20 +200,23 @@ app.post("/private/sportsmanProfile", async function (req, res) {
     }
 });
 
-app.post("/private/addCompetition", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_competition_module._addCompetition(req, res);
+app.post("/private/addCompetition", async function (req, res) {
+    let ans = new Object();
+    if (access === Constants.userType.MANAGER)
+        ans = await manger_competition_module._addCompetition(req, res);
     else
         res.status(400).send("Permission denied")
 });
 
-app.post("/private/getCompetitions", function (req, res) {
-    if (access === userType.MANAGER || access === userType.COACH)
-        manger_competition_module._getCompetitions(req, res);
-    else
-        res.status(400).send("Permission denied")
+app.post("/private/getCompetitions", async function (req, res) {
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
+        let ans = new Object();
+        ans = await manger_competition_module.getCompetitions(req.query);
+        res.status(ans.status).send(ans.results);
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
-})
+});
 app.post("/private/getCompetitionDetail", function (req, res) {
     if (access === userType.MANAGER || access === userType.COACH || access === userType.SPORTSMAN)
         common_competition_module._getDetail(req, res);
