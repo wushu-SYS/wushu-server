@@ -1,5 +1,4 @@
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+
 
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
@@ -104,16 +103,7 @@ async function changeUserPassword(userData) {
 
 }
 
-async function insertPassword(req, type, isFirstTime) {
-    console.log(typeof saltRounds);
-    console.log(typeof req.body.id);
-    var hash = bcrypt.hashSync(req.body.id.toString(), saltRounds);
-    DButilsAzure.execQuery(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
-                    Values ('${req.body.id}','${hash}','${type}','${isFirstTime}')`)
-        .catch((error) => {
-            res.status(400).send(error)
-        })
-}
+
 
 async function deleteSportsman(sportsmanId) {
     var ans = new Object();
@@ -174,6 +164,5 @@ module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
 module.exports._uploadPhoto = uploadPhoto;
 module.exports.changeUserPassword = changeUserPassword;
-module.exports._insertPassword = insertPassword;
 module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;

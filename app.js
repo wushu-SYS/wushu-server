@@ -13,7 +13,8 @@ var schedule = require('node-schedule');
 global.__basedir = __dirname;
 
 let id, access;
-
+bcrypt = require('bcrypt');
+saltRounds = 10;
 
 //import all modules
 const common_couches_module = require("./implementation/common/couches_module");
@@ -33,6 +34,8 @@ const manger_competition_module = require("./implementation/manger/competition_m
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 const common_function = require("./implementation/commonFunc")
+
+
 
 //server schedule Jobs
 var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
@@ -80,11 +83,11 @@ app.post("/private/registerSportsman", async function (req, res) {
     if (access === Constants.userType.MANAGER|| access===Constants.userType.COACH) {
         let ans =await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJson(req.body))
         if(ans.isPassed) {
-            ans = await coach_user_module.registerSportman(ans.users);
+            ans = await coach_user_module.registerSportsman(ans.users);
             res.status(ans.status).send(ans.results);
         }
         else
-            res.status(Constants.statusCode.badRequest).send(ans.err);
+            res.status(Constants.statusCode.badRequest).send(ans.results);
     }
     else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);

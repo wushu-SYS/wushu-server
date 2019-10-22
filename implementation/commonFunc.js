@@ -13,12 +13,11 @@ async function sendMail(sendTo,message,sub) {
     const send = require('gmail-send')({
         user: 'wushuSys@gmail.com',
         pass: 'ktrxyruavpyiqfav',
-        to:   sendTo ,
+        to:   sendTo,
         subject:sub
     });
-        var textMsg = message
-    send({
-        text:  textMsg,
+  await  send({
+        text:  message,
     }, (error, result, fullResult) => {
         if (error) console.error(error);
         console.log(result);

@@ -44,7 +44,8 @@ let errorMsg = {
 
 let msg = {
     passUpdated: 'password update successfully',
-    userDeleted :'user deleted successfully'
+    userDeleted :'user deleted successfully',
+    registerSuccess: 'register successfully'
 }
 
 let fileName = {
