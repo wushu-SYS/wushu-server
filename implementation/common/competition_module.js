@@ -1,12 +1,20 @@
-function getDetails(req ,res) {
-    console.log(req)
-    DButilsAzure.execQuery(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
+async function getDetails(compId) {
+    let ans = new Object();
+    await dbUtils.sql(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
                                    left join events on events_competition.idEvent = events.idEvent
-                                   where idCompetition= ${req.body.id}`)
-        .then((result) => {
-            res.status(200).send(result);
+                                   where idCompetition= @compId`)
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then((results) => {
+            ans.status = Constants.statusCode.ok;
+            ans.results = results[0]
         })
-        .catch((eror) => {res.status(400).send(eror)})
+        .fail((err) => {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
 }
 function registerSportsmenToCompetition(req, res){
     let queryStack = [];
@@ -26,5 +34,5 @@ function registerSportsmenToCompetition(req, res){
 
 }
 
-module.exports._getDetail= getDetails;
+module.exports.getDetail= getDetails;
 module.exports._registerSportsmenToCompetition = registerSportsmenToCompetition;

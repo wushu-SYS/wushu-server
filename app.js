@@ -225,13 +225,10 @@ app.post("/private/getCompetitions", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
 });
-app.post("/private/getCompetitionDetail", function (req, res) {
-    if (access === userType.MANAGER || access === userType.COACH || access === userType.SPORTSMAN)
-        common_competition_module._getDetail(req, res);
-    else
-        res.status(400).send("Permission denied")
-
-})
+app.post("/private/getCompetitionDetail", async function (req, res) {
+    let ans = await common_competition_module.getDetail(req.body.id);
+    res.status(ans.status).send(ans.results)
+});
 
 app.post("/private/getCoachSportsman", function (req, res) {
     if (access === userType.COACH)
