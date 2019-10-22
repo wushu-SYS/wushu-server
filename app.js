@@ -32,6 +32,7 @@ const manger_competition_module = require("./implementation/manger/competition_m
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
+const common_function = require("./implementation/commonFunc")
 
 //server schedule Jobs
 var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
@@ -76,13 +77,17 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/private/registerSportsman", async function (req, res) {
-    if (access !== userType.SPORTSMAN) {
-        var ans = await coach_user_module._registerSportman(req.body);
-        if (!ans.isPassed)
-            res.send(ans.err)
-        res.send(ans.results)
-    } else
-        res.status(400).send("Permission denied");
+    if (access === Constants.userType.MANAGER|| access===Constants.userType.COACH) {
+        let ans =await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJson(req.body))
+        if(ans.isPassed) {
+            ans = await coach_user_module.registerSportman(ans.users);
+            res.status(ans.status).send(ans.results);
+        }
+        else
+            res.status(Constants.statusCode.badRequest).send(ans.err);
+    }
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
 app.post("/private/registerCoach", function (req, res) {

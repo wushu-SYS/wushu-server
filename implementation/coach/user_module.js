@@ -1,52 +1,52 @@
 const common = require("../common/user_module");
-const sysfunc=require("../commonFunc")
+const sysfunc = require("../commonFunc")
 
 
 function checkDataBeforeRegister(userToRegsiter) {
-    var isPassed =true
-    var errorUsers =new Object()
-    var res=[];
+    var errorUsers = new Object()
+    var res = new Object();
+    res.isPassed = true;
     userToRegsiter.forEach(function (user) {
-            var tmpErr=checkUser(user)
-            user[5] =sysfunc.setBirtdateFormat(user[5])
-        if (tmpErr.length!=0) {
-            isPassed = false;
+        var tmpErr = checkUser(user)
+        user[5] = sysfunc.setBirtdateFormat(user[5])
+        if (tmpErr.length != 0) {
+            res.isPassed = false;
             errorUsers[user[0]] = tmpErr
         }
     })
-    res.isPassed =isPassed;
-    res.err =errorUsers;
+    res.err = errorUsers;
+    res.users = userToRegsiter;
     return res;
 }
 
 function checkUser(user) {
-    var err= [];
+    var err = [];
     //id user
-    if(!validator.isInt(user[0].toString(),{gt: 100000000, lt: 1000000000}))
+    if (!validator.isInt(user[0].toString(), {gt: 100000000, lt: 1000000000}))
         err.push(Constants.errorMsg.idSportmanErr)
     //firstname
-    if(!validator.matches(user[1].toString(),Constants.hebRegex))
+    if (!validator.matches(user[1].toString(), Constants.hebRegex))
         err.push(Constants.errorMsg.firstNameHeb)
     //lastname
-    if(!validator.matches(user[2].toString(),Constants.hebRegex))
+    if (!validator.matches(user[2].toString(), Constants.hebRegex))
         err.push(Constants.errorMsg.lastNameHeb)
     //phone
-    if(!validator.isInt(user[3].toString())&&user[3].toString().length==10)
+    if (!validator.isInt(user[3].toString()) && user[3].toString().length == 10)
         err.push(Constants.errorMsg.phoneErr)
     //email
-    if(!validator.isEmail(user[6].toString()))
+    if (!validator.isEmail(user[6].toString()))
         err.push(Constants.errorMsg.emailErr)
     //sportClub
-    if(!validator.isInt(user[7].toString()))
+    if (!validator.isInt(user[7].toString()))
         err.push(Constants.errorMsg.sportClubErr)
     //sex
-    if(!(user[8].toString() in Constants.sexEnum))
+    if (!(user[8].toString() in Constants.sexEnum))
         err.push(Constants.errorMsg.sexErr)
     //branch
-    if(!(user[9].toString() in Constants.sportType))
+    if (!(user[9].toString() in Constants.sportType))
         err.push(Constants.errorMsg.sportTypeErr)
     //id coach
-    if(!validator.isInt(user[10].toString(),{gt: 100000000, lt: 1000000000}))
+    if (!validator.isInt(user[10].toString(), {gt: 100000000, lt: 1000000000}))
         err.push(Constants.errorMsg.idCoachErr)
 
     return err;
@@ -54,66 +54,111 @@ function checkUser(user) {
 
 }
 
-async function registerSportman(data) {
-    var ans=checkDataBeforeRegister(sysfunc.getArrayFromJson(data))
-    if(!ans.isPassed)
-        return ans
-    await dbUtils.sql("select * FROM user_Coach")
-         .execute()
-        .then(function(results) {
-            ans.results= results;
-        }).fail(function(err) {
-        // do something with the failure
-        console.log(err)
-    });
+async function insertSportsmanDB(trans, sportsmanDetails) {
+    return await trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
+                                    VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex)`)
+        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[0])
+        .parameter('firstName', tediousTYPES.NVarChar, sportsmanDetails[1])
+        .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[2])
+        .parameter('phone', tediousTYPES.Int, sportsmanDetails[3])
+        .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[4])
+        .parameter('birthDate', tediousTYPES.Date, sportsmanDetails[5])
+        .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[6])
+        .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[7])
+        .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[8])
+        .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[9])
+        .returnRowCount()
+        .execute();
+}
+
+async function registerSportman(users) {
+    let i=0
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            while (i<users.length) {
+                await insertSportsmanDB(trans,users[i])
+                    .then(()=>{
+                        i++;
+                    })
+            }
+        })
+
+
+    ans.status = Constants.statusCode.ok;
+    ans.results = 'ok'
     return ans
     /*
-            DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
-                .then((result) => {
-                    if (result.length > 0) {
-                        res.status(403).send("The userName already registered")
-                    } else {
-                        DButilsAzure.execQuery(`select id from sportclub where id = '${req.body.sportclub}'`)
-                            .then((result) => {
-                                if (result.length === 0)
-                                    res.status(400).send("sportclub dosn't exists");
-                                else {
-                                    req.body.birthdate = ([initial[1], initial[0], initial[2]].join('/'));
-                                    DButilsAzure.execQuery(`select id from user_Coach where id = '${req.body.idCoach}'`)
-                                        .then((result) => {
-                                            if (result.length === 0)
-                                                res.status(400).send("coach dosn't exists");
-                                            else {
-                                                DButilsAzure.execQuery(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
-                                                        VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
-                                                    .then(async () => {
-                                                        //await insertSportsmanCategory(req);
-                                                        await common._insertPassword(req, userType.SPORTSMAN, 1);
-                                                        await insertCoach(req);
-                                                        //await sendEmail(req);
-                                                        res.status(200).send("Registration completed successfully")
-                                                    })
-                                                    .catch((error) => {
-                                                        res.status(400).send("1" + error)
-                                                    })
-                                            }
-                                        })
-                                        .catch((error) => {
-                                            res.status(400).send("2" + error)
-                                        })
-                                }
-                            })
-                            .catch((error) => {
-                                res.status(400).send("3" + error)
-                            })
-                    }
-                })
-                .catch((error) => {
-                    res.status(400).send("4" + error)
-                })
+        await dbUtils.beginTransaction()
+            .then(async function (newTransaction) {
+                trans = newTransaction;
+                return await trans.sql(`DELETE FROM sportsman_coach WHERE idSportman = @sportsmanId;`)
+                    .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                    .returnRowCount()
+                    .execute();
+            })
+            .then(async function (testResult) {
+                ans.status = Constants.statusCode.ok;
+                ans.results = Constants.msg.userDeleted;
+                trans.commitTransaction();
+            })
+            .fail(function (err) {
+                ans.status = Constants.statusCode.badRequest;
+                ans.results = err;
+                trans.rollbackTransaction();
+            })
+        return ans;
 
-     */
+        /*
+                DButilsAzure.execQuery(`select id from user_Passwords where id = '${req.body.id}'`)
+                    .then((result) => {
+                        if (result.length > 0) {
+                            res.status(403).send("The userName already registered")
+                        } else {
+                            DButilsAzure.execQuery(`select id from sportclub where id = '${req.body.sportclub}'`)
+                                .then((result) => {
+                                    if (result.length === 0)
+                                        res.status(400).send("sportclub dosn't exists");
+                                    else {
+                                        req.body.birthdate = ([initial[1], initial[0], initial[2]].join('/'));
+                                        DButilsAzure.execQuery(`select id from user_Coach where id = '${req.body.idCoach}'`)
+                                            .then((result) => {
+                                                if (result.length === 0)
+                                                    res.status(400).send("coach dosn't exists");
+                                                else {
+                                                    DButilsAzure.execQuery(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
+                                                            VALUES ('${(req.body.id)}','${(req.body.firstname)}','${req.body.lastname}','${req.body.phone}','${req.body.email}','${req.body.birthdate}','${req.body.address}','${req.body.sportclub}','${req.body.sex}')`)
+                                                        .then(async () => {
+                                                            //await insertSportsmanCategory(req);
+                                                            await common._insertPassword(req, userType.SPORTSMAN, 1);
+                                                            await insertCoach(req);
+                                                            //await sendEmail(req);
+                                                            res.status(200).send("Registration completed successfully")
+                                                        })
+                                                        .catch((error) => {
+                                                            res.status(400).send("1" + error)
+                                                        })
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                res.status(400).send("2" + error)
+                                            })
+                                    }
+                                })
+                                .catch((error) => {
+                                    res.status(400).send("3" + error)
+                                })
+                        }
+                    })
+                    .catch((error) => {
+                        res.status(400).send("4" + error)
+                    })
+
+         */
 }
+
 /*
 async function insertSportsmanCategory(req) {
     console.log("insert sportsman Category");
@@ -133,20 +178,23 @@ async function insertCoach(req) {
             res.status(400).send(error)
         })
 }
+
 async function sendEmail(req) {
-    var subject= 'רישום משתמש חדש wuhsu'
-    var textMsg = "שלום "+req.body.firstname+"\n"+
-        "הינך רשום למערכת של התאחדות האו-שו"+"\n"+
-             "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי"+"\n"
-    +"שם פרטי: "+req.body.firstname+"\n"
-    +"שם משפחה: "+req.body.lastname+"\n"
-    +"כתובת מגורים: "+req.body.address+"\n"
-    +"פאלפון: "+req.body.phone+"\n"
-    +"תאריך לידהי: "+req.body.birthdate+"\n"
-    +"תעודת זהות: "+req.body.id+"\n"
-    +" שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך"+"\n\n\n"
-    +"בברכה, " +"\n"+
+    var subject = 'רישום משתמש חדש wuhsu'
+    var textMsg = "שלום " + req.body.firstname + "\n" +
+        "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
+        "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+        + "שם פרטי: " + req.body.firstname + "\n"
+        + "שם משפחה: " + req.body.lastname + "\n"
+        + "כתובת מגורים: " + req.body.address + "\n"
+        + "פאלפון: " + req.body.phone + "\n"
+        + "תאריך לידהי: " + req.body.birthdate + "\n"
+        + "תעודת זהות: " + req.body.id + "\n"
+        + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
+        + "בברכה, " + "\n" +
         "מערכת או-שו"
-    await sysfunc.sendEmail(req.body.email,textMsg,subject)
+    await sysfunc.sendEmail(req.body.email, textMsg, subject)
 }
-module.exports._registerSportman = registerSportman;
+
+module.exports.registerSportman = registerSportman;
+module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
