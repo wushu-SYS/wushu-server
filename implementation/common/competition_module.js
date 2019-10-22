@@ -10,7 +10,6 @@ async function getDetails(compId) {
             ans.results = results[0]
         })
         .fail((err) => {
-            console.log(err)
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
         });

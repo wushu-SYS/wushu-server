@@ -130,19 +130,27 @@ function getAllSportsman(req,res){
          .catch((err) => {res.status(400).send(err)})
 }
 
-function getRegistrationState(req, res){
-    DButilsAzure.execQuery(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+async function getRegistrationState(compId){
+    let ans = new Object();
+    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
                     left join category as c
                     on competition_sportsman.category = c.id
-                    where competition_sportsman.idCompetition = ${req.body.compId}
+                    where competition_sportsman.idCompetition = @compId
                     order by age, firstname`)
-        .then((result) => {
-            res.status(200).send(sortUsers(result))
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then((results) => {
+            ans.status = Constants.statusCode.ok;
+            ans.results = sortUsers(results)
         })
-        .catch((err) => {res.status(400).send(err)})
+        .fail((err) => {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        })
+    return ans;
 }
 function sortUsers(users) {
     let resultJson = [];
@@ -264,7 +272,7 @@ function autoCloseRegCompetition(){
 module.exports._addCompetition = addCompetition;
 module.exports.getCompetitions =getCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
-module.exports._getRegistrationState = getRegistrationState;
+module.exports.getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
 module.exports.closeRegistration = closeRegistration;
 module.exports._addNewCategory = addNewCategory;

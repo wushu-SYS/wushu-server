@@ -230,17 +230,6 @@ app.post("/private/getCompetitionDetail", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 
-app.post("/private/getCoachSportsman", function (req, res) {
-    if (access === userType.COACH)
-        coach_competition_module._getCoachSportsman(req, res, id);
-    else if (access === userType.MANAGER)
-        manger_competition_module._getAllSportsman(req, res);
-    else
-        res.status(400).send("Permission denied")
-
-
-})
-
 app.post("/private/competitionSportsmen", function (req, res) {
     if (access !== userType.SPORTSMAN)
         common_competition_module._registerSportsmenToCompetition(req, res);
@@ -262,11 +251,13 @@ app.post("/private/updateSportsmanProfile", function (req, res) {
         res.status(400).send("Permission denied")
 });
 
-app.post("/private/getRegistrationState", function (req, res) {
-    if (access === userType.MANAGER || access === userType.COACH)
-        manger_competition_module._getRegistrationState(req, res);
+app.post("/private/getRegistrationState", async function (req, res) {
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
+        let ans = await manger_competition_module.getRegistrationState(req.body.compId);
+        res.status(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied")
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied)
 });
 
 app.post("/private/setCategoryRegistration", function (req, res) {
