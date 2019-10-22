@@ -241,11 +241,13 @@ app.post("/private/competitionSportsmen", function (req, res) {
         common_competition_module._registerSportsmenToCompetition(req, res);
 })
 
-app.post("/private/deleteSportsmanProfile", function (req, res) {
-    if (access === userType.MANAGER || id === req.body.userID)
-        common_user_module.deleteSportsman(req, res)
+app.post("/private/deleteSportsmanProfile", async function (req, res) {
+    if (access === Constants.userType.MANAGER || id === req.body.userID) {
+        let ans = await common_user_module.deleteSportsman(req.body.userID)
+        res.status(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied")
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
 app.post("/private/updateSportsmanProfile", function (req, res) {

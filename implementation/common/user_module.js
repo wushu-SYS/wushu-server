@@ -115,19 +115,59 @@ async function insertPassword(req, type, isFirstTime) {
         })
 }
 
-async function deleteSportsman(req, res) {
-    await DButilsAzure.execQuery(`DELETE FROM user_Sportsman WHERE id ='${req.body.userID}';`)
-        .then(async () => {
-            await DButilsAzure.execQuery(`DELETE FROM user_Passwords WHERE id ='${req.body.userID}';`)
-            await DButilsAzure.execQuery(`DELETE FROM sportman_files WHERE id ='${req.body.userID}';`)
-            await DButilsAzure.execQuery(`DELETE FROM sportsman_coach WHERE idSportman ='${req.body.userID}';`)
-            res.status(200).send("sportsman has been deleted")
+async function deleteSportsman(sportsmanId) {
+    var ans = new Object();
+    var trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`DELETE FROM sportsman_coach WHERE idSportman = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
         })
-        .catch((error) => {
-            res.status(400).send(error)
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
         })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM sportman_files WHERE id = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM competition_sportsman WHERE idSportsman = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Sportsman WHERE id = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.userDeleted;
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
 }
-
 
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
