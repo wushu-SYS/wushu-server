@@ -190,12 +190,21 @@ function setCategoryRegistration(req, res){
         .catch(error => { res.status(404).send(error)});
 }
 
-function closeRegistration(req, res){
-    DButilsAzure.execQuery(`update events_competition set status = '${status.regclose}' where idCompetition = ${req.body.idComp}`)
-        .then((result) => {
-            res.status(200).send(result)
+async function closeRegistration(idCompetition){
+    let ans =new Object();
+    await dbUtils.sql(`update events_competition set status = @status where idCompetition = @idCompetition`)
+        .parameter('status', tediousTYPES.NVarChar, Constants.competitionStatus.regclose)
+        .parameter('idCompetition', tediousTYPES.Int, idCompetition)
+        .execute()
+        .then((results)=>{
+            ans.status = Constants.statusCode.ok;
+            ans.results = results;
         })
-        .catch((err) => {res.status(400).send(err)})
+        .fail((error) => {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = error;
+        })
+    return ans;
 }
 
 function addNewCategory(req,res) {
@@ -267,7 +276,7 @@ module.exports.getCompetitions =getCompetitions;
 module.exports._getAllSportsman =getAllSportsman;
 module.exports._getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
-module.exports._closeRegistration = closeRegistration;
+module.exports.closeRegistration = closeRegistration;
 module.exports._addNewCategory = addNewCategory;
 module.exports._updateCompetitionDetails = updateCompetitionDetails;
 module.exports._autoCloseRegCompetition =autoCloseRegCompetition;

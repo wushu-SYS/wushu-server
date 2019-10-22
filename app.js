@@ -271,12 +271,15 @@ app.post("/private/setCategoryRegistration", function (req, res) {
         res.status(400).send("Permission denied")
 });
 
-app.post("/private/closeRegistration", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_competition_module._closeRegistration(req, res);
+app.post("/private/closeRegistration",async function (req, res) {
+    if (access === userType.MANAGER) {
+        let ans = await manger_competition_module.closeRegistration(req.body.idCompetition);
+        res.status(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied")
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
+
 app.post("/private/addNewCategory", function (req, res) {
     if (access === userType.MANAGER)
         manger_competition_module._addNewCategory(req, res);
