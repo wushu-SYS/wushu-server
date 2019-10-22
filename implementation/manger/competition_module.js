@@ -68,16 +68,13 @@ function initQuery(queryData) {
 async function getCompetitions(queryData){
     let ans = new Object();
     let query = initQuery(queryData);
-    // let array = queryData.status.split(',')
-    // console.log(array)
-    console.log(queryData.status)
     await Promise.all([
         dbUtils.sql(query.query)
             .parameter('location', tediousTYPES.NVarChar, queryData.location)
             .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
-            .parameter('con1', tediousTYPES.NVarChar, queryData.status)
-            //.parameter('con2', tediousTYPES.NVarChar, queryData.status.split(',')[1] )
-            //.parameter('con3', tediousTYPES.Variant, queryData.status.split[2] ? queryData.status.split[2] : '')
+            .parameter('Value0', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '')
+            .parameter('Value1', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '')
+            .parameter('Value2', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '')
             .execute()
             .fail((error) => {
                 ans.status = Constants.statusCode.badRequest;
@@ -86,14 +83,15 @@ async function getCompetitions(queryData){
         dbUtils.sql(query.queryCount)
             .parameter('location', tediousTYPES.NVarChar, queryData.location)
             .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
-            .parameter('status', tediousTYPES.NVarChar, queryData.status)
+            .parameter('Value0', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '')
+            .parameter('Value1', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '')
+            .parameter('Value2', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '')
             .execute()
             .fail((error) => {
                 ans.status = Constants.statusCode.badRequest;
                 ans.results = error;
             })])
         .then(result => {
-            console.log(query.query);
             ans.results = {
                 sportsmen: result[0],
                 totalCount: result[1][0].count
@@ -119,15 +117,7 @@ function buildConditions_forGetCompetitions(queryData){
         conditions.push("events_competition.sportStyle like @sportStyle");
     }
     if(status !== '' && status !== undefined){
-        // conditions.push("events_competition.status in (@status)");
-
-        let statusCond = [];
-        let i=1;
-        status.split(',').forEach(s => {
-            statusCond.push("events_competition.status like @con"+i);
-            i++;
-        });
-        conditions.push("(" + statusCond.join(' or ') + ")");
+        conditions.push("events_competition.status in ("+ status.split(',').map((val, index) => `@Value${index}`).join(',') + ")");
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
