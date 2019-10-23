@@ -263,18 +263,23 @@ app.post("/private/setCategoryRegistration", function (req, res) {
 });
 
 app.post("/private/closeRegistration", async function (req, res) {
-    if (access === userType.MANAGER) {
+    if (access === Constants.userType.MANAGER) {
         let ans = await manger_competition_module.closeRegistration(req.body.idCompetition);
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
-app.post("/private/addNewCategory", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_competition_module._addNewCategory(req, res);
+app.post("/private/addNewCategory", async function (req, res) {
+    let ans ;
+    if (access === Constants.userType.MANAGER) {
+        ans = manger_competition_module.validateDataBeforeAddCategory(req.body)
+        if(ans.isPassed)
+            ans = await manger_competition_module.addNewCategory(req.body)
+        res.status(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied")
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
 app.post("/private/updateCompetitionDetails", async function (req, res) {

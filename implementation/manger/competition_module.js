@@ -206,7 +206,7 @@ async function closeRegistration(idCompetition) {
         .execute()
         .then((results) => {
             ans.status = Constants.statusCode.ok;
-            ans.results = results;
+            ans.results = Constants.msg.closeRegistration;
         })
         .fail((error) => {
             ans.status = Constants.statusCode.badRequest;
@@ -215,30 +215,57 @@ async function closeRegistration(idCompetition) {
     return ans;
 }
 
-function addNewCategory(req, res) {
-    let validator = new validation(req.body, {
-        categoryName: 'required',
-        minAge: 'required',
-        maxAge: 'required',
-        sex: 'required'
-    });
-    var regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
-    validator.check().then(function (matched) {
-        if (!matched) {
-            res.status(400).send(validator.errors);
-        } else if (!regexHebrewAndNumbers.test(req.body.categoryName)) {
-            res.status(400).send("name must be in hebrew and numbers only");
-        } else {
-            DButilsAzure.execQuery(` INSERT INTO category (name,minAge,maxAge,sex)
-                                    VALUES ('${req.body.categoryName}','${req.body.minAge}','${req.body.maxAge}','${req.body.sex}');`)
-                .then((result) => {
-                    res.status(200).send(result)
-                })
-                .catch((err) => {
-                    res.status(400).send(err)
-                })
-        }
-    });
+
+function validateDataBeforeAddCategory(newCategory) {
+    let res = new Object();
+    res.isPassed = true;
+    let err = validateCategory(newCategory)
+    if (err.length != 0) {
+        res.isPassed = false;
+        res.results = err;
+    }
+    return res;
+}
+
+function validateCategory(newCategory) {
+    var err = [];
+    //category Name
+    if (!validator.matches(newCategory.categoryName, Constants.hebRegex))
+        err.push(Constants.errorMsg.idSportmanErr);
+    //minAge
+    if (!validator.isInt(newCategory.minAge, {gt: 0, lt: 100}))
+        err.push(Constants.errorMsg.compAgeErr)
+    //maxAge
+    if (!validator.isInt(newCategory.maxAge, {gt: 0, lt: 100}))
+        err.push(Constants.errorMsg.compAgeErr)
+    //sex
+    if (!(newCategory.sex in Constants.sexEnum))
+        err.push(Constants.errorMsg.sexErr);
+    //min < max
+    if (newCategory.minAge > newCategory.maxAge)
+        err.push(Constants.errorMsg.minAgeErr)
+
+    return err;
+}
+
+async function addNewCategory(categoryDetails) {
+    let ans = new Object();
+    await dbUtils.sql(`INSERT INTO category (name,minAge,maxAge,sex)
+                      VALUES (@categoryName,@minAge,@maxAge,@sex);`)
+        .parameter('categoryName', tediousTYPES.NVarChar, categoryDetails.categoryName)
+        .parameter('minAge', tediousTYPES.Int, categoryDetails.minAge)
+        .parameter('maxAge', tediousTYPES.Int, categoryDetails.maxAge)
+        .parameter('sex', tediousTYPES.NVarChar, categoryDetails.sex)
+        .execute()
+        .then((results) => {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.addCategory;
+        })
+        .fail((error) => {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = error;
+        })
+    return ans;
 }
 
 async function updateCompetitionDetails(competitionDetails, idEvent) {
@@ -311,7 +338,8 @@ module.exports._getAllSportsman = getAllSportsman;
 module.exports.getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
 module.exports.closeRegistration = closeRegistration;
-module.exports._addNewCategory = addNewCategory;
+module.exports.addNewCategory = addNewCategory;
 module.exports.updateCompetitionDetails = updateCompetitionDetails;
 module.exports.autoCloseRegCompetition = autoCloseRegCompetition;
 module.exports.getIdEvent = getIdEvent;
+module.exports.validateDataBeforeAddCategory = validateDataBeforeAddCategory;

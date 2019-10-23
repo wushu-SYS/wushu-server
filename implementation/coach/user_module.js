@@ -3,11 +3,11 @@ const sysfunc = require("../commonFunc")
 
 
 function checkDataBeforeRegister(userToRegsiter) {
-    var errorUsers = new Object()
-    var res = new Object();
+    let errorUsers = new Object()
+    let res = new Object();
     res.isPassed = true;
     userToRegsiter.forEach(function (user) {
-        var tmpErr = checkUser(user)
+        let tmpErr = checkUser(user)
         user[5] = sysfunc.setBirtdateFormat(user[5])
         if (tmpErr.length != 0) {
             res.isPassed = false;
@@ -20,7 +20,7 @@ function checkDataBeforeRegister(userToRegsiter) {
 }
 
 function checkUser(user) {
-    var err = [];
+    let err = [];
     //id user
     if (!validator.isInt(user[0].toString(), {gt: 100000000, lt: 1000000000}))
         err.push(Constants.errorMsg.idSportmanErr)

@@ -39,14 +39,18 @@ let errorMsg = {
     errLoginDetails: 'Access denied. Error in user\'s details',
     accessDenied: 'Access denied',
     failDownload: 'Fail to download resource',
-    samePassword: 'הסיסמאות זהות'
+    samePassword: 'הסיסמאות זהות',
+    compAgeErr :'גיל לא חוקי',
+    minAgeErr : 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי'
 }
 
 let msg = {
     passUpdated: 'password update successfully',
     userDeleted :'user deleted successfully',
     registerSuccess: 'register successfully',
-    competitionUpdate : 'competition update successfully'
+    competitionUpdate : 'competition update successfully',
+    addCategory : 'category added successfully',
+    closeRegistration : 'Register have been closed',
 }
 
 let fileName = {
