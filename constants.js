@@ -40,31 +40,32 @@ let errorMsg = {
     accessDenied: 'Access denied',
     failDownload: 'Fail to download resource',
     samePassword: 'הסיסמאות זהות',
-    compAgeErr :'גיל לא חוקי',
-    minAgeErr : 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי'
+    compAgeErr: 'גיל לא חוקי',
+    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי'
 }
 
 let msg = {
     passUpdated: 'password update successfully',
-    userDeleted :'user deleted successfully',
+    userDeleted: 'user deleted successfully',
     registerSuccess: 'register successfully',
-    competitionUpdate : 'competition update successfully',
-    addCategory : 'category added successfully',
-    closeRegistration : 'Register have been closed',
+    competitionUpdate: 'competition update successfully',
+    addCategory: 'category added successfully',
+    closeRegistration: 'Register have been closed',
+    updateUserDetails: 'user\' details update successfully'
 }
 
 let fileName = {
     excelFormatRegisterSportsman: 'אקסל רישום ספורטאיים'
 }
 
-let statusCode =  {
-    ok : 200,
-    created : 201,
-    accepted :202,
-    badRequest : 400,
-    unauthorized :401,
-    notFound : 404,
-    initialServerError : 500
+let statusCode = {
+    ok: 200,
+    created: 201,
+    accepted: 202,
+    badRequest: 400,
+    unauthorized: 401,
+    notFound: 404,
+    initialServerError: 500
 }
 
 module.exports = {
@@ -77,5 +78,5 @@ module.exports = {
     errorMsg: errorMsg,
     fileName: fileName,
     msg: msg,
-    statusCode : statusCode
+    statusCode: statusCode
 };

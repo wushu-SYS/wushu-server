@@ -1,14 +1,14 @@
 DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
-var app = require("express")();
-var bodyParser = require("body-parser");
-var cors = require('cors');
+let app = require("express")();
+let bodyParser = require("body-parser");
+let cors = require('cors');
 jwt = require("jsonwebtoken");
 validator = require('validator');
 
 secret = "wushuSecret";
 const multer = require('multer');
-var schedule = require('node-schedule');
+let schedule = require('node-schedule');
 
 global.__basedir = __dirname;
 
@@ -44,7 +44,7 @@ let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
 //app uses
 app.use(bodyParser.urlencoded({extend: true}));
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cors());
 app.use("/private", (req, res, next) => {
     const token = req.header("x-auth-token");
     if (!token) res.status(401).send("Access denied. No token provided.");
@@ -64,7 +64,7 @@ app.use("/private", (req, res, next) => {
 
 
 //app options
-app.options('*', cors())
+app.options('*', cors());
 
 
 app.post("/login", async (req, res) => {
@@ -240,12 +240,18 @@ app.post("/private/deleteSportsmanProfile", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
-app.post("/private/updateSportsmanProfile", function (req, res) {
-    if (access === userType.MANAGER || id === req.body.id)
-        sportsman_user_module._updateSportsmanProfile(req, res)
-    else
-        res.status(400).send("Permission denied")
-});
+app.post("/private/updateSportsmanProfile", async function (req, res) {
+        let ans;
+        if (access === userType.MANAGER || id === req.body.id) {
+            ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
+            if (ans.isPassed)
+                ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
+            res.status(ans.status).send(ans.results)
+
+        } else
+            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    }
+);
 
 app.post("/private/getRegistrationState", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
@@ -271,14 +277,13 @@ app.post("/private/closeRegistration", async function (req, res) {
 })
 
 app.post("/private/addNewCategory", async function (req, res) {
-    let ans ;
+    let ans;
     if (access === Constants.userType.MANAGER) {
         ans = manger_competition_module.validateDataBeforeAddCategory(req.body)
-        if(ans.isPassed)
+        if (ans.isPassed)
             ans = await manger_competition_module.addNewCategory(req.body)
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
