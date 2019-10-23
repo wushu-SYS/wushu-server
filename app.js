@@ -36,10 +36,9 @@ const sportsman_user_module = require("./implementation/sportsman/user_module");
 const common_function = require("./implementation/commonFunc")
 
 
-
 //server schedule Jobs
-var automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
-    manger_competition_module._autoCloseRegCompetition();
+let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
+    manger_competition_module.autoCloseRegCompetition();
 });
 
 //app uses
@@ -80,16 +79,14 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/private/registerSportsman", async function (req, res) {
-    if (access === Constants.userType.MANAGER|| access===Constants.userType.COACH) {
-        let ans =await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJson(req.body))
-        if(ans.isPassed) {
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
+        let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJson(req.body))
+        if (ans.isPassed) {
             ans = await coach_user_module.registerSportsman(ans.users);
             res.status(ans.status).send(ans.results);
-        }
-        else
+        } else
             res.status(Constants.statusCode.badRequest).send(ans.results);
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
@@ -199,11 +196,11 @@ app.post("/private/sportsmanProfile", async function (req, res) {
     if (req.body.id !== undefined && access === Constants.userType.SPORTSMAN && id !== req.body.id)
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
     else {
-        let ans ;
+        let ans;
         if (req.body.id !== undefined)
-           ans = await common_sportsman_module.sportsmanProfile(req.body.id);
+            ans = await common_sportsman_module.sportsmanProfile(req.body.id);
         else
-           ans = await common_sportsman_module.sportsmanProfile(id);
+            ans = await common_sportsman_module.sportsmanProfile(id);
         res.status(ans.status).send(ans.results)
     }
 });
@@ -239,8 +236,7 @@ app.post("/private/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER || id === req.body.userID) {
         let ans = await common_user_module.deleteSportsman(req.body.userID)
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
@@ -255,8 +251,7 @@ app.post("/private/getRegistrationState", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
         let ans = await manger_competition_module.getRegistrationState(req.body.compId);
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied)
 });
 
@@ -267,12 +262,11 @@ app.post("/private/setCategoryRegistration", function (req, res) {
         res.status(400).send("Permission denied")
 });
 
-app.post("/private/closeRegistration",async function (req, res) {
+app.post("/private/closeRegistration", async function (req, res) {
     if (access === userType.MANAGER) {
         let ans = await manger_competition_module.closeRegistration(req.body.idCompetition);
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
@@ -283,11 +277,13 @@ app.post("/private/addNewCategory", function (req, res) {
         res.status(400).send("Permission denied")
 })
 
-app.post("/private/updateCompetitionDetails", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_competition_module._updateCompetitionDetails(req, res);
-    else
-        res.status(400).send("Permission denied")
+app.post("/private/updateCompetitionDetails", async function (req, res) {
+    if (access === Constants.userType.MANAGER) {
+        let idEvent = await manger_competition_module.getIdEvent(req.body.competitionId);
+        let ans = await manger_competition_module.updateCompetitionDetails(req.body, idEvent);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
 //start the server

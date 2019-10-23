@@ -1,4 +1,3 @@
-
 function addCompetition(req, res) {
     let validator = new validation(req.body, {
         location: 'required',
@@ -65,7 +64,7 @@ function initQuery(queryData) {
     return {query, queryCount};
 }
 
-async function getCompetitions(queryData){
+async function getCompetitions(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
     await Promise.all([
@@ -104,33 +103,36 @@ async function getCompetitions(queryData){
         });
     return ans;
 }
-function buildConditions_forGetCompetitions(queryData){
+
+function buildConditions_forGetCompetitions(queryData) {
     let location = queryData.location;
     let sportStyle = queryData.sportStyle;
     let status = queryData.status;
     var conditions = [];
 
-    if(location !== '' && location !== undefined) {
+    if (location !== '' && location !== undefined) {
         conditions.push("(events.city like Concat('%', @location, '%') or events.location like Concat('%',  @location, '%'))");
     }
-    if(sportStyle !== '' && sportStyle !== undefined){
+    if (sportStyle !== '' && sportStyle !== undefined) {
         conditions.push("events_competition.sportStyle like @sportStyle");
     }
-    if(status !== '' && status !== undefined){
-        conditions.push("events_competition.status in ("+ status.split(',').map((val, index) => `@Value${index}`).join(',') + ")");
+    if (status !== '' && status !== undefined) {
+        conditions.push("events_competition.status in (" + status.split(',').map((val, index) => `@Value${index}`).join(',') + ")");
     }
     return conditions.length ? ' where ' + conditions.join(' and ') : '';
 }
 
-function getAllSportsman(req,res){
-     DButilsAzure.execQuery(`select id,firstname,lastname from user_Sportsman`)
-         .then((result) => {
-             res.status(200).send(result)
-         })
-         .catch((err) => {res.status(400).send(err)})
+function getAllSportsman(req, res) {
+    DButilsAzure.execQuery(`select id,firstname,lastname from user_Sportsman`)
+        .then((result) => {
+            res.status(200).send(result)
+        })
+        .catch((err) => {
+            res.status(400).send(err)
+        })
 }
 
-async function getRegistrationState(compId){
+async function getRegistrationState(compId) {
     let ans = new Object();
     await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
@@ -152,16 +154,20 @@ async function getRegistrationState(compId){
         })
     return ans;
 }
+
 function sortUsers(users) {
     let resultJson = [];
     users.sort(
-        function(obj1, obj2){
+        function (obj1, obj2) {
             let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
             let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
-            return x-y;
+            return x - y;
         });
-    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => ({id:id, name: id!=null ? users.find(u => u.category == id).categoryName : 'ללא קטגוריה'}));
-    let i=0;
+    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => ({
+        id: id,
+        name: id != null ? users.find(u => u.category == id).categoryName : 'ללא קטגוריה'
+    }));
+    let i = 0;
     usedCategories.forEach(category => {
         let categoryUsers = {
             category: category,
@@ -176,25 +182,29 @@ function sortUsers(users) {
     return resultJson;
 }
 
-function setCategoryRegistration(req, res){
+function setCategoryRegistration(req, res) {
     let queryStack = [];
     req.body.categoryForSportsman.forEach(function (categorySportsman) {
         queryStack.push(DButilsAzure.execQuery(`update competition_sportsman
                                                         set category = ${categorySportsman.categoryId}
                                                         where idSportsman = ${categorySportsman.sportsmanId} and idCompetition = ${req.body.compId}`));
-                                                });
+    });
     Promise.all(queryStack)
-        .then(result => {res.status(200).send("Successful update");})
-        .catch(error => { res.status(404).send(error)});
+        .then(result => {
+            res.status(200).send("Successful update");
+        })
+        .catch(error => {
+            res.status(404).send(error)
+        });
 }
 
-async function closeRegistration(idCompetition){
-    let ans =new Object();
+async function closeRegistration(idCompetition) {
+    let ans = new Object();
     await dbUtils.sql(`update events_competition set status = @status where idCompetition = @idCompetition`)
         .parameter('status', tediousTYPES.NVarChar, Constants.competitionStatus.regclose)
         .parameter('idCompetition', tediousTYPES.Int, idCompetition)
         .execute()
-        .then((results)=>{
+        .then((results) => {
             ans.status = Constants.statusCode.ok;
             ans.results = results;
         })
@@ -205,7 +215,7 @@ async function closeRegistration(idCompetition){
     return ans;
 }
 
-function addNewCategory(req,res) {
+function addNewCategory(req, res) {
     let validator = new validation(req.body, {
         categoryName: 'required',
         minAge: 'required',
@@ -231,50 +241,77 @@ function addNewCategory(req,res) {
     });
 }
 
-async function updateCompetitionDetails(req,res) {
-  await  DButilsAzure.execQuery(` Update events_competition 
-                                            set sportStyle='${req.body.sportStyle}',description='${req.body.description}',closeRegDate='${req.body.closeRegDate}',closeRegTime='${req.body.closeRegTime}'
-                                            where idCompetition ='${req.body.competitionId}';`)
-        .then(async (result) => {
-           await DButilsAzure.execQuery(`select idEvent from events_competition where idCompetition ='${req.body.competitionId}';`)
-               .then(async (result1)=>{
-                   await DButilsAzure.execQuery(`Update events 
-                                    set location ='${req.body.location}',type='${eventType.competition}',date='${req.body.eventDate}',startHour='${req.body.evetTime}'
-                                    where idEvent ='${result1[0].idEvent}';`)
-                       .then((result2) => {
-                           res.status(200).send("Competition update successfully")
-                       })
-                       .catch((eror) => {
-                           res.status(400).send("1 "+eror)
-                       })
-               })
-               .catch((eror) => {
-                   res.status(400).send(eror)
-               })
+async function updateCompetitionDetails(competitionDetails, idEvent) {
+    var ans = new Object();
+    var trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`Update events_competition 
+                                     set sportStyle=@sportStyle,description=@description,closeRegDate=@closeRegDate,closeRegTime=@closeRegTime
+                                     where idCompetition =@competitionId;`)
+                .parameter('sportStyle', tediousTYPES.NVarChar, competitionDetails.sportStyle)
+                .parameter('description', tediousTYPES.NVarChar, competitionDetails.description)
+                .parameter('closeRegDate', tediousTYPES.Date, competitionDetails.closeRegDate)
+                .parameter('closeRegTime', tediousTYPES.Time, competitionDetails.closeRegTime)
+                .parameter('competitionId', tediousTYPES.Int, competitionDetails.competitionId)
+                .returnRowCount()
+                .execute();
         })
-      .catch((eror) => {
-          res.status(400).send(eror)
-      })
-
+        .then(async function (testResult) {
+            return await trans.sql(`Update events 
+                                    set location =@location,type=@type,date=@eventDate,startHour=@evetTime
+                                    where idEvent =@idEvent;`)
+                .parameter('idEvent', tediousTYPES.Int, idEvent)
+                .parameter('location', tediousTYPES.NVarChar, competitionDetails.location)
+                .parameter('type', tediousTYPES.Int, Constants.eventType.competition)
+                .parameter('eventDate', tediousTYPES.Date, competitionDetails.eventDate)
+                .parameter('evetTime', tediousTYPES.Time, competitionDetails.evetTime)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.competitionUpdate;
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
 }
 
-function autoCloseRegCompetition(){
+function autoCloseRegCompetition() {
     console.log('Start auto closed Register to Competition');
     dbUtils.sql(`UPDATE events_competition SET status='${Constants.competitionStatus.regclose}' WHERE closeRegDate<=Convert(Date,CURRENT_TIMESTAMP) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP) and status='${Constants.competitionStatus.open}';`)
         .execute()
-        .then(function(results) {
+        .then(function (results) {
             console.log("Finished auto closed register to competitions")
-        }).fail(function(err) {
+        }).fail(function (err) {
         console.log(err)
     });
 }
 
+async function getIdEvent(idComp) {
+    await dbUtils.sql(`select idEvent from events_competition where idCompetition =@idComp;`)
+        .parameter('idComp', tediousTYPES.Int, idComp)
+        .execute()
+        .then(function (results) {
+            return results[0].idEvent;
+        }).fail(function (err) {
+            console.log(err)
+        });
+}
+
 module.exports._addCompetition = addCompetition;
-module.exports.getCompetitions =getCompetitions;
-module.exports._getAllSportsman =getAllSportsman;
+module.exports.getCompetitions = getCompetitions;
+module.exports._getAllSportsman = getAllSportsman;
 module.exports.getRegistrationState = getRegistrationState;
 module.exports._setCategoryRegistration = setCategoryRegistration;
 module.exports.closeRegistration = closeRegistration;
 module.exports._addNewCategory = addNewCategory;
-module.exports._updateCompetitionDetails = updateCompetitionDetails;
-module.exports._autoCloseRegCompetition =autoCloseRegCompetition;
+module.exports.updateCompetitionDetails = updateCompetitionDetails;
+module.exports.autoCloseRegCompetition = autoCloseRegCompetition;
+module.exports.getIdEvent = getIdEvent;
