@@ -188,7 +188,7 @@ async function setCategoryRegistration(categoryForSportsman,compId) {
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(await insertCategroyRegistrationDB(trans, categoryForSportsman, categoryForSportsman[0], 0),compId)
+            await insertCategroyRegistrationDB(trans, categoryForSportsman, categoryForSportsman[0], 0,compId)
                 .then((result) => {
                     ans.status = Constants.statusCode.ok;
                     ans.results = Constants.msg.categoryRegistrationSuccess;
