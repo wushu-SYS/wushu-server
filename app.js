@@ -207,10 +207,16 @@ app.post("/private/sportsmanProfile", async function (req, res) {
 
 app.post("/private/addCompetition", async function (req, res) {
     let ans = new Object();
-    if (access === Constants.userType.MANAGER)
-        ans = await manger_competition_module._addCompetition(req, res);
-    else
-        res.status(400).send("Permission denied")
+    if (access === Constants.userType.MANAGER) {
+        ans = manger_competition_module.validateCompetitionDetails(req.body)
+        if (ans.isPassed) {
+            ans = await manger_competition_module.addCompetition(req.body);
+            res.status(ans.status).send(ans.results)
+        }
+        else
+            res.status(Constants.statusCode.badRequest).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 
 app.post("/private/getCompetitions", async function (req, res) {
@@ -262,12 +268,11 @@ app.post("/private/getRegistrationState", async function (req, res) {
 });
 
 app.post("/private/setCategoryRegistration", async function (req, res) {
-    let ans ;
+    let ans;
     if (access === Constants.userType.MANAGER) {
         ans = await manger_competition_module.setCategoryRegistration(common_function.getArrayFromJson(req.body.categoryForSportsman), req.body.compId);
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 

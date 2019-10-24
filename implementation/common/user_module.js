@@ -106,8 +106,8 @@ async function changeUserPassword(userData) {
 
 
 async function deleteSportsman(sportsmanId) {
-    var ans = new Object();
-    var trans;
+    let ans = new Object();
+    let trans;
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;

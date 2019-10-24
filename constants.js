@@ -8,6 +8,8 @@ let eventType = {
     event: 'אירוע'
 };
 let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
+let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
+
 let sexEnum = {
     זכר: 111,
     נקבה: 112
@@ -41,7 +43,8 @@ let errorMsg = {
     failDownload: 'Fail to download resource',
     samePassword: 'הסיסמאות זהות',
     compAgeErr: 'גיל לא חוקי',
-    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי'
+    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
+    hebErr : 'נא הכנס טקסט בעברית'
 }
 
 let msg = {
@@ -52,7 +55,8 @@ let msg = {
     addCategory: 'category added successfully',
     closeRegistration: 'Register have been closed',
     updateUserDetails: 'user details update successfully',
-    categoryRegistrationSuccess: ' add to user category successfully'
+    categoryRegistrationSuccess: ' add to user category successfully',
+    eventAdded : 'event have been created successfully'
 }
 
 let fileName = {
@@ -79,5 +83,6 @@ module.exports = {
     errorMsg: errorMsg,
     fileName: fileName,
     msg: msg,
-    statusCode: statusCode
+    statusCode: statusCode,
+    regexHebrewAndNumbers: regexHebrewAndNumbers
 };
