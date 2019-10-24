@@ -212,8 +212,7 @@ app.post("/private/addCompetition", async function (req, res) {
         if (ans.isPassed) {
             ans = await manger_competition_module.addCompetition(req.body);
             res.status(ans.status).send(ans.results)
-        }
-        else
+        } else
             res.status(Constants.statusCode.badRequest).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
@@ -233,9 +232,11 @@ app.post("/private/getCompetitionDetail", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 
-app.post("/private/competitionSportsmen", function (req, res) {
-    if (access !== userType.SPORTSMAN)
-        common_competition_module.registerSportsmenToCompetition(req, res);
+app.post("/private/competitionSportsmen", async function (req, res) {
+    let ans;
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
+        ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
+    res.status(ans.status).send(ans.results)
 })
 
 app.post("/private/deleteSportsmanProfile", async function (req, res) {
