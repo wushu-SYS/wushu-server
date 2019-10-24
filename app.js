@@ -235,7 +235,7 @@ app.post("/private/getCompetitionDetail", async function (req, res) {
 
 app.post("/private/competitionSportsmen", function (req, res) {
     if (access !== userType.SPORTSMAN)
-        common_competition_module._registerSportsmenToCompetition(req, res);
+        common_competition_module.registerSportsmenToCompetition(req, res);
 })
 
 app.post("/private/deleteSportsmanProfile", async function (req, res) {

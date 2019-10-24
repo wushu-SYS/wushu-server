@@ -15,23 +15,69 @@ async function getDetails(compId) {
         });
     return ans;
 }
-function registerSportsmenToCompetition(req, res){
-    let queryStack = [];
-    req.body.insertSportsman.forEach(function (sportsmanIdCategory) {
-        queryStack.push(DButilsAzure.execQuery(`INSERT INTO competition_sportsman (idCompetition, idSportsman, category)
-                                    SELECT * FROM (select ${req.body.compId} as idCompetition, ${sportsmanIdCategory.id} as idSportsman, ${sportsmanIdCategory.category} as category) AS tmp
-                                    WHERE NOT EXISTS (
-                                        SELECT idCompetition, idSportsman, category FROM competition_sportsman WHERE idCompetition = ${req.body.compId} and idSportsman = ${sportsmanIdCategory.id} and category = ${sportsmanIdCategory.category}
-                                    )`));
-    });
-    req.body.deleteSportsman.forEach(function (sportsmanIdCategory) {
-        queryStack.push(DButilsAzure.execQuery(`DELETE FROM competition_sportsman WHERE idCompetition=${req.body.compId} and idSportsman = ${sportsmanIdCategory.id} and category = ${sportsmanIdCategory.category};`));
-    });
-    Promise.all(queryStack)
-        .then(result => {res.status(200).send("Successful registration");})
-        .catch(error => { res.status(404).send(error)});
+
+async function insertSportsmanToCompetitonDB(trans, insertSportsman, sportsmanDetails, i, compId) {
+    if (sportsmanDetails != undefined)
+        return trans.sql(`INSERT INTO competition_sportsman (idCompetition, idSportsman, category)
+                     SELECT * FROM (select @compId as idCompetition, @id as idSportsman, @category as category) AS tmp
+                     WHERE NOT EXISTS (
+                     SELECT idCompetition, idSportsman, category FROM competition_sportsman WHERE idCompetition = @compId and idSportsman = @id and category = @category)`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('id', tediousTYPES.Int, sportsmanDetails.id)
+            .parameter('category', tediousTYPES.NVarChar, sportsmanDetails.category)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < users.length)
+                    await insertSportsmanToCompetitonDB(trans, insertSportsman, sportsmanDetails[i + 1], i + 1, compId)
+                return testResult
+            })
+    return;
+}
+
+async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsmanDetails, i, compId) {
+    if (sportsmanDetails != undefined)
+        return trans.sql(`DELETE FROM competition_sportsman WHERE idCompetition=@compId and idSportsman = @id and category = @category;`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('id', tediousTYPES.Int, sportsmanDetails.id)
+            .parameter('category', tediousTYPES.NVarChar, sportsmanDetails.category)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < users.length)
+                    await deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsmanDetails[i + 1], i + 1, compId)
+                return testResult
+            })
+    return;
+}
+
+
+async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, compId) {
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0] ? insertSportsman[0] : undefined, 0, compId),await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0] ? deleteSportsman[0] : undefined, 0, compId)
+                .then((result) => {
+                    //sendEmail(users);
+                    ans.status = Constants.statusCode.ok;
+                    ans.results = Constants.msg.registerSuccess
+                    trans.commitTransaction();
+                })
+                .catch((err) => {
+                    ans.status = Constants.statusCode.badRequest;
+                    ans.results = err;
+                    trans.rollbackTransaction();
+                }))
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+
+    return ans
 
 }
 
-module.exports.getDetail= getDetails;
-module.exports._registerSportsmenToCompetition = registerSportsmenToCompetition;
+module.exports.getDetail = getDetails;
+module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
