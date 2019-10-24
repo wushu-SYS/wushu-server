@@ -182,22 +182,46 @@ function sortUsers(users) {
     return resultJson;
 }
 
-function setCategoryRegistration(req, res) {
-    let queryStack = [];
-    req.body.categoryForSportsman.forEach(function (categorySportsman) {
-        queryStack.push(DButilsAzure.execQuery(`update competition_sportsman
-                                                        set category = ${categorySportsman.categoryId}
-                                                        where idSportsman = ${categorySportsman.sportsmanId} and idCompetition = ${req.body.compId}`));
-    });
-    Promise.all(queryStack)
-        .then(result => {
-            res.status(200).send("Successful update");
+async function setCategoryRegistration(categoryForSportsman,compId) {
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await insertCategroyRegistrationDB(trans, categoryForSportsman, categoryForSportsman[0], 0),compId)
+                .then((result) => {
+                    ans.status = Constants.statusCode.ok;
+                    ans.results = Constants.msg.categoryRegistrationSuccess;
+                    trans.commitTransaction();
+                })
+                .catch((err) => {
+                    ans.status = Constants.statusCode.badRequest;
+                    ans.results = err;
+                    trans.rollbackTransaction();
+                })
         })
-        .catch(error => {
-            res.status(404).send(error)
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
         });
-}
 
+    return ans
+}
+async function insertCategroyRegistrationDB(trans, categoryForSportsman, category, i,compID){
+    return trans.sql(`update competition_sportsman
+                      set category = @category
+                      where idSportsman = @idSportsman and idCompetition = @idCompetition`)
+        .parameter('idSportsman', tediousTYPES.Int, category[0])
+        .parameter('category', tediousTYPES.Int, category[1])
+        .parameter('idCompetition', tediousTYPES.Int, compID)
+        .execute()
+        .then(async function (testResult) {
+            if (i + 1 < users.length)
+                await insertCategroyRegistrationDB(trans, categoryForSportsman, categoryForSportsman[i + 1], i + 1,compID);
+            return testResult
+        })
+}
 async function closeRegistration(idCompetition) {
     let ans = new Object();
     await dbUtils.sql(`update events_competition set status = @status where idCompetition = @idCompetition`)
@@ -336,7 +360,7 @@ module.exports._addCompetition = addCompetition;
 module.exports.getCompetitions = getCompetitions;
 module.exports._getAllSportsman = getAllSportsman;
 module.exports.getRegistrationState = getRegistrationState;
-module.exports._setCategoryRegistration = setCategoryRegistration;
+module.exports.setCategoryRegistration = setCategoryRegistration;
 module.exports.closeRegistration = closeRegistration;
 module.exports.addNewCategory = addNewCategory;
 module.exports.updateCompetitionDetails = updateCompetitionDetails;

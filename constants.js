@@ -51,7 +51,8 @@ let msg = {
     competitionUpdate: 'competition update successfully',
     addCategory: 'category added successfully',
     closeRegistration: 'Register have been closed',
-    updateUserDetails: 'user\' details update successfully'
+    updateUserDetails: 'user details update successfully',
+    categoryRegistrationSuccess: ' add to user category successfully'
 }
 
 let fileName = {

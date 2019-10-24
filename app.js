@@ -261,11 +261,14 @@ app.post("/private/getRegistrationState", async function (req, res) {
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied)
 });
 
-app.post("/private/setCategoryRegistration", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_competition_module._setCategoryRegistration(req, res);
+app.post("/private/setCategoryRegistration", async function (req, res) {
+    let ans ;
+    if (access === Constants.userType.MANAGER) {
+        ans = await manger_competition_module.setCategoryRegistration(common_function.getArrayFromJson(req.body.categoryForSportsman), req.body.compId);
+        res.status(ans.status).send(ans.results)
+    }
     else
-        res.status(400).send("Permission denied")
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 
 app.post("/private/closeRegistration", async function (req, res) {
