@@ -8,6 +8,7 @@ let eventType = {
     event: 'אירוע'
 };
 let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
+let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
 
 let sexEnum = {
@@ -84,5 +85,6 @@ module.exports = {
     fileName: fileName,
     msg: msg,
     statusCode: statusCode,
-    regexHebrewAndNumbers: regexHebrewAndNumbers
+    regexHebrewAndNumbers: regexHebrewAndNumbers,
+    regexHebWithSpace: regexHebWithSpace
 };

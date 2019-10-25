@@ -3,7 +3,7 @@ function validateCompetitionDetails(eventDetails) {
     ans.isPassed = true;
     let err = [];
     //description
-    if (!validator.matches(eventDetails.description, Constants.hebRegex))
+    if (!validator.matches(eventDetails.description, Constants.regexHebWithSpace))
         err.push(Constants.errorMsg.hebErr)
     //location
     if (!validator.matches(eventDetails.location, Constants.regexHebrewAndNumbers))
@@ -12,7 +12,7 @@ function validateCompetitionDetails(eventDetails) {
     if (!(eventDetails.sportStyle in Constants.sportType))
         err.push(Constants.errorMsg.sportTypeErr)
     //city
-    if (!validator.matches(eventDetails.city, Constants.hebRegex))
+    if (!validator.matches(eventDetails.city, Constants.regexHebWithSpace))
         err.push(Constants.errorMsg.hebErr)
 
     if (err.length != 0)
@@ -22,6 +22,7 @@ function validateCompetitionDetails(eventDetails) {
 }
 
 async function addCompetition(competitionDetails) {
+    console.log(competitionDetails.startHour);
     let ans = new Object();
     let trans;
     await dbUtils.beginTransaction()
@@ -33,7 +34,7 @@ async function addCompetition(competitionDetails) {
                 .parameter('location', tediousTYPES.NVarChar, competitionDetails.location)
                 .parameter('eventType', tediousTYPES.NVarChar, Constants.eventType.competition)
                 .parameter('eventDate', tediousTYPES.Date, competitionDetails.eventDate)
-                .parameter('startHour', tediousTYPES.Time, competitionDetails.startHour)
+                .parameter('startHour', tediousTYPES.NVarChar, competitionDetails.startHour)
                 .parameter('city', tediousTYPES.NVarChar, competitionDetails.city)
                 .execute();
         })
@@ -43,7 +44,7 @@ async function addCompetition(competitionDetails) {
                 .parameter('sportStyle', tediousTYPES.NVarChar, competitionDetails.sportStyle)
                 .parameter('description', tediousTYPES.NVarChar, competitionDetails.description)
                 .parameter('closeDate', tediousTYPES.Date, competitionDetails.closeDate)
-                .parameter('closeTime', tediousTYPES.Time, competitionDetails.closeTime)
+                .parameter('closeTime', tediousTYPES.NVarChar, competitionDetails.closeTime)
                 .parameter('status', tediousTYPES.NVarChar, Constants.competitionStatus.open)
                 .parameter('idEvent', tediousTYPES.Int, Result[0].idEvent)
                 .returnRowCount()
