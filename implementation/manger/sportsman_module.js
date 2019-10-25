@@ -90,7 +90,7 @@ function buildQuery_forGetSportsman(queryData) {
                     where idCompetition = @compId) as t`;
         }
     } else {
-        query.query = 'Select id, firstname, lastname, photo from user_Sportsman';
+        query.query = 'Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub from user_Sportsman';
         query.queryCount = 'Select count(*) as count from user_Sportsman';
     }
     return query;
