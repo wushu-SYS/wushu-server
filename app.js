@@ -92,7 +92,7 @@ app.post("/login", async (req, res) => {
 
 app.post("/private/registerSportsman", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
-        let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJson(req.body))
+        let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJsonArray(req.body))
         if (ans.isPassed) {
             ans = await coach_user_module.registerSportsman(ans.users);
             res.status(ans.status).send(ans.results);
@@ -260,12 +260,11 @@ app.post("/private/deleteSportsmanProfile", async function (req, res) {
 
 app.post("/private/updateSportsmanProfile", async function (req, res) {
         let ans;
-        if (access === userType.MANAGER || id === req.body.id) {
+        if (access === Constants.userType.MANAGER || id === req.body.id) {
             ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
             if (ans.isPassed)
                 ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
             res.status(ans.status).send(ans.results)
-
         } else
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
@@ -282,7 +281,7 @@ app.post("/private/getRegistrationState", async function (req, res) {
 app.post("/private/setCategoryRegistration", async function (req, res) {
     let ans;
     if (access === Constants.userType.MANAGER) {
-        ans = await manger_competition_module.setCategoryRegistration(common_function.getArrayFromJson(req.body.categoryForSportsman), req.body.compId);
+        ans = await manger_competition_module.setCategoryRegistration(common_function.getArrayFromJsonArray(req.body.categoryForSportsman), req.body.compId);
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)

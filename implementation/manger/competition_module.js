@@ -246,6 +246,7 @@ function sortUsers(users) {
 }
 
 async function setCategoryRegistration(categoryForSportsman, compId) {
+    console.log(categoryForSportsman);
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
@@ -281,7 +282,7 @@ async function insertCategoryRegistrationDB(trans, categoryForSportsman, categor
         .parameter('idCompetition', tediousTYPES.Int, compID)
         .execute()
         .then(async function (testResult) {
-            if (i + 1 < users.length)
+            if (i + 1 < categoryForSportsman.length)
                 await insertCategoryRegistrationDB(trans, categoryForSportsman, categoryForSportsman[i + 1], i + 1, compID);
             return testResult
         })
