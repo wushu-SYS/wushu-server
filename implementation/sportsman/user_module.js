@@ -59,17 +59,18 @@ async function sendMail(req) {
 
 
 function validateSportsmanData(sportsmanDetails) {
-    let res = new Object();
-    res.isPassed = true;
-    let tmpErr = validateData(sportsmanDetails)
-    sportsmanDetails[5] = sysfunc.setBirtdateFormat(sportsmanDetails[5])
+    let ans = new Object();
+    ans.isPassed = true;
+    let tmpErr = validateData(sportsmanDetails);
+    sportsmanDetails[5] = sysfunc.setBirtdateFormat(sportsmanDetails[5]);
     if (tmpErr.length != 0) {
         ans.status = Constants.statusCode.badRequest;
-        res.isPassed = false;
-        res.results = tmpErr;
+        ans.isPassed = false;
+        ans.results = tmpErr;
     }
-    res.data = sportsmanDetails;
-    return res;
+    ans.data = sportsmanDetails;
+    console.log(ans)
+    return ans;
 }
 
 function validateData(sportsmanDetails) {
@@ -100,8 +101,8 @@ function validateData(sportsmanDetails) {
 
 async function updateSportsmanProfile(sportsManDetails) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Sportsman SET id =@idSportsman,firstname = @firstName', lastname = @lastName,phone = @phone,email = @email,birthdate = @birthDate,
-                      address = @address,sex = @sex where id =@idSportsman;`)
+    await dbUtils.sql(`UPDATE user_Sportsman SET id =@idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address, sex = @sex where id =@oldId;`)
         .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
         .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
         .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
@@ -110,6 +111,7 @@ async function updateSportsmanProfile(sportsManDetails) {
         .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
         .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
         .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[7])
+        .parameter('oldId', tediousTYPES.Int, sportsManDetails[8])
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
@@ -124,3 +126,4 @@ async function updateSportsmanProfile(sportsManDetails) {
 module.exports._uploadeMedical = uploadeMedical;
 module.exports._uploadInsurances = uploadeInsurance;
 module.exports.updateSportsmanProfile = updateSportsmanProfile;
+module.exports.validateSportsmanData = validateSportsmanData;

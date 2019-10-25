@@ -246,6 +246,7 @@ function sortUsers(users) {
 }
 
 async function setCategoryRegistration(categoryForSportsman, compId) {
+    console.log(categoryForSportsman);
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
@@ -281,7 +282,7 @@ async function insertCategoryRegistrationDB(trans, categoryForSportsman, categor
         .parameter('idCompetition', tediousTYPES.Int, compID)
         .execute()
         .then(async function (testResult) {
-            if (i + 1 < users.length)
+            if (i + 1 < categoryForSportsman.length)
                 await insertCategoryRegistrationDB(trans, categoryForSportsman, categoryForSportsman[i + 1], i + 1, compID);
             return testResult
         })
@@ -310,6 +311,7 @@ function validateDataBeforeAddCategory(newCategory) {
     res.isPassed = true;
     let err = validateCategory(newCategory)
     if (err.length != 0) {
+        res.status = Constants.statusCode.badRequest;
         res.isPassed = false;
         res.results = err;
     }
@@ -322,17 +324,17 @@ function validateCategory(newCategory) {
     if (!validator.matches(newCategory.categoryName, Constants.hebRegex))
         err.push(Constants.errorMsg.idSportmanErr);
     //minAge
-    if (!validator.isInt(newCategory.minAge, {gt: 0, lt: 100}))
-        err.push(Constants.errorMsg.compAgeErr)
+    if (!validator.isInt(newCategory.minAge.toString(), {min: 0, max: 100}))
+        err.push(Constants.errorMsg.compAgeErr);
     //maxAge
-    if (!validator.isInt(newCategory.maxAge, {gt: 0, lt: 100}))
-        err.push(Constants.errorMsg.compAgeErr)
+    if (!validator.isInt(newCategory.maxAge.toString(), {min: 0, max: 100}))
+        err.push(Constants.errorMsg.compAgeErr);
     //sex
     if (!(newCategory.sex in Constants.sexEnum))
         err.push(Constants.errorMsg.sexErr);
     //min < max
     if (newCategory.minAge > newCategory.maxAge)
-        err.push(Constants.errorMsg.minAgeErr)
+        err.push(Constants.errorMsg.minAgeErr);
 
     return err;
 }
@@ -363,35 +365,41 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
+            console.log(competitionDetails.closeRegDate);
             return await trans.sql(`Update events_competition 
                                      set sportStyle=@sportStyle,description=@description,closeRegDate=@closeRegDate,closeRegTime=@closeRegTime
                                      where idCompetition =@competitionId;`)
                 .parameter('sportStyle', tediousTYPES.NVarChar, competitionDetails.sportStyle)
                 .parameter('description', tediousTYPES.NVarChar, competitionDetails.description)
-                .parameter('closeRegDate', tediousTYPES.Date, competitionDetails.closeRegDate)
-                .parameter('closeRegTime', tediousTYPES.Time, competitionDetails.closeRegTime)
+                .parameter('closeRegDate', tediousTYPES.NVarChar, competitionDetails.closeRegDate)
+                .parameter('closeRegTime', tediousTYPES.NVarChar, competitionDetails.closeRegTime)
                 .parameter('competitionId', tediousTYPES.Int, competitionDetails.competitionId)
                 .returnRowCount()
                 .execute();
         })
         .then(async function (testResult) {
+            console.log("here")
+            console.log(competitionDetails.eventDate)
             return await trans.sql(`Update events 
-                                    set location =@location,type=@type,date=@eventDate,startHour=@evetTime
+                                    set location =@location,type=@type,date=@eventDate,startHour=@evetTime, city=@city
                                     where idEvent =@idEvent;`)
                 .parameter('idEvent', tediousTYPES.Int, idEvent)
                 .parameter('location', tediousTYPES.NVarChar, competitionDetails.location)
-                .parameter('type', tediousTYPES.Int, Constants.eventType.competition)
-                .parameter('eventDate', tediousTYPES.Date, competitionDetails.eventDate)
-                .parameter('evetTime', tediousTYPES.Time, competitionDetails.evetTime)
+                .parameter('type', tediousTYPES.NVarChar, Constants.eventType.competition)
+                .parameter('eventDate', tediousTYPES.NVarChar, competitionDetails.eventDate)
+                .parameter('evetTime', tediousTYPES.NVarChar, competitionDetails.evetTime)
+                .parameter('city', tediousTYPES.NVarChar, competitionDetails.city)
                 .returnRowCount()
                 .execute();
         })
         .then(async function (testResult) {
+            console.log("good")
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.competitionUpdate;
             trans.commitTransaction();
         })
         .fail(function (err) {
+            console.log("bad")
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();
@@ -411,14 +419,16 @@ function autoCloseRegCompetition() {
 }
 
 async function getIdEvent(idComp) {
+    let res;
     await dbUtils.sql(`select idEvent from events_competition where idCompetition =@idComp;`)
         .parameter('idComp', tediousTYPES.Int, idComp)
         .execute()
         .then(function (results) {
-            return results[0].idEvent;
+            res = results[0].idEvent;
         }).fail(function (err) {
             console.log(err)
         });
+    return res;
 }
 
 module.exports.addCompetition = addCompetition;

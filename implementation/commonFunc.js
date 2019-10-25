@@ -1,13 +1,16 @@
-function getArrayFromJson(data) {
+function getArrayFromJsonArray(data) {
     var res = [];
     data.forEach(function (row) {
-        var tmp = []
-        for (var key in row) {
-            tmp.push(row[key])
-        }
-        res.push(tmp)
+        res.push(getArrayFromJson(row))
     })
     return res;
+}
+function getArrayFromJson(row){
+    var tmp = []
+    for (var key in row) {
+        tmp.push(row[key])
+    }
+    return tmp;
 }
 
 async function sendMail(sendTo, message, sub) {
@@ -34,5 +37,6 @@ function setBirthDateFormat(birthdate) {
 
 
 module.exports.setBirtdateFormat = setBirthDateFormat;
+module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail = sendMail;
