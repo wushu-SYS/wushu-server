@@ -14,7 +14,7 @@ function checkDataBeforeRegister(userToRegsiter) {
             errorUsers[user[0]] = tmpErr
         }
     })
-    res.err = errorUsers;
+    res.results = errorUsers;
     res.users = userToRegsiter;
     return res;
 }
@@ -49,6 +49,7 @@ function checkUser(user) {
     if (!validator.isInt(user[10].toString(), {gt: 100000000, lt: 1000000000}))
         err.push(Constants.errorMsg.idCoachErr)
 
+    console.log(err)
     return err;
 
 
