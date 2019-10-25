@@ -3,7 +3,7 @@ const sysfunc = require("../commonFunc")
 
 
 function checkDataBeforeRegister(userToRegsiter) {
-    let errorUsers = new Object()
+    let errorUsers =[]
     let res = new Object();
     res.isPassed = true;
     userToRegsiter.forEach(function (user) {
@@ -11,7 +11,7 @@ function checkDataBeforeRegister(userToRegsiter) {
         user[5] = sysfunc.setBirtdateFormat(user[5])
         if (tmpErr.length != 0) {
             res.isPassed = false;
-            errorUsers[user[0]] = tmpErr
+            errorUsers.push(tmpErr)
         }
     })
     res.results = errorUsers;
@@ -20,36 +20,41 @@ function checkDataBeforeRegister(userToRegsiter) {
 }
 
 function checkUser(user) {
-    let err = [];
+    let err = new Object()
+    err.id =user[0]
+    let collectErr =[];
     //id user
     if (!validator.isInt(user[0].toString(), {gt: 100000000, lt: 1000000000}))
-        err.push(Constants.errorMsg.idSportmanErr)
+        collectErr.push(Constants.errorMsg.idSportmanErr)
     //firstname
-    if (!validator.matches(user[1].toString(), Constants.hebRegex))
-        err.push(Constants.errorMsg.firstNameHeb)
+    if (!validator.matches(user[1].toString(), Constants.hebRegex)||user[1].toString().length<2)
+        collectErr.push(Constants.errorMsg.firstNameHeb)
     //lastname
-    if (!validator.matches(user[2].toString(), Constants.hebRegex))
-        err.push(Constants.errorMsg.lastNameHeb)
+    if (!validator.matches(user[2].toString(), Constants.hebRegex)||user[2].toString().length<2)
+        collectErr.push(Constants.errorMsg.lastNameHeb)
+    //address
+    if (!validator.matches(user[4].toString(), Constants.regexHebrewAndNumbers)||user[4].toString().length<2)
+        collectErr.push(Constants.errorMsg.addressErr)
     //phone
-    if (!validator.isInt(user[3].toString()) && user[3].toString().length == 10)
-        err.push(Constants.errorMsg.phoneErr)
+    if (!validator.isInt(user[3].toString()) || user[3].toString().length != 10)
+        collectErr.push(Constants.errorMsg.phoneErr)
     //email
     if (!validator.isEmail(user[6].toString()))
-        err.push(Constants.errorMsg.emailErr)
+        collectErr.push(Constants.errorMsg.emailErr)
     //sportClub
     if (!validator.isInt(user[7].toString()))
-        err.push(Constants.errorMsg.sportClubErr)
+        collectErr.push(Constants.errorMsg.sportClubErr)
     //sex
     if (!(user[8].toString() in Constants.sexEnum))
-        err.push(Constants.errorMsg.sexErr)
+        collectErr.push(Constants.errorMsg.sexErr)
     //branch
     if (!(user[9].toString() in Constants.sportType))
-        err.push(Constants.errorMsg.sportTypeErr)
+        collectErr.push(Constants.errorMsg.sportTypeErr)
     //id coach
     if (!validator.isInt(user[10].toString(), {gt: 100000000, lt: 1000000000}))
-        err.push(Constants.errorMsg.idCoachErr)
+        collectErr.push(Constants.errorMsg.idCoachErr)
 
-    console.log(err)
+    err.errors=collectErr;
     return err;
 
 
