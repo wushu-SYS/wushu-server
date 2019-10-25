@@ -8,6 +8,7 @@ let eventType = {
     event: 'אירוע'
 };
 let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
+let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
 
 let sexEnum = {
@@ -41,7 +42,7 @@ let errorMsg = {
     errLoginDetails: 'Access denied. Error in user\'s details',
     accessDenied: 'Access denied',
     failDownload: 'Fail to download resource',
-    samePassword: 'הסיסמאות זהות',
+    samePassword: 'הסיסמא שהוזנה זהה לסיסמא הנוכחית',
     compAgeErr: 'גיל לא חוקי',
     minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
     hebErr : 'נא הכנס טקסט בעברית'
@@ -72,6 +73,7 @@ let statusCode = {
     badRequest: 400,
     unauthorized: 401,
     notFound: 404,
+    Conflict: 409,
     initialServerError: 500
 }
 
@@ -86,5 +88,6 @@ module.exports = {
     fileName: fileName,
     msg: msg,
     statusCode: statusCode,
-    regexHebrewAndNumbers: regexHebrewAndNumbers
+    regexHebrewAndNumbers: regexHebrewAndNumbers,
+    regexHebWithSpace: regexHebWithSpace
 };
