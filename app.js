@@ -248,7 +248,7 @@ app.post("/private/competitionSportsmen", async function (req, res) {
     if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
         ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
     res.status(ans.status).send(ans.results)
-})
+});
 
 app.post("/private/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER || id === req.body.userID) {

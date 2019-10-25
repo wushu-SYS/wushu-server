@@ -102,7 +102,7 @@ async function registerSportsman(users) {
                 .then((result) => {
                     //sendEmail(users);
                     ans.status = Constants.statusCode.ok;
-                    ans.results = Constants.msg.registerSuccess
+                    ans.results = Constants.msg.registerSuccess;
                     trans.commitTransaction();
                 })
                 .catch((err) => {

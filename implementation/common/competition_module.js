@@ -27,8 +27,9 @@ async function insertSportsmanToCompetitonDB(trans, insertSportsman, sportsmanDe
             .parameter('category', tediousTYPES.NVarChar, sportsmanDetails.category)
             .execute()
             .then(async function (testResult) {
-                if (i + 1 < users.length)
-                    await insertSportsmanToCompetitonDB(trans, insertSportsman, sportsmanDetails[i + 1], i + 1, compId)
+                if (i + 1 < insertSportsman.length) {
+                    await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[i+1], i+1, compId)
+                }
                 return testResult
             })
     return;
@@ -42,8 +43,8 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
             .parameter('category', tediousTYPES.NVarChar, sportsmanDetails.category)
             .execute()
             .then(async function (testResult) {
-                if (i + 1 < users.length)
-                    await deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsmanDetails[i + 1], i + 1, compId)
+                if (i + 1 < insertSportsman.length)
+                    await deleteSportsmanFromCompetitionDB(trans, insertSportsman, insertSportsman[i + 1], i + 1, compId)
                 return testResult
             })
     return;
@@ -53,17 +54,20 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
 async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, compId) {
     let ans = new Object()
     let trans;
+    console.log(insertSportsman)
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0] ? insertSportsman[0] : undefined, 0, compId),await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0] ? deleteSportsman[0] : undefined, 0, compId)
+            await Promise.all(insertSportsman[0] ? await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0], 0, compId) : '',
+                await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId)
                 .then((result) => {
                     //sendEmail(users);
                     ans.status = Constants.statusCode.ok;
-                    ans.results = Constants.msg.registerSuccess
+                    ans.results = Constants.msg.registerSuccess;
                     trans.commitTransaction();
                 })
                 .catch((err) => {
+                    console.log("bad")
                     ans.status = Constants.statusCode.badRequest;
                     ans.results = err;
                     trans.rollbackTransaction();
