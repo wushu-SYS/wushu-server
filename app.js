@@ -155,7 +155,7 @@ app.post("/private/changePassword", async function (req, res) {
         ans = await common_user_module.changeUserPassword(userData);
         res.status(ans.status).send(ans.results)
     } else
-        res.status(Constants.statusCode.badRequest).send(ans.err)
+        res.status(ans.status).send(ans.err)
 });
 
 app.post("/private/getCoaches", async function (req, res) {

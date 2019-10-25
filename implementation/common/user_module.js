@@ -75,10 +75,19 @@ async function validateDiffPass(userData) {
         .parameter('id', tediousTYPES.Int, userData.id)
         .execute()
         .then(function (results) {
-            ans.isPassed = !(bcrypt.compareSync(userData.newPass, results[0].password))
-            ans.err = Constants.errorMsg.samePassword
+            if(bcrypt.compareSync(userData.newPass, results[0].password)) {
+                ans.status = Constants.statusCode.Conflict;
+                ans.isPassed = false;
+                ans.err = Constants.errorMsg.samePassword
+            }
+            else{
+                ans.status = Constants.statusCode.ok;
+                ans.isPassed = true;
+                ans.err = results
+            }
         }).fail(function (err) {
             console.log(err);
+            ans.status = Constants.statusCode.badRequest;
             ans.isPassed = false;
             ans.err = err
         });

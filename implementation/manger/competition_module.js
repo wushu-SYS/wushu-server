@@ -22,7 +22,6 @@ function validateCompetitionDetails(eventDetails) {
 }
 
 async function addCompetition(competitionDetails) {
-    console.log(competitionDetails.startHour);
     let ans = new Object();
     let trans;
     await dbUtils.beginTransaction()
