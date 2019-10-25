@@ -35,6 +35,18 @@ const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 const common_function = require("./implementation/commonFunc")
 
+//uploade file const
+const storagePhoto = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, __basedir + '/resources/profilePic/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, String(id + ".jpeg"))
+    }
+});
+const uploadProfilePic = multer({storage: storagePhoto});
+
+
 
 //server schedule Jobs
 let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
@@ -98,15 +110,13 @@ app.post("/private/registerCoach", function (req, res) {
 
 });
 
-/*
-const storagePhoto = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, __basedir + '/uploads/Photos/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, String(id + ".jpeg"))
-    }
+app.post('/private/uploadPhoto', uploadProfilePic.single("userProfilePic"), async (req, res) => {
+    let ans ;
+    ans =await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access),id);
+    res.status(ans.status).send(ans.results);
 });
+
+/*
 const uploadMedical = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, __basedir + '/uploads/sportsman/MedicalScan/')
@@ -135,7 +145,9 @@ app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (re
 app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) => {
     sportsman_user_module._uploadInsurances(req, res);
 });
+
  */
+
 
 
 app.get('/downloadExcelFormatSportsman', (req, res) => {

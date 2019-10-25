@@ -1,5 +1,3 @@
-
-
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
     await dbUtils.sql(`select * from user_Passwords where id = @id`)
@@ -53,20 +51,33 @@ function buildToken(userDetails, userData) {
     };
 }
 
-function uploadPhoto(req, res) {
-    var id = jwt.decode(req.header("x-auth-token")).id;
-    switch (jwt.decode(req.header("x-auth-token")).access) {
+function getTabelName(userType) {
+    switch (userType) {
         case 1:
-            DButilsAzure.execQuery(`UPDATE user_Manger SET picture ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
-            break;
+            return "user_Manger";
         case 2:
-            DButilsAzure.execQuery(`UPDATE user_Coach SET photo ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
-            break;
+            return "user_Coach";
         case 3:
-            DButilsAzure.execQuery(`UPDATE user_Sportsman SET photo ='${"./uploades/Photos/" + id + ".jpeg"}' WHERE id = ${id};`)
-            break;
+            return "user_Sportsman"
     }
-    res.status(200).send("File upload successfully")
+}
+
+async function uploadeProfilePic(tblName, id) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE @tblName SET picture ='${"./resources/profilePic/" + id + ".jpeg"}' WHERE id = @id;`)
+        .parameter('id', tediousTYPES.Int, id)
+        .parameter('tblName', tediousTYPES.Text, tblName)
+        .execute()
+        .then(function (results) {
+            ans.isPassed = true;
+            ans.results = Constants.msg.profilePicUpdate;
+        }).fail(function (err) {
+            ans.isPassed = false;
+            ans.results = err;
+            console.log(err)
+        });
+
+    return ans;
 }
 
 async function validateDiffPass(userData) {
@@ -102,7 +113,6 @@ async function changeUserPassword(userData) {
     return ans
 
 }
-
 
 
 async function deleteSportsman(sportsmanId) {
@@ -162,7 +172,8 @@ async function deleteSportsman(sportsmanId) {
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
-module.exports._uploadPhoto = uploadPhoto;
+module.exports.uploadeProfilePic = uploadeProfilePic;
 module.exports.changeUserPassword = changeUserPassword;
 module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;
+module.exports.getTabelName=getTabelName;

@@ -56,7 +56,9 @@ let msg = {
     closeRegistration: 'Register have been closed',
     updateUserDetails: 'user details update successfully',
     categoryRegistrationSuccess: ' add to user category successfully',
-    eventAdded : 'event have been created successfully'
+    eventAdded : 'event have been created successfully',
+    profilePicUpdate : 'profile picture updated successfully'
+
 }
 
 let fileName = {
