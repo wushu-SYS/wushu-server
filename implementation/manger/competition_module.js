@@ -155,7 +155,7 @@ async function getCompetitions(queryData) {
             })])
         .then(result => {
             ans.results = {
-                sportsmen: result[0],
+                competitions: result[0],
                 totalCount: result[1][0].count
             };
             ans.status = Constants.statusCode.ok;

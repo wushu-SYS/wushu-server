@@ -220,8 +220,7 @@ app.post("/private/addCompetition", async function (req, res) {
 
 app.post("/private/getCompetitions", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
-        let ans = new Object();
-        ans = await manger_competition_module.getCompetitions(req.query);
+        let ans = await manger_competition_module.getCompetitions(req.query);
         res.status(ans.status).send(ans.results);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
