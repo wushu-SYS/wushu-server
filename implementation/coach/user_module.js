@@ -9,7 +9,7 @@ function checkDataBeforeRegister(userToRegsiter) {
     userToRegsiter.forEach(function (user) {
         let tmpErr = checkUser(user)
         user[5] = sysfunc.setBirtdateFormat(user[5])
-        if (tmpErr.length != 0) {
+        if (tmpErr.errors.length > 0) {
             res.isPassed = false;
             errorUsers.push(tmpErr)
         }
