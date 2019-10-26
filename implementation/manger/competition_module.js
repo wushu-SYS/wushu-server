@@ -365,7 +365,6 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            console.log(competitionDetails.closeRegDate);
             return await trans.sql(`Update events_competition 
                                      set sportStyle=@sportStyle,description=@description,closeRegDate=@closeRegDate,closeRegTime=@closeRegTime
                                      where idCompetition =@competitionId;`)
@@ -379,7 +378,6 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
         })
         .then(async function (testResult) {
             console.log("here")
-            console.log(competitionDetails.eventDate)
             return await trans.sql(`Update events 
                                     set location =@location,type=@type,date=@eventDate,startHour=@evetTime, city=@city
                                     where idEvent =@idEvent;`)
