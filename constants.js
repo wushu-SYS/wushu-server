@@ -11,21 +11,37 @@ let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
 let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
 
+
+let colRegisterUserExcel = {
+    idSportsman: 0,
+    firstName :1,
+    lastName: 2,
+    phone: 3,
+    address: 4,
+    birthDate: 5,
+    email: 6,
+    sportClub: 7,
+    sex: 8,
+    sportStyle: 9,
+    idCoach: 10,
+
+
+};
 let sexEnum = {
     זכר: 111,
     נקבה: 112
-}
+};
 
 let sportType = {
     טאולו: 201,
     סנדא: 202,
 
-}
+};
 let competitionStatus = {
     close: 'סגור',
     open: 'פתוח',
     regclose: 'רישום סגור'
-}
+};
 
 let errorMsg = {
     idSportmanErr: 'ת.ז ספורטאי לא תקינה,נא הכנס תעודת זהות תקינה',
@@ -45,8 +61,8 @@ let errorMsg = {
     samePassword: 'הסיסמא שהוזנה זהה לסיסמא הנוכחית',
     compAgeErr: 'גיל לא חוקי',
     minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
-    hebErr : 'נא הכנס טקסט בעברית',
-    addressErr : 'אנא הכנס כתובת חוקית בעברית'
+    hebErr: 'נא הכנס טקסט בעברית',
+    addressErr: 'אנא הכנס כתובת חוקית בעברית'
 }
 
 let msg = {
@@ -58,8 +74,8 @@ let msg = {
     closeRegistration: 'Register have been closed',
     updateUserDetails: 'user details update successfully',
     categoryRegistrationSuccess: ' add to user category successfully',
-    eventAdded : 'event have been created successfully',
-    profilePicUpdate : 'profile picture updated successfully'
+    eventAdded: 'event have been created successfully',
+    profilePicUpdate: 'profile picture updated successfully'
 
 }
 
@@ -90,5 +106,6 @@ module.exports = {
     msg: msg,
     statusCode: statusCode,
     regexHebrewAndNumbers: regexHebrewAndNumbers,
-    regexHebWithSpace: regexHebWithSpace
+    regexHebWithSpace: regexHebWithSpace,
+    colRegisterUserExcel :colRegisterUserExcel
 };

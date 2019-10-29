@@ -8,7 +8,7 @@ function checkDataBeforeRegister(userToRegsiter) {
     res.isPassed = true;
     userToRegsiter.forEach(function (user) {
         let tmpErr = checkUser(user)
-        user[5] = sysfunc.setBirtdateFormat(user[5])
+        user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
         if (tmpErr.errors.length > 0) {
             res.isPassed = false;
             errorUsers.push(tmpErr)
@@ -21,37 +21,37 @@ function checkDataBeforeRegister(userToRegsiter) {
 
 function checkUser(user) {
     let err = new Object()
-    err.id =user[0]
+    err.id =user[Constants.colRegisterUserExcel.idSportsman]
     let collectErr =[];
     //id user
-    if (!validator.isInt(user[0].toString(), {gt: 100000000, lt: 1000000000}))
+    if (!validator.isInt(user[Constants.colRegisterUserExcel.idSportsman].toString(), {gt: 100000000, lt: 1000000000}))
         collectErr.push(Constants.errorMsg.idSportmanErr)
     //firstname
-    if (!validator.matches(user[1].toString(), Constants.hebRegex)||user[1].toString().length<2)
+    if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex)||user[Constants.colRegisterUserExcel.firstName].toString().length<2)
         collectErr.push(Constants.errorMsg.firstNameHeb)
     //lastname
-    if (!validator.matches(user[2].toString(), Constants.hebRegex)||user[2].toString().length<2)
+    if (!validator.matches(user[Constants.colRegisterUserExcel.lastName].toString(), Constants.hebRegex)||user[Constants.colRegisterUserExcel.lastName].toString().length<2)
         collectErr.push(Constants.errorMsg.lastNameHeb)
     //address
-    if (!validator.matches(user[4].toString(), Constants.regexHebrewAndNumbers)||user[4].toString().length<2)
+    if (!validator.matches(user[Constants.colRegisterUserExcel.address].toString(), Constants.regexHebrewAndNumbers)||user[Constants.colRegisterUserExcel.address].toString().length<2)
         collectErr.push(Constants.errorMsg.addressErr)
     //phone
-    if (!validator.isInt(user[3].toString()) || user[3].toString().length != 10)
+    if (!validator.isInt(user[Constants.colRegisterUserExcel.phone].toString()) || user[Constants.colRegisterUserExcel.phone].toString().length != 10)
         collectErr.push(Constants.errorMsg.phoneErr)
     //email
-    if (!validator.isEmail(user[6].toString()))
+    if (!validator.isEmail(user[Constants.colRegisterUserExcel.email].toString()))
         collectErr.push(Constants.errorMsg.emailErr)
     //sportClub
-    if (!validator.isInt(user[7].toString()))
+    if (!validator.isInt(user[Constants.colRegisterUserExcel.sportClub].toString()))
         collectErr.push(Constants.errorMsg.sportClubErr)
     //sex
-    if (!(user[8].toString() in Constants.sexEnum))
+    if (!(user[Constants.colRegisterUserExcel.sex].toString() in Constants.sexEnum))
         collectErr.push(Constants.errorMsg.sexErr)
     //branch
-    if (!(user[9].toString() in Constants.sportType))
+    if (!(user[Constants.colRegisterUserExcel.sportStyle].toString() in Constants.sportType))
         collectErr.push(Constants.errorMsg.sportTypeErr)
     //id coach
-    if (!validator.isInt(user[10].toString(), {gt: 100000000, lt: 1000000000}))
+    if (!validator.isInt(user[Constants.colRegisterUserExcel.idCoach].toString(), {gt: 100000000, lt: 1000000000}))
         collectErr.push(Constants.errorMsg.idCoachErr)
 
     err.errors=collectErr;
