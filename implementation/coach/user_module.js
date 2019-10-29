@@ -63,16 +63,16 @@ function checkUser(user) {
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
     return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
                                     VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex)`)
-        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[0])
-        .parameter('firstName', tediousTYPES.NVarChar, sportsmanDetails[1])
-        .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[2])
-        .parameter('phone', tediousTYPES.Int, sportsmanDetails[3])
-        .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[4])
-        .parameter('birthDate', tediousTYPES.Date, sportsmanDetails[5])
-        .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[6])
-        .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[7])
-        .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[8])
-        .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[9])
+        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
+        .parameter('firstName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.firstName])
+        .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.lastName])
+        .parameter('phone', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.phone])
+        .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.address])
+        .parameter('birthDate', tediousTYPES.Date, sportsmanDetails[Constants.colRegisterUserExcel.birthDate])
+        .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.email])
+        .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.sportClub])
+        .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sex])
+        .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sportStyle])
         .execute()
         .then(async function (testResult) {
             if (i + 1 < users.length)
@@ -85,8 +85,8 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
 async function insertPasswordDB(trans, users, userDetails, i, userType) {
     return trans.sql(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
                     Values (@idSportsman ,@password,@userType,@isFirstLogin)`)
-        .parameter('idSportsman', tediousTYPES.Int, userDetails[0])
-        .parameter('password', tediousTYPES.NVarChar, bcrypt.hashSync(userDetails[0].toString(), saltRounds))
+        .parameter('idSportsman', tediousTYPES.Int, userDetails[Constants.colRegisterUserExcel.idSportsman])
+        .parameter('password', tediousTYPES.NVarChar, bcrypt.hashSync(userDetails[Constants.colRegisterUserExcel.idSportsman].toString(), saltRounds))
         .parameter('userType', tediousTYPES.Int, userType)
         .parameter('isFirstLogin', tediousTYPES.Int, 1)
         .execute()
@@ -128,8 +128,8 @@ async function registerSportsman(users) {
 async function insertCoachDB(trans, users, sportsmanDetails, i) {
     return trans.sql(`INSERT INTO sportsman_coach (idSportman,idCoach)
                     Values (@idSportsman,@idCoach)`)
-        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[0])
-        .parameter('idCoach', tediousTYPES.Int, sportsmanDetails[10])
+        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
+        .parameter('idCoach', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idCoach])
         .execute()
         .then(async function (testResult) {
             if (i + 1 < users.length)
@@ -141,19 +141,19 @@ async function insertCoachDB(trans, users, sportsmanDetails, i) {
 async function sendEmail(users) {
     var subject = 'רישום משתמש חדש wuhsu'
     users.forEach((user) => {
-        var textMsg = "שלום " + user[1] + "\n" +
+        var textMsg = "שלום " + user[Constants.colRegisterUserExcel.firstName] + "\n" +
             "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
             "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-            + "שם פרטי: " + user[1] + "\n"
-            + "שם משפחה: " + user[2] + "\n"
-            + "כתובת מגורים: " + user[4] + "\n"
-            + "פאלפון: " + user[3] + "\n"
-            + "תאריך לידהי: " + user[5] + "\n"
-            + "תעודת זהות: " + user[0] + "\n"
+            + "שם פרטי: " + user[Constants.colRegisterUserExcel.firstName] + "\n"
+            + "שם משפחה: " + user[Constants.colRegisterUserExcel.lastName] + "\n"
+            + "כתובת מגורים: " + user[Constants.colRegisterUserExcel.address] + "\n"
+            + "פאלפון: " + user[Constants.colRegisterUserExcel.phone] + "\n"
+            + "תאריך לידהי: " + user[Constants.colRegisterUserExcel.birthDate] + "\n"
+            + "תעודת זהות: " + user[Constants.colRegisterUserExcel.idSportsman] + "\n"
             + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
             + "בברכה, " + "\n" +
             "מערכת או-שו"
-        sysfunc.sendEmail(user[6], textMsg, subject)
+        sysfunc.sendEmail(user[Constants.colRegisterUserExcel.email], textMsg, subject)
     })
 
 
