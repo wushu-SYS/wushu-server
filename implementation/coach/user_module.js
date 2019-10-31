@@ -21,6 +21,7 @@ function checkDataBeforeRegister(userToRegsiter) {
 
 function checkUser(user) {
     let err = new Object()
+    console.log(user)
     err.id =user[Constants.colRegisterUserExcel.idSportsman]
     let collectErr =[];
     //id user
