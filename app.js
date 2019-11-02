@@ -5,6 +5,7 @@ let bodyParser = require("body-parser");
 let cors = require('cors');
 jwt = require("jsonwebtoken");
 validator = require('validator');
+const ExcelJS = require('exceljs');
 
 secret = "wushuSecret";
 const multer = require('multer');
@@ -150,11 +151,37 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
 
 
 
-app.get('/downloadExcelFormatSportsman', (req, res) => {
-    res.download('resources/files/sportsmanExcel.xlsx');
+app.get('/downloadExcelFormatSportsman/:token', (req, res) => {
+    let token = req.params.token
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    if (access == Constants.userType.COACH||access == Constants.userType.MANAGER)
+        res.download('resources/files/sportsmanExcel.xlsx');
+
+    res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 app.get('/downloadExcelFormatCoach', (req, res) => {
     res.download('resources/files/coachExcel.xlsx');
+});
+
+
+app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => {
+    let token = req.params.token
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let sportsManData;
+    if (access == Constants.userType.COACH)
+         sportsManData = await coach_sportsman_module.getSportsmen({},id);
+    else if (access == Constants.userType.MANAGER)
+        sportsManData = await manger_sportsman_module.getSportsmen({});
+    else
+    res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    
+    console.log(sportsManData.results)
+
 });
 
 app.post("/private/changePassword", async function (req, res) {

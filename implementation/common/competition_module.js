@@ -83,5 +83,10 @@ async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, 
 
 }
 
+function createExcel (){
+
+}
+
+module.exports.createExcel =createExcel;
 module.exports.getDetail = getDetails;
 module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
