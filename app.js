@@ -47,7 +47,6 @@ const storagePhoto = multer.diskStorage({
 const uploadProfilePic = multer({storage: storagePhoto});
 
 
-
 //server schedule Jobs
 let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module.autoCloseRegCompetition();
@@ -111,8 +110,8 @@ app.post("/private/registerCoach", function (req, res) {
 });
 
 app.post('/private/uploadPhoto', uploadProfilePic.single("userProfilePic"), async (req, res) => {
-    let ans ;
-    ans =await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access),id);
+    let ans;
+    ans = await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access), id);
     res.status(ans.status).send(ans.results);
 });
 
@@ -147,7 +146,6 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
 });
 
  */
-
 
 
 app.get('/downloadExcelFormatSportsman', (req, res) => {
@@ -245,9 +243,25 @@ app.post("/private/getCompetitionDetail", async function (req, res) {
 
 app.post("/private/competitionSportsmen", async function (req, res) {
     let ans;
-    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
         ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
-    res.status(ans.status).send(ans.results)
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+});
+app.post("/private/competitionExcelSportsmen", async function (req, res) {
+    let ans;
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
+        let sportsManArray = common_function.getArrayFromJsonArray(req.body.sportsman);
+        ans = await common_competition_module.validateExcel(sportsManArray);
+        if (ans.isPassed)
+            ans = await common_competition_module.registerExcelSportsmanToCompetition(sportsManArray, req.body.compId)
+        res.status(ans.status).send(ans.results)
+
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    //ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
 });
 
 app.post("/private/deleteSportsmanProfile", async function (req, res) {
