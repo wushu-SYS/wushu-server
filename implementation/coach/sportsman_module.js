@@ -57,14 +57,14 @@ function buildQuery_forGetSportsman(queryData) {
     if (queryData.sportStyle !== undefined) {
         query.query = `Select user_Sportsman.id,firstname,lastname,photo
                     from user_Sportsman
-                    join sportsman_category
-                    on user_Sportsman.id = sportsman_category.id
+                    join sportsman_sportStyle
+                    on user_Sportsman.id = sportsman_sportStyle.id
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
         query.queryCount = `Select count(*) as count
                     from user_Sportsman
-                    join sportsman_category
-                    on user_Sportsman.id = sportsman_category.id
+                    join sportsman_sportStyle
+                    on user_Sportsman.id = sportsman_sportStyle.id
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     } else if (queryData.competition !== undefined && queryData.competitionOperator !== undefined) {

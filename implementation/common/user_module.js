@@ -130,6 +130,12 @@ async function deleteSportsman(sportsmanId) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
+            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
+                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
             return await trans.sql(`DELETE FROM sportsman_coach WHERE idSportman = @sportsmanId;`)
                 .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
                 .returnRowCount()
