@@ -10,6 +10,7 @@ function initQury(queryData, id) {
 }
 
 async function getSportsmen(queryData, id) {
+    console.log(queryData)
     let ans = new Object();
     let query = initQury(queryData, id);
 
