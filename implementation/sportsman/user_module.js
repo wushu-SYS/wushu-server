@@ -106,7 +106,7 @@ async function updateSportsmanProfile(sportsManDetails) {
         .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
         .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
         .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
-        .parameter('phone', tediousTYPES.Int, sportsManDetails[3])
+        .parameter('phone', tediousTYPES.NVarChar, sportsManDetails[3])
         .parameter('email', tediousTYPES.NVarChar, sportsManDetails[4])
         .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
         .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
