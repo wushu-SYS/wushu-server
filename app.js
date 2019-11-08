@@ -183,7 +183,8 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => 
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
     let categoryData = await common_sportsman_module.getCategories();
-    excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+    let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+    res.download(excelFile);
 
     //console.log(sportsManData.results)
 
