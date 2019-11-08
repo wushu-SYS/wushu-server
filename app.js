@@ -5,7 +5,6 @@ let bodyParser = require("body-parser");
 let cors = require('cors');
 jwt = require("jsonwebtoken");
 validator = require('validator');
-const ExcelJS = require('exceljs');
 
 secret = "wushuSecret";
 const multer = require('multer');
@@ -34,7 +33,8 @@ const manger_competition_module = require("./implementation/manger/competition_m
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
-const common_function = require("./implementation/commonFunc")
+const common_function = require("./implementation/commonFunc");
+const excelCreation =require("./implementation/services/excelCreation");
 
 //uploade file const
 const storagePhoto = multer.diskStorage({
@@ -158,7 +158,7 @@ app.get('/downloadExcelFormatSportsman/:token', (req, res) => {
     id = decoded.id;
     if (access == Constants.userType.COACH||access == Constants.userType.MANAGER)
         res.download('resources/files/sportsmanExcel.xlsx');
-
+    else
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 app.get('/downloadExcelFormatCoach', (req, res) => {
@@ -179,6 +179,7 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => 
     else
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
+    com
     
     console.log(sportsManData.results)
 
