@@ -35,6 +35,7 @@ const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 const common_function = require("./implementation/commonFunc");
 const excelCreation =require("./implementation/services/excelCreation");
+//excelCreation.createExcelRegisterCompetition("");
 
 //uploade file const
 const storagePhoto = multer.diskStorage({
@@ -161,6 +162,8 @@ app.get('/downloadExcelFormatSportsman/:token', (req, res) => {
     else
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
+
+
 app.get('/downloadExcelFormatCoach', (req, res) => {
     res.download('resources/files/coachExcel.xlsx');
 });
@@ -179,9 +182,10 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => 
     else
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
-    com
-    
-    console.log(sportsManData.results)
+    let categoryData = await common_sportsman_module.getCategories();
+    excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+
+    //console.log(sportsManData.results)
 
 });
 
