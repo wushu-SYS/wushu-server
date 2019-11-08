@@ -69,7 +69,7 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
         .parameter('firstName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.firstName])
         .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.lastName])
-        .parameter('phone', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.phone])
+        .parameter('phone', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.phone])
         .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.address])
         .parameter('birthDate', tediousTYPES.Date, sportsmanDetails[Constants.colRegisterUserExcel.birthDate])
         .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.email])
