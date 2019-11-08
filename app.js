@@ -33,7 +33,7 @@ const manger_competition_module = require("./implementation/manger/competition_m
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
-const common_function = require("./implementation/commonFunc");
+common_function = require("./implementation/commonFunc");
 const excelCreation =require("./implementation/services/excelCreation");
 //excelCreation.createExcelRegisterCompetition("");
 
