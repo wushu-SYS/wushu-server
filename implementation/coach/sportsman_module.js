@@ -58,18 +58,36 @@ function buildQuery_forGetSportsman(queryData) {
     if (queryData.sportStyle !== undefined) {
         query.query = `Select user_Sportsman.id,firstname,lastname,photo
                     from user_Sportsman
-                    join sportsman_category
-                    on user_Sportsman.id = sportsman_category.id
+                    join sportsman_sportStyle
+                    on user_Sportsman.id = sportsman_sportStyle.id
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
         query.queryCount = `Select count(*) as count
                     from user_Sportsman
-                    join sportsman_category
-                    on user_Sportsman.id = sportsman_category.id
+                    join sportsman_sportStyle
+                    on user_Sportsman.id = sportsman_sportStyle.id
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman`;
-    } else if (queryData.competition !== undefined && queryData.competitionOperator !== undefined) {
-        if (queryData.competitionOperator == '==') {
+    } else if (queryData.competition !== undefined ) {
+        if(queryData.competitionOperator == undefined){
+            query.query = `select id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub from
+                    (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                        from user_Sportsman
+                        join sportsman_coach
+                        on user_Sportsman.id = sportsman_coach.idSportman
+                        where sportsman_coach.idCoach = @idCoach) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+            query.queryCount = `select count(*) as count from
+                    (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                        from user_Sportsman
+                        join sportsman_coach
+                        on user_Sportsman.id = sportsman_coach.idSportman
+                        where idCoach = @idCoach) as sportsman_coach
+                    join competition_sportsman
+                    on sportsman_coach.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+        }
+        else if (queryData.competitionOperator == '==') {
             query.query = `select id, firstname, lastname, photo from
                     (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
                         from user_Sportsman

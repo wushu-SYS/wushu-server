@@ -106,7 +106,7 @@ async function registerSportsman(users) {
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(await insertSportsmanDB(trans, users, users[0], 0), await insertPasswordDB(trans, users, users[0], 0, Constants.userType.SPORTSMAN), await insertCoachDB(trans, users, users[0], 0)
+            await Promise.all(await insertSportsmanDB(trans, users, users[0], 0), await insertPasswordDB(trans, users, users[0], 0, Constants.userType.SPORTSMAN), await insertCoachDB(trans, users, users[0], 0), await insertSportStyleDB(trans, users, users[0], 0)
                 .then((result) => {
                     //sendEmail(users);
                     ans.status = Constants.statusCode.ok;
@@ -138,6 +138,19 @@ async function insertCoachDB(trans, users, sportsmanDetails, i) {
             if (i + 1 < users.length)
                 await insertCoachDB(trans, users, users[i + 1], (i + 1))
             return testResult
+        })
+}
+
+async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
+    return trans.sql(`INSERT INTO sportsman_sportStyle (id, sportStyle)
+                    Values (@idSportsman,@sportStyle)`)
+        .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
+        .parameter('sportStyle', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sportStyle])
+        .execute()
+        .then(async function (testResults){
+            if( i + 1 < users.length)
+                await insertSportStyleDB(trans, users, users[i + 1], (i + 1));
+            return testResults;
         })
 }
 

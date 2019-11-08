@@ -55,12 +55,20 @@ async function getSportsmen(queryData) {
 function buildQuery_forGetSportsman(queryData) {
     let query = new Object();
     if (queryData.sportStyle != undefined) {
-        query.query = `Select user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_category
-            on user_Sportsman.id = sportsman_category.id`;
-        query.queryCount = `Select count(*) as count from user_Sportsman join sportsman_category
-            on user_Sportsman.id = sportsman_category.id`;
-    } else if (queryData.competition !== undefined && queryData.competitionOperator !== undefined) {
-        if (queryData.competitionOperator === '==') {
+        query.query = `Select user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_sportStyle
+            on user_Sportsman.id = sportsman_sportStyle.id`;
+        query.queryCount = `Select count(*) as count from user_Sportsman join sportsman_sportStyle
+            on user_Sportsman.id = sportsman_sportStyle.id`;
+    } else if (queryData.competition !== undefined) {
+        if(queryData.competitionOperator == undefined){
+            query.query = `Select user_Sportsman.id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+                    from user_Sportsman
+                    left join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+            query.queryCount = `Select count(*) as count
+                    from user_Sportsman`;
+        }
+        else if (queryData.competitionOperator === '==') {
             query.query = `Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     join competition_sportsman
