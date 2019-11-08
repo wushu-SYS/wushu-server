@@ -179,7 +179,7 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => 
     else
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
-    
+
     console.log(sportsManData.results)
 
 });
