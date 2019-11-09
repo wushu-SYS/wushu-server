@@ -267,7 +267,10 @@ app.post("/private/getCompetitions", async function (req, res) {
         res.status(ans.status).send(ans.results);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
-
+});
+app.get("/getCompetitions/count", async function (req, res) {
+        let ans = await manger_competition_module.getCompetitionsCount(req.query);
+        res.status(ans.status).send(ans.results);
 });
 app.post("/private/getCompetitionDetail", async function (req, res) {
     let ans = await common_competition_module.getDetail(req.body.id);
