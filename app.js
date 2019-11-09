@@ -33,7 +33,7 @@ const manger_competition_module = require("./implementation/manger/competition_m
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
-const common_function = require("./implementation/commonFunc");
+common_function = require("./implementation/commonFunc");
 const excelCreation =require("./implementation/services/excelCreation");
 //excelCreation.createExcelRegisterCompetition("");
 
@@ -183,7 +183,8 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => 
     res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
     let categoryData = await common_sportsman_module.getCategories();
-    excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+    let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+    res.download(excelFile);
 
     //console.log(sportsManData.results)
 

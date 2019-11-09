@@ -58,7 +58,7 @@ async function sportsmanProfile(id) {
 
 async function getCategories() {
     let ans = new Object();
-    await dbUtils.sql(`Select * from category order by name`)
+    await dbUtils.sql(`Select * from category order by sex, minAge`)
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
