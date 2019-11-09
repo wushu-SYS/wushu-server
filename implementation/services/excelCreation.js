@@ -63,7 +63,7 @@ function createExcelRegisterCompetition(SportsmanData,categoryData) {
 function getListFromCategory(list){
     let ans = ''
     for(let i=0;i<10;i++)
-        ans= ans + list[i].sex +' '+ list[i].name+ ' ' +setAgeCategory(list[i]) +',';
+        ans= ans +list[i].name+ ' ' +setAgeCategory(list[i]) +' ' + + ',';
    ans = ans.substring(0,ans.length-1);
     console.log(ans);
     return(ans);
