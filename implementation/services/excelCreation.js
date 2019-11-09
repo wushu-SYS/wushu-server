@@ -16,6 +16,16 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     }
     let sportsmenLength = SportsmanData.totalCount;
     let sportsmenArr = SportsmanData.sportsmen;
+    let categoryMap = new Map();
+    worksheet.cell(1, 26).string("קטגוריות").style(style).style({font: {color: 'white'}});
+    for (let i = 2; i < categoryData.length; i++) {
+        worksheet.cell(i, 26).string(categoryData[i].sex + ' ' + categoryData[i].name + ' ' + setAgeCategory(categoryData[i]) + ' ' + setIdCategory(categoryData[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        categoryMap.set(categoryData[i].id, (categoryData[i].sex + ' ' + categoryData[i].name + ' ' + setAgeCategory(categoryData[i]) + ' ' + setIdCategory(categoryData[i])))
+    }
+    let sportsMap = new Map();
     worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
@@ -37,7 +47,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         showDropDown: true,
         sqref: 'F2:F' + (sportsmenLength + 1),
         formulas: ['=sheet1!$Z$2:$Z$100'],
-        style : style,
+        style: style,
     });
     worksheet.addDataValidation({
         type: 'list',
@@ -47,7 +57,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         showDropDown: true,
         sqref: 'G2:G' + (sportsmenLength + 1),
         formulas: ['=sheet1!$Z$2:$Z$100'],
-        style : style,
+        style: style,
 
     });
     worksheet.addDataValidation({
@@ -58,7 +68,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         showDropDown: true,
         sqref: 'H2:H' + (sportsmenLength + 1),
         formulas: ['=sheet1!$Z$2:$Z$100'],
-        style : style,
+        style: style,
 
     });
 
@@ -69,24 +79,31 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         return a.sex > b.sex ? 1 : -1;
     });
 
-    for (let i = 0; i < sportsmenLength; i++) {
-        worksheet.cell(i + 2, 1).number(sportsmenArr[i].id).style(style);
-        worksheet.cell(i + 2, 2).string(sportsmenArr[i].firstname).style(style);
-        worksheet.cell(i + 2, 3).string(sportsmenArr[i].lastname).style(style);
-        worksheet.cell(i + 2, 4).string(sportsmenArr[i].sex).style(style);
-        worksheet.cell(i + 2, 5).number(sportsmenArr[i].age).style(style);
-        worksheet.cell(i + 2, 6).string("").style(style);
-        worksheet.cell(i + 2, 7).string("").style(style);
-        worksheet.cell(i + 2, 8).string("").style(style);
+    let i = 0;
+    let rowCell = 2;
+    while (i < sportsmenLength) {
+        if (sportsMap.has(sportsmenArr[i].id) == false) {
+            worksheet.cell(rowCell, 1).number(sportsmenArr[i].id).style(style);
+            worksheet.cell(rowCell, 2).string(sportsmenArr[i].firstname).style(style);
+            worksheet.cell(rowCell, 3).string(sportsmenArr[i].lastname).style(style);
+            worksheet.cell(rowCell, 4).string(sportsmenArr[i].sex).style(style);
+            worksheet.cell(rowCell, 5).number(sportsmenArr[i].age).style(style);
+            worksheet.cell(rowCell, 6).string(sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : "").style(style);
+            sportsMap.set(parseInt(sportsmenArr[i].id), {row: rowCell, col: 7});
+            i++;
+            rowCell++;
+            console.log(sportsMap)
+        } else {
+            let row = sportsMap.get(sportsmenArr[i].id).row;
+            let col = sportsMap.get(sportsmenArr[i].id).col;
+            worksheet.cell(row, col).string(sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : "").style(style);
+            sportsMap.delete(sportsmenArr[i].id);
+            sportsMap.set(parseInt(sportsmenArr[i].id), {row: row, col: 8})
+
+            i++;
+        }
     }
-    worksheet.cell(1, 26).string("קטגוריות").style(style).style({font:{color : 'white'}});
-    for (let i = 2; i < categoryData.length; i++) {
-        worksheet.cell(i, 26).string(categoryData[i].sex + ' ' + categoryData[i].name + ' ' + setAgeCategory(categoryData[i]) + ' ' + setIdCategory(categoryData[i])).style(style).style(({
-            font: {color: 'white'},
-            alignment: {horizontal: 'right'}
-        }));
-        ;
-    }
+
     await workbook.write('רישום ספורטאים לתחרות.xlsx');
 
 

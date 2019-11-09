@@ -34,7 +34,7 @@ const manger_competition_module = require("./implementation/manger/competition_m
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
 common_function = require("./implementation/commonFunc");
-const excelCreation =require("./implementation/services/excelCreation");
+const excelCreation = require("./implementation/services/excelCreation");
 //excelCreation.createExcelRegisterCompetition("");
 
 //uploade file const
@@ -47,7 +47,6 @@ const storagePhoto = multer.diskStorage({
     }
 });
 const uploadProfilePic = multer({storage: storagePhoto});
-
 
 
 //server schedule Jobs
@@ -113,8 +112,8 @@ app.post("/private/registerCoach", function (req, res) {
 });
 
 app.post('/private/uploadPhoto', uploadProfilePic.single("userProfilePic"), async (req, res) => {
-    let ans ;
-    ans =await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access),id);
+    let ans;
+    ans = await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access), id);
     res.status(ans.status).send(ans.results);
 });
 
@@ -151,16 +150,15 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
  */
 
 
-
 app.get('/downloadExcelFormatSportsman/:token', (req, res) => {
     let token = req.params.token
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     id = decoded.id;
-    if (access == Constants.userType.COACH||access == Constants.userType.MANAGER)
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
         res.download('resources/files/sportsmanExcel.xlsx');
     else
-    res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 
 
@@ -169,21 +167,21 @@ app.get('/downloadExcelFormatCoach', (req, res) => {
 });
 
 
-app.get('/downloadExcelFormatRegisterToCompetition/:token', async (req, res) => {
+app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, res) => {
     let token = req.params.token
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     id = decoded.id;
     let sportsManData;
     if (access == Constants.userType.COACH)
-         sportsManData = await coach_sportsman_module.getSportsmen({},id);
+        sportsManData = await coach_sportsman_module.getSportsmen({competition:req.params.compId}, id);
     else if (access == Constants.userType.MANAGER)
-        sportsManData = await manger_sportsman_module.getSportsmen({});
+        sportsManData = await manger_sportsman_module.getSportsmen({competition:req.params.compId});
     else
-    res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
     let categoryData = await common_sportsman_module.getCategories();
-    let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results,categoryData.results);
+    let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
     res.download(excelFile);
 
     //console.log(sportsManData.results)
@@ -285,21 +283,24 @@ app.post("/private/competitionSportsmen", async function (req, res) {
 app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
     if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
-        let sportsmenArr =common_function.getArrayFromJsonArray( req.body.sportsman);
-        let compId = req.body.compId;
+        let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
         let categoryData = await common_sportsman_module.getCategories();
-        let sportsmen= common_competition_module.fixCategoryExcelData(sportsmenArr);
-        ans =common_competition_module.cheackExcelData(sportsmenArr,categoryData.results);
-        /*
-        let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
-        ans = await common_competition_module.excelDelSportsmenDB(delSportsman,compId);
-        ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen,compId);
+        let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
+        ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
+        if (ans.pass) {
+            let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
+            ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
+            if (ans.pass)
+                ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
 
-         */
+            res.status(ans.status).send(ans.results)
+        } else
+            res.status(Constants.statusCode.badRequest).send(ans.results)
+
+
         //res.status(ans.status).send(ans.results)
-        res.send("ok")
-    }
-    else
+        //res.send("ok")
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
