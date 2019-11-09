@@ -11,15 +11,19 @@ let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
 let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
 
-let colRegisterCompetitionExcel= {
-    idSportsman : 0,
-    firstName :1,
+let colRegisterCompetitionExcel = {
+    idSportsman: 0,
+    firstName: 1,
     lastName: 2,
-    category :3
+    sex: 3,
+    age: 4,
+    category1: 5,
+    category2: 6,
+    category3: 7,
 }
 let colRegisterUserExcel = {
     idSportsman: 0,
-    firstName :1,
+    firstName: 1,
     lastName: 2,
     phone: 3,
     address: 4,
@@ -68,7 +72,7 @@ let errorMsg = {
     minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
     hebErr: 'נא הכנס טקסט בעברית',
     addressErr: 'אנא הכנס כתובת חוקית בעברית',
-    idNotMatchName : 'ת.ז ספורטאי לא תואמת לשם שלו'
+    idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו'
 }
 
 let msg = {
@@ -113,6 +117,6 @@ module.exports = {
     statusCode: statusCode,
     regexHebrewAndNumbers: regexHebrewAndNumbers,
     regexHebWithSpace: regexHebWithSpace,
-    colRegisterUserExcel :colRegisterUserExcel,
-    colRegisterCompetitionExcel :colRegisterCompetitionExcel
+    colRegisterUserExcel: colRegisterUserExcel,
+    colRegisterCompetitionExcel: colRegisterCompetitionExcel
 };

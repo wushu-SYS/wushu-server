@@ -282,6 +282,26 @@ app.post("/private/competitionSportsmen", async function (req, res) {
         ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
     res.status(ans.status).send(ans.results)
 });
+app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
+    let ans;
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
+        let sportsmenArr =common_function.getArrayFromJsonArray( req.body.sportsman);
+        let compId = req.body.compId;
+        let categoryData = await common_sportsman_module.getCategories();
+        let sportsmen= common_competition_module.fixCategoryExcelData(sportsmenArr);
+        ans =common_competition_module.cheackExcelData(sportsmenArr,categoryData.results);
+        /*
+        let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
+        ans = await common_competition_module.excelDelSportsmenDB(delSportsman,compId);
+        ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen,compId);
+
+         */
+        //res.status(ans.status).send(ans.results)
+        res.send("ok")
+    }
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+});
 
 app.post("/private/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER || id === req.body.userID) {

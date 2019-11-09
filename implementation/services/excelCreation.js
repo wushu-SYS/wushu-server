@@ -16,7 +16,6 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     }
     let sportsmenLength = SportsmanData.totalCount;
     let sportsmenArr = SportsmanData.sportsmen;
-    let categoryList = getListFromCategory(categoryData)
     worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
@@ -37,7 +36,8 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'F2:F' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$1:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$100'],
+        style : style,
     });
     worksheet.addDataValidation({
         type: 'list',
@@ -46,7 +46,9 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'G2:G' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$1:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$100'],
+        style : style,
+
     });
     worksheet.addDataValidation({
         type: 'list',
@@ -55,12 +57,9 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'H2:H' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$1:$Z$100'],
-        style: {
-            alignment: {
-                horizontal: 'right'
-            }
-        }
+        formulas: ['=sheet1!$Z$2:$Z$100'],
+        style : style,
+
     });
 
     sportsmenArr.sort(function (a, b) {
@@ -76,8 +75,12 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         worksheet.cell(i + 2, 3).string(sportsmenArr[i].lastname).style(style);
         worksheet.cell(i + 2, 4).string(sportsmenArr[i].sex).style(style);
         worksheet.cell(i + 2, 5).number(sportsmenArr[i].age).style(style);
+        worksheet.cell(i + 2, 6).string("").style(style);
+        worksheet.cell(i + 2, 7).string("").style(style);
+        worksheet.cell(i + 2, 8).string("").style(style);
     }
-    for (let i = 1; i < categoryData.length; i++) {
+    worksheet.cell(1, 26).string("קטגוריות").style(style).style({font:{color : 'white'}});
+    for (let i = 2; i < categoryData.length; i++) {
         worksheet.cell(i, 26).string(categoryData[i].sex + ' ' + categoryData[i].name + ' ' + setAgeCategory(categoryData[i]) + ' ' + setIdCategory(categoryData[i])).style(style).style(({
             font: {color: 'white'},
             alignment: {horizontal: 'right'}
