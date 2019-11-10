@@ -230,6 +230,15 @@ app.post("/private/getSportsmen", async function (req, res) {
     res.status(ans.status).send(ans.results);
 
 });
+app.get("/private/getSportsmen/count", async function (req, res) {
+    let ans;
+    if (access === Constants.userType.MANAGER)
+        ans = await manger_sportsman_module.getSportsmenCount(req.query);
+    else if (access === Constants.userType.COACH)
+        ans = await coach_sportsman_module.getSportsmenCount(req.query, id);
+    res.status(ans.status).send(ans.results);
+
+});
 
 app.post("/private/getClubs", async function (req, res) {
     if (access !== Constants.userType.SPORTSMAN) {

@@ -4,7 +4,10 @@ function buildConditions_forGetSportsmen(queryData, id) {
     let sportStyle = queryData.sportStyle;
     let compId = queryData.competition;
     let value = queryData.value;
+    let startIndex = queryData.startIndex;
+    let endIndex = queryData.endIndex;
     var conditions = [];
+    var limits;
 
     if (id !== null && id != undefined && (queryData.competitionOperator === undefined || queryData.competitionOperator === '==')) {
         conditions.push(`sportsman_coach.idCoach = @idCoach`);
@@ -24,7 +27,11 @@ function buildConditions_forGetSportsmen(queryData, id) {
     if (compId !== '' && compId !== undefined && queryData.competitionOperator !== undefined && queryData.competitionOperator === '==') {
         conditions.push(`idCompetition = @compId`);
     }
-    return conditions.length ? ' where ' + conditions.join(' and ') : '';
+    if(startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
+        limits = ' where rowNum >= @startIndex and rowNum <= @endIndex';
+    }
+    let conditionStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
+    return {conditionStatement, limits};
 }
 
 function buildOrderBy_forGetSportsmen(queryData) {
