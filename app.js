@@ -150,15 +150,27 @@ app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (
  */
 
 
-app.get('/downloadExcelFormatSportsman/:token', (req, res) => {
-    let token = req.params.token
+app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
+    let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     id = decoded.id;
-    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
-        res.download('resources/files/sportsmanExcel.xlsx');
+    let clubs;
+    if (access == Constants.userType.COACH){
+         clubs =await common_sportclub_module.getSportClubs(id)
+    }
+     else if(access == Constants.userType.MANAGER) {
+         clubs =await common_sportclub_module.getSportClubs(undefined);
+    }
     else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results);
+
+    res.download(excelFile);
+
+
+
 });
 
 

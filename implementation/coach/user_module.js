@@ -9,6 +9,9 @@ function checkDataBeforeRegister(userToRegsiter) {
     let line = 1;
     userToRegsiter.forEach(function (user) {
 
+        if(user[Constants.colRegisterUserExcel.sportClub].length>5)
+            user[Constants.colRegisterUserExcel.sportClub]=getClubId(user[Constants.colRegisterUserExcel.sportClub]);
+
         let tmpErr = checkUser(user)
         user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
         if (tmpErr.errors.length > 0) {
@@ -22,7 +25,12 @@ function checkDataBeforeRegister(userToRegsiter) {
     res.users = userToRegsiter;
     return res;
 }
+function getClubId(line) {
+    line = line.split(" ")[line.split(" ").length - 1];
+    line = line.substring(0, line.length - 1);
+    return parseInt(line)
 
+}
 function checkUser(user) {
     let err = new Object()
     let collectErr = [];

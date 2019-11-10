@@ -111,7 +111,83 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 
 }
+async function createExcelRegisterSportsman(clubList) {
+    let workbook = new excel.Workbook();
+    let option = {
+        'sheetView': {
+            'rightToLeft': true
+        }
+    }
+    let worksheet = workbook.addWorksheet('sheet1', option);
+    let style = {
+        font: {
+            color: 'black',
+            size: 12
+        }
+    }
 
+
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+    let row =2;
+    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < clubList.length; i++) {
+        worksheet.cell(row, 26).string(clubList[i].name +' ' + setIdCategory(clubList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'H2:H100',
+        formulas: ['=sheet1!$Z$2:$Z$100'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מין',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'I2:I100',
+        formulas: ['זכר,נקבה'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר ענף',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'J2:J100',
+        formulas: ['טאולו,סנדא'],
+        style: style,
+    });
+
+
+
+    await workbook.write('רישום ספורטאים למערכת.xlsx');
+
+
+    return 'רישום ספורטאים למערכת.xlsx';
+
+
+}
 function getListFromCategory(list) {
     let ans = ''
     console.log(list.length)
@@ -137,23 +213,4 @@ function setIdCategory(category) {
 
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
-
-
-/*
-// Set value of cell A1 to 100 as a number type styled with paramaters of style
-worksheet.cell(1,1).number(100).style(style);
-
-// Set value of cell B1 to 300 as a number type styled with paramaters of style
-worksheet.cell(1,2).number(200).style(style);
-
-// Set value of cell C1 to a formula styled with paramaters of style
-worksheet.cell(1,3).formula('A1 + B1').style(style);
-
-// Set value of cell A2 to 'string' styled with paramaters of style
-
-// Set value of cell A3 to true as a boolean type styled with paramaters of style but with an adjustment to the font size.
-worksheet.cell(3,1).bool(true).style(style).style({font: {size: 14}});
-
-
-
- */
+module.exports.createExcelRegisterSportsman=createExcelRegisterSportsman;
