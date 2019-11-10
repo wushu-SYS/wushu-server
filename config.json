@@ -1,9 +1,9 @@
 {
   "userName": "AlinaDror",
   "password": "DrorAlina2331",
-  "server": "wushu.database.windows.net",
+  "server": "wushu2.database.windows.net",
   "options": {
-    "database": "Wushu",
+    "database": "wushuDB",
     "encrypt": true
   }
 }
