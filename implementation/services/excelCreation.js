@@ -19,7 +19,8 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             size: 10
         }
     }
-    let sportsmenLength = SportsmanData.totalCount;
+    console.log(SportsmanData)
+    let sportsmenLength = SportsmanData.sportsmen.length;
     let sportsmenArr = SportsmanData.sportsmen;
     let categoryMap = new Map();
     worksheet.cell(1, 26).string("קטגוריות").style(style).style({font: {color: 'white'}});
@@ -110,23 +111,14 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     }
 
     fileName = 'רישום ספורטאים לתחרות.xlsx';
-    return writeExcel(workbook,(path+fileName))
-
+    return writeExcel(workbook, (path + fileName))
 
 
 }
-async function writeExcel(workbook,loc) {
-    try {
-        let result = await workbook.writeP(loc);
-        return loc;
-    } catch(e) {
-        console.log(e);
-    }
-}
+
 async function createExcelRegisterSportsman(clubList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
-
     let option = {
         'sheetView': {
             'rightToLeft': true
@@ -195,8 +187,68 @@ async function createExcelRegisterSportsman(clubList) {
     });
 
     fileName = 'רישום ספורטאים למערכת.xlsx';
-    return writeExcel(workbook,(path+fileName));
+    return writeExcel(workbook, (path + fileName));
 
+}
+
+async function createExcelCompetitionState(compState,compId) {
+    let workbook = new excel.Workbook();
+    workbook.writeP = util.promisify(workbook.write);
+    let option = {
+        'sheetView': {
+            'rightToLeft': true
+        }
+    }
+    let worksheet = workbook.addWorksheet('sheet1', option);
+    let style = {
+        font: {
+            color: 'black',
+            size: 12
+        }
+    }
+
+
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+
+    let row = 2;
+    let j;
+    for (let i = 0; i < compState.length; i++) {
+        //worksheet.cell(row, 1).string(compState[i].category.name).style(style).style(({font: {bold: true}}));
+        worksheet.cell(row, 1, row, 3, true).string(compState[i].category.name).style(style).style(({
+            font: {bold: true},
+            alignment: {horizontal: 'center'},
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                fgColor: '2172d7',
+                // bgColor: 'ffffff'
+            }
+        }));
+        row++;
+        let users = compState[i].users;
+        for (j = 0; j < users.length; j++) {
+
+            worksheet.cell(row, 1).number(users[j].id).style(style);
+            worksheet.cell(row, 2).string(users[j].firstname).style(style);
+            worksheet.cell(row, 3).string(users[j].lastname).style(style);
+            row++
+        }
+    }
+    fileName ='מצב רישום תחרות'+' '+compId+'.xlsx'
+    return writeExcel(workbook, (path + fileName));
+
+}
+
+async function writeExcel(workbook, loc) {
+    try {
+        let result = await workbook.writeP(loc);
+        return loc;
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 function setAgeCategory(category) {
@@ -213,3 +265,4 @@ function setIdCategory(category) {
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
 module.exports.createExcelRegisterSportsman = createExcelRegisterSportsman;
+module.exports.createExcelCompetitionState = createExcelCompetitionState;

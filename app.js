@@ -392,6 +392,29 @@ app.post("/private/updateCompetitionDetails", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
+app.get('/downloadExcelCompetitionState/:token/:compId', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let data;
+    if(access == Constants.userType.MANAGER) {
+        data = await manger_competition_module.getRegistrationState(req.params.compId);
+    }
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    //console.log(data.results);
+    data =data.results;
+    let excelFile = await excelCreation.createExcelCompetitionState(data,req.params.compId);
+
+    res.download(excelFile);
+
+
+
+});
+
+
+
 
 //start the server
 app.listen(3000, () => {
