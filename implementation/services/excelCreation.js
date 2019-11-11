@@ -148,6 +148,7 @@ async function createExcelRegisterSportsman(clubList) {
         }));
         row++;
     }
+
     worksheet.addDataValidation({
         type: 'list',
         allowBlank: false,
