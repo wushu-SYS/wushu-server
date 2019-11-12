@@ -154,14 +154,13 @@ async function createExcelRegisterSportsman(clubList) {
         row++;
     }
 
-    for (let i = 2; i < 10000; i++) {
-        worksheet.cell(i, 4).string('').style(style).style(({
+    for (let i = 2; i < 1000; i++) {
+        worksheet.cell(i, 4).style(style).style(({
             font: {color: 'black'},
             alignment: {horizontal: 'right'},
             numberFormat: '@'
         }));
     }
-
 
 
     worksheet.addDataValidation({
@@ -200,9 +199,9 @@ async function createExcelRegisterSportsman(clubList) {
         allowBlank: false,
         prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
         error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
-        showDropDown: true,
         sqref: 'F2:F100',
-        style: {  dateFormat: 'dd/mm/yyyy',
+        style: {
+            dateFormat: 'dd/mm/yyyy',
         },
     });
 
@@ -211,7 +210,7 @@ async function createExcelRegisterSportsman(clubList) {
 
 }
 
-async function createExcelCompetitionState(compState,compId) {
+async function createExcelCompetitionState(compState, compId) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
     let option = {
@@ -257,7 +256,7 @@ async function createExcelCompetitionState(compState,compId) {
             row++
         }
     }
-    fileName ='מצב רישום תחרות'+' '+compId+'.xlsx'
+    fileName = 'מצב רישום תחרות' + ' ' + compId + '.xlsx'
     return writeExcel(workbook, (path + fileName));
 
 }
