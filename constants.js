@@ -39,6 +39,7 @@ let colRegisterUserExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
+    numCell :11
 
 
 };
@@ -78,7 +79,9 @@ let errorMsg = {
     minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
     hebErr: 'נא הכנס טקסט בעברית',
     addressErr: 'אנא הכנס כתובת חוקית בעברית',
-    idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו'
+    idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
+    emptyExcel:'קובץ ריק',
+    cellEmpty :'אנא מלא את כל התאים'
 }
 
 let msg = {

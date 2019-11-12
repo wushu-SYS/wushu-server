@@ -7,39 +7,49 @@ function checkDataBeforeRegister(userToRegsiter) {
     let res = new Object();
     res.isPassed = true;
     let line = 1;
+    let tmpErr =new Object();
     userToRegsiter.forEach(function (user) {
+        if (user.length != Constants.colRegisterUserExcel.numCell) {
+            tmpErr.line = line;
+            res.isPassed = false;
+            tmpErr.errors =[[Constants.errorMsg.cellEmpty]]
+        } else {
+            if (user[Constants.colRegisterUserExcel.sportClub].length > 5)
+                user[Constants.colRegisterUserExcel.sportClub] = getClubId(user[Constants.colRegisterUserExcel.sportClub]);
 
-        if(user[Constants.colRegisterUserExcel.sportClub].length>5)
-            user[Constants.colRegisterUserExcel.sportClub]=getClubId(user[Constants.colRegisterUserExcel.sportClub]);
-
-        let tmpErr = checkUser(user)
-        user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
+            let tmpErr = checkUser(user)
+            user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
+        }
         if (tmpErr.errors.length > 0) {
             tmpErr.line = line;
             res.isPassed = false;
             errorUsers.push(tmpErr)
         }
         line++
+
     })
+
     res.results = errorUsers;
     res.users = userToRegsiter;
     return res;
 }
+
 function getClubId(line) {
     line = line.split(" ")[line.split(" ").length - 1];
     line = line.substring(0, line.length - 1);
     return parseInt(line)
 
 }
+
 function checkUser(user) {
     let err = new Object()
     let collectErr = [];
     //id user
-    if (!validator.isInt(user[Constants.colRegisterUserExcel.idSportsman].toString())|| user[Constants.colRegisterUserExcel.idSportsman].toString().length!=9)
+    if (!validator.isInt(user[Constants.colRegisterUserExcel.idSportsman].toString()) || user[Constants.colRegisterUserExcel.idSportsman].toString().length != 9)
         collectErr.push(Constants.errorMsg.idSportmanErr)
     //firstname
     //if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.firstName].toString().length < 2)
-      //      collectErr.push(Constants.errorMsg.firstNameHeb)
+    //      collectErr.push(Constants.errorMsg.firstNameHeb)
     //lastname
     if (!validator.matches(user[Constants.colRegisterUserExcel.lastName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.lastName].toString().length < 2)
         collectErr.push(Constants.errorMsg.lastNameHeb)
@@ -156,8 +166,8 @@ async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
         .parameter('sportStyle', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sportStyle])
         .execute()
-        .then(async function (testResults){
-            if( i + 1 < users.length)
+        .then(async function (testResults) {
+            if (i + 1 < users.length)
                 await insertSportStyleDB(trans, users, users[i + 1], (i + 1));
             return testResults;
         })
