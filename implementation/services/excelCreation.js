@@ -210,7 +210,7 @@ async function createExcelRegisterSportsman(clubList) {
 
 }
 
-async function createExcelCompetitionState(compState, compId) {
+async function createExcelCompetitionState(compState,date) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
     let option = {
@@ -256,11 +256,17 @@ async function createExcelCompetitionState(compState, compId) {
             row++
         }
     }
-    fileName = 'מצב רישום תחרות' + ' ' + compId + '.xlsx'
+    let fixDate =date.split('T')[0];
+    fixDate=setDateFormat(fixDate)
+    fileName = 'מצב רישום תחרות' + ' ' +fixDate + '.xlsx'
     return writeExcel(workbook, (path + fileName));
 
 }
+function setDateFormat(date) {
+    let initial = date.split("-");
+    return ([initial[2], initial[1], initial[0]].join('-'));
 
+}
 async function writeExcel(workbook, loc) {
     try {
         let result = await workbook.writeP(loc);

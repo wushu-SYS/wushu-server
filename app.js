@@ -391,7 +391,7 @@ app.post("/private/updateCompetitionDetails", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
-app.get('/downloadExcelCompetitionState/:token/:compId', async (req, res) => {
+app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
@@ -402,8 +402,9 @@ app.get('/downloadExcelCompetitionState/:token/:compId', async (req, res) => {
     }
     else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
     data =data.results;
-    let excelFile = await excelCreation.createExcelCompetitionState(data,req.params.compId);
+    let excelFile = await excelCreation.createExcelCompetitionState(data,req.params.date);
 
     res.download(excelFile);
 
