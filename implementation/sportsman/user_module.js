@@ -69,7 +69,6 @@ function validateSportsmanData(sportsmanDetails) {
         ans.results = tmpErr;
     }
     ans.data = sportsmanDetails;
-    console.log(ans)
     return ans;
 }
 

@@ -24,7 +24,6 @@ async function sendMail(sendTo, message, sub) {
         text: message,
     }, (error, result, fullResult) => {
         if (error) console.error(error);
-        console.log(result);
     })
 
 }

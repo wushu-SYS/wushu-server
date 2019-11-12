@@ -13,7 +13,6 @@ function initQuery(queryData) {
 async function getSportsmen(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
-    console.log(query.query)
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)

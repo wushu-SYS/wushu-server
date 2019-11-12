@@ -70,7 +70,6 @@ app.use("/private", (req, res, next) => {
 
         next();
     } catch (exception) {
-        console.log(token)
         res.status(400).send("Invalid token. Permission denied");
     }
 });
@@ -195,8 +194,6 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
     let categoryData = await common_sportsman_module.getCategories();
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
     res.download(excelFile);
-
-    //console.log(sportsManData.results)
 
 });
 
@@ -403,7 +400,6 @@ app.get('/downloadExcelCompetitionState/:token/:compId', async (req, res) => {
     }
     else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
-    //console.log(data.results);
     data =data.results;
     let excelFile = await excelCreation.createExcelCompetitionState(data,req.params.compId);
 

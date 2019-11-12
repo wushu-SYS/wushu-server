@@ -54,7 +54,6 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
 async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, compId) {
     let ans = new Object()
     let trans;
-    console.log(insertSportsman)
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
@@ -67,7 +66,6 @@ async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, 
                         trans.commitTransaction();
                     })
                     .catch((err) => {
-                        console.log("bad")
                         ans.status = Constants.statusCode.badRequest;
                         ans.results = err;
                         trans.rollbackTransaction();
@@ -122,15 +120,12 @@ async function regExcelSportsmenCompDB(sportsmen, compId) {
                 .catch((error) => {
                     ans.status = Constants.statusCode.badRequest;
                     ans.results = err;
-                    console.log(error)
                     trans.rollbackTransaction();
                 })
         })
         .fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
-            console.log(err)
-
             trans.rollbackTransaction();
         })
 
@@ -151,15 +146,12 @@ async function excelDelSportsmenDB(sportsmem, compId) {
                 .catch((error) => {
                     ans.pass = true;
                     ans.results = error;
-                    console.log(error)
                     trans.rollbackTransaction();
                 })
         })
         .fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
-            console.log(err)
-
             trans.rollbackTransaction();
         });
 
@@ -187,7 +179,6 @@ async function excelInsertSportsmanToCompetitonDB(trans, insertSportsman, sports
 function deleteExcelSportsmanFromCompetitionDB(trans, sportsmem, sportsmenDetails, i, compId) {
     if (sportsmenDetails != undefined) {
         if (sportsmenDetails.id.length > 0) {
-            console.log(sportsmenDetails)
             return trans.sql(`DELETE FROM competition_sportsman WHERE idCompetition=@compId and idSportsman = @id ;`)
                 .parameter('compId', tediousTYPES.Int, compId)
                 .parameter('id', tediousTYPES.Int, sportsmenDetails.id)
@@ -251,9 +242,7 @@ function cheackExcelData(data, categoryData) {
                 let minAge = (parseInt(map.get(idCategory).minAge))
                 let maxAge = (parseInt(map.get(idCategory).maxAge))
 
-                console.log(age < minAge || age > maxAge)
                 if (age < minAge || age > maxAge) {
-                    console.log("heere")
                     ans.results.push({
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 1, ' + Constants.excelCompetitionEroorMsg.ageFail

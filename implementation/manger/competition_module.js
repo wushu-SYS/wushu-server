@@ -257,7 +257,6 @@ function sortUsers(users) {
 }
 
 async function setCategoryRegistration(categoryForSportsman, compId) {
-    console.log(categoryForSportsman);
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
@@ -388,7 +387,6 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
                 .execute();
         })
         .then(async function (testResult) {
-            console.log("here")
             return await trans.sql(`Update events 
                                     set location =@location,type=@type,date=@eventDate,startHour=@evetTime, city=@city
                                     where idEvent =@idEvent;`)
@@ -402,13 +400,11 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
                 .execute();
         })
         .then(async function (testResult) {
-            console.log("good")
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.competitionUpdate;
             trans.commitTransaction();
         })
         .fail(function (err) {
-            console.log("bad")
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();
