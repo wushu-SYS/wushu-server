@@ -218,7 +218,7 @@ function cheackExcelData(data, categoryData) {
     let map = fixCategoryForCheck(categoryData);
     let ans = new Object();
     ans.results = [];
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < data.length; i++) {
         if (data[i].length > 1) {
             if (data[i][Constants.colRegisterCompetitionExcel.category1] != undefined && data[i][Constants.colRegisterCompetitionExcel.category2] != undefined && data[i][Constants.colRegisterCompetitionExcel.category1].length > 0 && (data[i][Constants.colRegisterCompetitionExcel.category2].length > 0))
                 if (data[i][Constants.colRegisterCompetitionExcel.category1] === (data[i][Constants.colRegisterCompetitionExcel.category2]))
@@ -238,80 +238,95 @@ function cheackExcelData(data, categoryData) {
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 2, ' + Constants.excelCompetitionEroorMsg.category + ' 3 ' + Constants.excelCompetitionEroorMsg.sameCategory
                     });
+
             if (data[i][Constants.colRegisterCompetitionExcel.category1] != undefined && data[i][Constants.colRegisterCompetitionExcel.category1].length > 0) {
                 let idCategory = getIdFromCategroyString(data[i][Constants.colRegisterCompetitionExcel.category1]);
-                if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex)
+                if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex && map.get(idCategory).sex != 'מעורב')
                     ans.results.push({
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 1, ' + Constants.excelCompetitionEroorMsg.sexFail
                     });
-                if (parseInt(data[i][Constants.colRegisterCompetitionExcel.age]) < parseInt(map.get(idCategory).minAge) || parseInt(data[i][Constants.colRegisterCompetitionExcel.age] > parseInt(map.get(idCategory).maxAge)))
+
+                let age = parseInt(data[i][Constants.colRegisterCompetitionExcel.age]);
+                let minAge = (parseInt(map.get(idCategory).minAge))
+                let maxAge = (parseInt(map.get(idCategory).maxAge))
+
+                console.log(age < minAge || age > maxAge)
+                if (age < minAge || age > maxAge) {
+                    console.log("heere")
                     ans.results.push({
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 1, ' + Constants.excelCompetitionEroorMsg.ageFail
                     });
+                }
             }
             if (data[i][Constants.colRegisterCompetitionExcel.category2] != undefined && data[i][Constants.colRegisterCompetitionExcel.category2].length > 0) {
                 let idCategory = getIdFromCategroyString(data[i][Constants.colRegisterCompetitionExcel.category2]);
-                if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex)
+                if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex && map.get(idCategory).sex != 'מעורב')
                     ans.results.push({
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 2, ' + Constants.excelCompetitionEroorMsg.sexFail
                     });
-                if (parseInt(data[i][Constants.colRegisterCompetitionExcel.age]) < parseInt(map.get(idCategory).minAge) || parseInt(data[i][Constants.colRegisterCompetitionExcel.age] > parseInt(map.get(idCategory).maxAge)))
+                let age = parseInt(data[i][Constants.colRegisterCompetitionExcel.age]);
+                let minAge = (parseInt(map.get(idCategory).minAge))
+                let maxAge = (parseInt(map.get(idCategory).maxAge))
+                if (age < minAge || age > maxAge) {
                     ans.results.push({
                         id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
                         error: Constants.excelCompetitionEroorMsg.category + ' 2, ' + Constants.excelCompetitionEroorMsg.ageFail
                     });
-            }
-            if (data[i][Constants.colRegisterCompetitionExcel.category3] != undefined && data[i][Constants.colRegisterCompetitionExcel.category3].length > 0) {
-                let idCategory = getIdFromCategroyString(data[i][Constants.colRegisterCompetitionExcel.category3]);
-                if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex)
-                    ans.results.push({
-                        id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
-                        error: Constants.excelCompetitionEroorMsg.category + ' 3, ' + Constants.excelCompetitionEroorMsg.sexFail
-                    });
-                if (parseInt(data[i][Constants.colRegisterCompetitionExcel.age]) < parseInt(map.get(idCategory).minAge) || parseInt(data[i][Constants.colRegisterCompetitionExcel.age] > parseInt(map.get(idCategory).maxAge)))
-                    ans.results.push({
-                        id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
-                        error: Constants.excelCompetitionEroorMsg.category + ' 3, ' + Constants.excelCompetitionEroorMsg.ageFail
-                    });
+                }
+                if (data[i][Constants.colRegisterCompetitionExcel.category3] != undefined && data[i][Constants.colRegisterCompetitionExcel.category3].length > 0) {
+                    let idCategory = getIdFromCategroyString(data[i][Constants.colRegisterCompetitionExcel.category3]);
+                    if (data[i][Constants.colRegisterCompetitionExcel.sex] != map.get(idCategory).sex && map.get(idCategory).sex != 'מעורב')
+                        ans.results.push({
+                            id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
+                            error: Constants.excelCompetitionEroorMsg.category + ' 3, ' + Constants.excelCompetitionEroorMsg.sexFail
+                        });
+                    let age = parseInt(data[i][Constants.colRegisterCompetitionExcel.age]);
+                    let minAge = (parseInt(map.get(idCategory).minAge))
+                    let maxAge = (parseInt(map.get(idCategory).maxAge))
+                    if (age < minAge || age > maxAge) {
+                        ans.results.push({
+                            id: data[i][Constants.colRegisterCompetitionExcel.idSportsman],
+                            error: Constants.excelCompetitionEroorMsg.category + ' 3, ' + Constants.excelCompetitionEroorMsg.ageFail
+                        });
+                    }
+                }
             }
         }
     }
-
-
-    if (ans.results.length > 0)
-        ans.pass = false;
-    else
-        ans.pass = true;
-    console.log(ans)
-    return ans
+            if (ans.results.length > 0)
+                ans.pass = false;
+            else
+                ans.pass = true;
+            return ans
 }
 
-function getIdFromCategroyString(line) {
-    line = line.split(" ")[line.split(" ").length - 1];
-    line = line.substring(0, line.length - 1);
-    return parseInt(line)
-}
 
-function fixCategoryForCheck(data) {
-    let categoryMap = new Map();
-    for (let i = 0; i < data.length; i++)
-        categoryMap.set(data[i].id, {
-            minAge: data[i].minAge,
-            maxAge: data[i].maxAge ? data[i].maxAge : 100,
-            sex: data[i].sex
-        });
+    function getIdFromCategroyString(line) {
+        line = line.split(" ")[line.split(" ").length - 1];
+        line = line.substring(0, line.length - 1);
+        return parseInt(line)
+    }
 
-    return categoryMap;
+    function fixCategoryForCheck(data) {
+        let categoryMap = new Map();
+        for (let i = 0; i < data.length; i++)
+            categoryMap.set(data[i].id, {
+                minAge: data[i].minAge,
+                maxAge: data[i].maxAge ? data[i].maxAge : 100,
+                sex: data[i].sex
+            });
 
-}
+        return categoryMap;
 
-module.exports.cheackExcelData = cheackExcelData;
-module.exports.getIdsForDelete = getIdsForDelete;
-module.exports.excelDelSportsmenDB = excelDelSportsmenDB;
-module.exports.regExcelSportsmenCompDB = regExcelSportsmenCompDB;
-module.exports.fixCategoryExcelData = fixCategoryExcelData;
-module.exports.getDetail = getDetails;
-module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
+    }
+
+    module.exports.cheackExcelData = cheackExcelData;
+    module.exports.getIdsForDelete = getIdsForDelete;
+    module.exports.excelDelSportsmenDB = excelDelSportsmenDB;
+    module.exports.regExcelSportsmenCompDB = regExcelSportsmenCompDB;
+    module.exports.fixCategoryExcelData = fixCategoryExcelData;
+    module.exports.getDetail = getDetails;
+    module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
