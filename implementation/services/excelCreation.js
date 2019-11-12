@@ -144,6 +144,7 @@ async function createExcelRegisterSportsman(clubList) {
     worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze(); // Freezes the top four rows
     let row = 2;
+
     worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
     for (let i = 0; i < clubList.length; i++) {
         worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
@@ -152,6 +153,16 @@ async function createExcelRegisterSportsman(clubList) {
         }));
         row++;
     }
+
+    for (let i = 2; i < 10000; i++) {
+        worksheet.cell(i, 4).string('').style(style).style(({
+            font: {color: 'black'},
+            alignment: {horizontal: 'right'},
+            numberFormat: '@'
+        }));
+    }
+
+
 
     worksheet.addDataValidation({
         type: 'list',
@@ -183,6 +194,7 @@ async function createExcelRegisterSportsman(clubList) {
         formulas: ['טאולו,סנדא'],
         style: style,
     });
+
 
     fileName = 'רישום ספורטאים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
