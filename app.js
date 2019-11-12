@@ -95,7 +95,7 @@ app.post("/private/registerSportsman", async function (req, res) {
         let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJsonArray(req.body))
         if (ans.users.length === 0) {
             ans.status = Constants.statusCode.badRequest;
-            ans.results = Constants.errorMsg.emptyExcel;
+            ans.results = [{line: 0, errors:[Constants.errorMsg.emptyExcel]}];
             console.log(ans)
             res.status(ans.status).send(ans.results);
         } else if (ans.isPassed) {
