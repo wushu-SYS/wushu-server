@@ -12,7 +12,7 @@ function checkDataBeforeRegister(userToRegsiter) {
         if (user.length != Constants.colRegisterUserExcel.numCell) {
             tmpErr.line = line;
             res.isPassed = false;
-            tmpErr.errors =[[Constants.errorMsg.cellEmpty]]
+            tmpErr.errors =[Constants.errorMsg.cellEmpty]
         } else {
             if (user[Constants.colRegisterUserExcel.sportClub].length > 5)
                 user[Constants.colRegisterUserExcel.sportClub] = getClubId(user[Constants.colRegisterUserExcel.sportClub]);
