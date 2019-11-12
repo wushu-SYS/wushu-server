@@ -19,7 +19,6 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             size: 10
         }
     }
-    console.log(SportsmanData)
     let sportsmenLength = SportsmanData.sportsmen.length;
     let sportsmenArr = SportsmanData.sportsmen;
     let categoryMap = new Map();
@@ -98,7 +97,6 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             sportsMap.set(parseInt(sportsmenArr[i].id), {row: rowCell, col: 7});
             i++;
             rowCell++;
-            console.log(sportsMap)
         } else {
             let row = sportsMap.get(sportsmenArr[i].id).row;
             let col = sportsMap.get(sportsmenArr[i].id).col;

@@ -8,7 +8,6 @@ async function getCoaches() {
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
-            console.log(err)
         });
     return ans;
 }

@@ -13,7 +13,6 @@ async function getSportClubs(idCoach) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
         });
-    console.log(ans)
     return ans;
 }
 

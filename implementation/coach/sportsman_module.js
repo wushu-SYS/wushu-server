@@ -11,7 +11,6 @@ function initQury(queryData, id) {
 }
 
 async function getSportsmen(queryData, id) {
-    console.log(queryData)
     let ans = new Object();
     let query = initQury(queryData, id);
 
@@ -38,7 +37,6 @@ async function getSportsmen(queryData, id) {
     return ans
 }
 async function getSportsmenCount(queryData, id) {
-    console.log(queryData)
     let ans = new Object();
     let query = initQury(queryData, id);
 

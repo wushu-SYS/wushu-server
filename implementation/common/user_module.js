@@ -14,7 +14,6 @@ async function checkUserDetailsForLogin(userData) {
         }).fail(function (err) {
             ans.isPassed = false;
             ans.err = err;
-            console.log(err)
         });
     return ans;
 
@@ -74,7 +73,6 @@ async function uploadeProfilePic(tblName, id) {
         }).fail(function (err) {
             ans.isPassed = false;
             ans.results = err;
-            console.log(err)
         });
 
     return ans;
@@ -97,7 +95,6 @@ async function validateDiffPass(userData) {
                 ans.err = results
             }
         }).fail(function (err) {
-            console.log(err);
             ans.status = Constants.statusCode.badRequest;
             ans.isPassed = false;
             ans.err = err
@@ -115,7 +112,6 @@ async function changeUserPassword(userData) {
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.passUpdated
         }).fail(function (err) {
-            console.log(err);
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
         });
