@@ -195,6 +195,16 @@ async function createExcelRegisterSportsman(clubList) {
         style: style,
     });
 
+    worksheet.addDataValidation({
+        type: 'date',
+        allowBlank: false,
+        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
+        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
+        showDropDown: true,
+        sqref: 'F2:F100',
+        style: {  dateFormat: 'dd/mm/yyyy',
+        },
+    });
 
     fileName = 'רישום ספורטאים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
