@@ -10,7 +10,7 @@ let eventType = {
 let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
 let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
-
+let defaultProfilePic = '../../wu-shu-project/server/resources/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
     sameCategory : 'קטגוריות זהות',
     ageFail : 'הספורטאי לא בטווח הגילאים של הקטגוריה',
@@ -125,5 +125,6 @@ module.exports = {
     regexHebWithSpace: regexHebWithSpace,
     colRegisterUserExcel: colRegisterUserExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
-    excelCompetitionEroorMsg :excelCompetitionEroorMsg
+    excelCompetitionEroorMsg :excelCompetitionEroorMsg,
+    defaultProfilePic : defaultProfilePic
 };

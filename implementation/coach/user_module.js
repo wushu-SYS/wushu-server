@@ -72,8 +72,8 @@ function checkUser(user) {
 }
 
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
-    return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex)
-                                    VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex)`)
+    return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex,photo)
+                                    VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex ,@photo)`)
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.idSportsman])
         .parameter('firstName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.firstName])
         .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.lastName])
@@ -84,6 +84,7 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.sportClub])
         .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sex])
         .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sportStyle])
+        .parameter('photo', tediousTYPES.NVarChar, Constants.defaultProfilePic)
         .execute()
         .then(async function (testResult) {
             if (i + 1 < users.length)
