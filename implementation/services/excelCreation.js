@@ -162,6 +162,33 @@ async function createExcelRegisterSportsman(clubList) {
         }));
     }
 
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז ספורטאי',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'K2:K100',
+        formulas: [9,9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז ספורטאי',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9,9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10,10],
+
+    });
 
     worksheet.addDataValidation({
         type: 'list',
@@ -170,7 +197,7 @@ async function createExcelRegisterSportsman(clubList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'H2:H100',
-        formulas: ['=sheet1!$Z$2:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$'+(clubList.length+1)],
         style: style,
     });
     worksheet.addDataValidation({
