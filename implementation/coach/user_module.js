@@ -7,20 +7,20 @@ function checkDataBeforeRegister(userToRegsiter) {
     let res = new Object();
     res.isPassed = true;
     let line = 1;
-    let tmpErr =new Object();
+    let tmpErr = new Object();
     userToRegsiter.forEach(function (user) {
         line++
         if (user.length != Constants.colRegisterUserExcel.numCell) {
-            tmpErr =new Object();
+            tmpErr = new Object();
             res.isPassed = false;
-            tmpErr.errors =[Constants.errorMsg.cellEmpty]
+            tmpErr.errors = [Constants.errorMsg.cellEmpty]
         } else {
             if (user[Constants.colRegisterUserExcel.sportClub].length > 5)
                 user[Constants.colRegisterUserExcel.sportClub] = getClubId(user[Constants.colRegisterUserExcel.sportClub]);
             if (user[Constants.colRegisterUserExcel.idCoach].length > 9)
                 user[Constants.colRegisterUserExcel.idCoach] = getCoachId(user[Constants.colRegisterUserExcel.idCoach]);
 
-             tmpErr = checkUser(user)
+            tmpErr = checkUser(user)
             user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
         }
         if (tmpErr.errors.length > 0) {
@@ -43,6 +43,7 @@ function getClubId(line) {
     return parseInt(line)
 
 }
+
 function getCoachId(line) {
     line = line.split(" ")[line.split(" ").length - 1];
     line = line.substring(0, line.length - 1);
@@ -53,12 +54,14 @@ function getCoachId(line) {
 function checkUser(user) {
     let err = new Object()
     let collectErr = [];
+    let birthDateSplit = user[Constants.colRegisterUserExcel.birthDate].split('/')
+
     //id user
     if (!validator.isInt(user[Constants.colRegisterUserExcel.idSportsman].toString()) || user[Constants.colRegisterUserExcel.idSportsman].toString().length != 9)
         collectErr.push(Constants.errorMsg.idSportmanErr)
     //firstname
 
-    if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.firstName].toString().length <1)
+    if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.firstName].toString().length < 1)
         collectErr.push(Constants.errorMsg.firstNameHeb)
 
     //lastname
@@ -67,6 +70,9 @@ function checkUser(user) {
     //address
     if (!validator.matches(user[Constants.colRegisterUserExcel.address].toString(), Constants.regexHebrewAndNumbers) || user[Constants.colRegisterUserExcel.address].toString().length < 2)
         collectErr.push(Constants.errorMsg.addressErr)
+    //birthDate
+    if (birthDateSplit.length != 3 || birthDateSplit[0].length != 2 || birthDateSplit[1].length != 2 || birthDateSplit[2].length != 4)
+        collectErr.push(Constants.errorMsg.birthDateErr)
     //phone
     if (!validator.isInt(user[Constants.colRegisterUserExcel.phone].toString()) || user[Constants.colRegisterUserExcel.phone].toString().length != 10)
         collectErr.push(Constants.errorMsg.phoneErr)

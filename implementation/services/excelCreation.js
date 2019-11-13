@@ -121,7 +121,8 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         'sheetView': {
             'rightToLeft': true
         }
-    }
+    };
+
     let worksheet = workbook.addWorksheet('sheet1', option);
     let style = {
         font: {

@@ -67,7 +67,7 @@ let errorMsg = {
     lastNameHeb: 'שם משפחה לא תקין,נא לכתוב שם משפחה בעברית',
     phoneErr: 'פאלפון לא תקין ,נא להכניס מספר בעל 10 ספרות',
     emailErr: 'נא הכנס מייל תקין, לדוגמא example@example.com',
-    sportClubErr: 'מספר לא תקין, נא הכנס מספר מזהה של מועדון',
+    sportClubErr: 'מספר מזהה מועדון לא תקין',
     sexErr: 'נא הכנס מין תקין, זכר/נקבה',
     sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachNotExists: 'ת.ז מאמן לא רשומה במערכת',
@@ -76,12 +76,13 @@ let errorMsg = {
     failDownload: 'Fail to download resource',
     samePassword: 'הסיסמא שהוזנה זהה לסיסמא הנוכחית',
     compAgeErr: 'גיל לא חוקי',
-    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
+    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מקסימלי',
     hebErr: 'נא הכנס טקסט בעברית',
     addressErr: 'אנא הכנס כתובת חוקית בעברית',
     idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
     emptyExcel:'קובץ ריק',
-    cellEmpty :'אנא מלא את כל התאים'
+    cellEmpty :'אנא מלא את כל התאים',
+    birthDateErr:'תאריך לידה לא תקין'
 }
 
 let msg = {

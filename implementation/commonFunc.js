@@ -29,7 +29,7 @@ async function sendMail(sendTo, message, sub) {
 }
 
 function setBirthDateFormat(birthdate) {
-    var initial = birthdate.split("/");
+    let initial = birthdate.split("/");
     return ([initial[1], initial[0], initial[2]].join('/'));
 
 }
