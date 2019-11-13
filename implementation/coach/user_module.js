@@ -17,6 +17,8 @@ function checkDataBeforeRegister(userToRegsiter) {
         } else {
             if (user[Constants.colRegisterUserExcel.sportClub].length > 5)
                 user[Constants.colRegisterUserExcel.sportClub] = getClubId(user[Constants.colRegisterUserExcel.sportClub]);
+            if (user[Constants.colRegisterUserExcel.idCoach].length > 9)
+                user[Constants.colRegisterUserExcel.idCoach] = getCoachId(user[Constants.colRegisterUserExcel.idCoach]);
 
              tmpErr = checkUser(user)
             user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
@@ -36,6 +38,12 @@ function checkDataBeforeRegister(userToRegsiter) {
 }
 
 function getClubId(line) {
+    line = line.split(" ")[line.split(" ").length - 1];
+    line = line.substring(0, line.length - 1);
+    return parseInt(line)
+
+}
+function getCoachId(line) {
     line = line.split(" ")[line.split(" ").length - 1];
     line = line.substring(0, line.length - 1);
     return parseInt(line)

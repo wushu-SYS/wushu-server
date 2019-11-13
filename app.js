@@ -159,15 +159,17 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     id = decoded.id;
-    let clubs;
+    let clubs;let coaches;
     if (access == Constants.userType.COACH) {
         clubs = await common_sportclub_module.getSportClubs(id)
+        coaches=await common_couches_module.getCoachProfileById(id);
     } else if (access == Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
+        coaches = await common_couches_module.getCoaches();
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
-    let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results);
+    let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results,coaches.results);
 
     res.download(excelFile);
 
