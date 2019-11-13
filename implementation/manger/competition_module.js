@@ -340,7 +340,7 @@ function validateCategory(newCategory) {
     if (newCategory.maxAge && !validator.isInt(newCategory.maxAge.toString(), {min: 0, max: 100}))
         err.push(Constants.errorMsg.compAgeErr);
     //sex
-    if (!(newCategory.sex in Constants.sexEnum))
+    if (!(newCategory.sex in Constants.sexEnumCompetition))
         err.push(Constants.errorMsg.sexErr);
     //min < max
     if (newCategory.minAge > newCategory.maxAge)
