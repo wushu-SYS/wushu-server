@@ -47,6 +47,11 @@ let sexEnum = {
     זכר: 111,
     נקבה: 112
 };
+let sexEnumCompetition = {
+    זכר: 111,
+    נקבה: 112,
+    מעורב: 113
+};
 
 let sportType = {
     טאולו: 201,
@@ -120,6 +125,7 @@ module.exports = {
     userType: userType,
     hebRegex: regexHeb,
     sexEnum: sexEnum,
+    sexEnumCompetition: sexEnumCompetition,
     sportType: sportType,
     errorMsg: errorMsg,
     fileName: fileName,
