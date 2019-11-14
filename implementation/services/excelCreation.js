@@ -2,6 +2,8 @@ let excel = require('excel4node');
 let path = './resources/files/';
 let fileName;
 const util = require('util');
+const ExcelJS = require('exceljs');
+
 
 async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     let workbook = new excel.Workbook();
@@ -105,16 +107,98 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             sportsMap.set(parseInt(sportsmenArr[i].id), {row: row, col: 8});
 
             i++;
+
         }
     }
-
     fileName = 'רישום ספורטאים לתחרות.xlsx';
-    return writeExcel(workbook, (path + fileName))
+     return writeExcel(workbook,(path + fileName))
+
 
 
 }
 
-async function createExcelRegisterSportsman(clubList,coachList) {
+function createTmp(SportsmanData, categoryData) {
+    let workbook = new ExcelJS.Workbook();
+    let worksheet = workbook.addWorksheet('רישום ספורטאים לתחרות');
+    worksheet.views = [
+        {rightToLeft: true}
+    ];
+    worksheet.columns = [
+        {header: 'ת.ז ספורטאי', key: 'id', width: 15},
+        {header: 'שם פרטי', key: 'firstName', width: 15},
+        {header: 'שם משפחה', key: 'lastName', width: 15},
+        {header: 'מין', key: 'sex', width: 10},
+        {header: 'גיל', key: 'age', width: 10},
+        {header: 'קטגוריה-1', key: 'cat1', width: 25},
+        {header: 'קטגוריה-2', key: 'cat2', width: 25},
+        {header: 'קטגוריה-3', key: 'cat3', width: 25},
+        {header: 'קטגוריות', key: 'cat', width: 25}
+    ];
+    let rowRes = worksheet.getRow(1);
+    rowRes.font = {bold: true, size: 12}
+
+
+    let sportsMap = new Map();
+    let sportsmenLength = SportsmanData.sportsmen.length;
+    let sportsmenArr = SportsmanData.sportsmen;
+    let categoryMap = new Map();
+    let rowCell = 2;
+    sportsmenArr.sort(function (a, b) {
+        if (a.sex === b.sex) {
+            return a.age - b.age;
+        }
+        return a.sex > b.sex ? 1 : -1;
+    });
+    var nameCol = worksheet.getColumn('K');
+
+    let k =0
+
+    for (let i = 0; i < categoryData.length; i++) {
+        categoryMap.set(categoryData[i].id, (categoryData[i].sex + ' ' + categoryData[i].name + ' ' + setAgeCategory(categoryData[i]) + ' ' + setIdCategory(categoryData[i])))
+    }
+
+    let i = 0;
+    while (i < sportsmenLength) {
+        if (sportsMap.has(sportsmenArr[i].id) == false) {
+            let n = sportsmenArr[i].firstname;
+            worksheet.addRow({
+                id: sportsmenArr[i].id,
+                firstName: n,
+                lastName: sportsmenArr[i].lastname,
+                sex: sportsmenArr[i].sex,
+                age: sportsmenArr[i].age,
+                cat1: sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : ""
+            });
+            sportsMap.set(parseInt(sportsmenArr[i].id), {row: rowCell, col: 7});
+            i++;
+            rowCell++;
+        } else {
+            let row = sportsMap.get(sportsmenArr[i].id).row;
+            let col = sportsMap.get(sportsmenArr[i].id).col;
+            let rowRes = worksheet.getRow(row);
+            rowRes.getCell(col).value = sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : "";
+            rowRes.commit();
+            sportsMap.delete(sportsmenArr[i].id);
+            sportsMap.set(parseInt(sportsmenArr[i].id), {row: row, col: 8});
+            i++;
+        }
+    }
+    for (let j = 6; j < 9; j++) {
+        rowRes = worksheet.getColumn(j);
+        rowRes.eachCell({includeEmpty: true}, function (cell, rowNumber) {
+            cell.dataValidation = {
+                type: 'list',
+                allowBlank: true,
+                formulae: ['']
+            };
+        });
+    }
+
+    workbook.xlsx.writeFile("s.xlsx")
+
+}
+
+async function createExcelRegisterSportsman(clubList, coachList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
     let option = {
@@ -154,10 +238,10 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         }));
         row++;
     }
-    row =2 ;
+    row = 2;
     worksheet.cell(1, 27).string("מאמנים").style(style).style({font: {color: 'white'}});
     for (let i = 0; i < coachList.length; i++) {
-        worksheet.cell(row, 27).string(coachList[i].firstname + ' ' + coachList[i].lastname + ' ' +setIdCoach(coachList[i])).style(style).style(({
+        worksheet.cell(row, 27).string(coachList[i].firstname + ' ' + coachList[i].lastname + ' ' + setIdCoach(coachList[i])).style(style).style(({
             font: {color: 'white'},
             alignment: {horizontal: 'right'}
         }));
@@ -178,7 +262,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'K2:K100',
-        formulas: ['=sheet1!$AA$2:$AA$'+(coachList.length+1)],
+        formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
         style: style,
     });
 
@@ -188,7 +272,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         prompt: 'הכנס ת.ז ספורטאי',
         error: 'ת.ז צריכה להכיל 9 ספרות',
         sqref: 'K2:K100',
-        formulas: [9,9],
+        formulas: [9, 9],
 
     });
     worksheet.addDataValidation({
@@ -197,7 +281,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         prompt: 'הכנס ת.ז ספורטאי',
         error: 'ת.ז צריכה להכיל 9 ספרות',
         sqref: 'A2:A100',
-        formulas: [9,9],
+        formulas: [9, 9],
 
     });
     worksheet.addDataValidation({
@@ -206,7 +290,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         prompt: 'הכנס פאלפון',
         error: 'פאלפון צריך להכיל 10 ספרות',
         sqref: 'D2:D100',
-        formulas: [10,10],
+        formulas: [10, 10],
 
     });
     worksheet.addDataValidation({
@@ -216,7 +300,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'H2:H100',
-        formulas: ['=sheet1!$Z$2:$Z$'+(clubList.length+1)],
+        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
         style: style,
     });
     worksheet.addDataValidation({
@@ -256,7 +340,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
 
 }
 
-async function createExcelCompetitionState(compState,date) {
+async function createExcelCompetitionState(compState, date) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
     let option = {
@@ -302,17 +386,19 @@ async function createExcelCompetitionState(compState,date) {
             row++
         }
     }
-    let fixDate =date.split('T')[0];
-    fixDate=setDateFormat(fixDate)
-    fileName = 'מצב רישום תחרות' + ' ' +fixDate + '.xlsx'
+    let fixDate = date.split('T')[0];
+    fixDate = setDateFormat(fixDate)
+    fileName = 'מצב רישום תחרות' + ' ' + fixDate + '.xlsx'
     return writeExcel(workbook, (path + fileName));
 
 }
+
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
 
 }
+
 async function writeExcel(workbook, loc) {
     try {
         let result = await workbook.writeP(loc);
@@ -332,6 +418,7 @@ function setAgeCategory(category) {
 function setIdCategory(category) {
     return '(קוד: ' + category.id + ')';
 }
+
 function setIdCoach(id) {
     return '(ת.ז: ' + id.id + ')';
 }
@@ -339,3 +426,5 @@ function setIdCoach(id) {
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
 module.exports.createExcelRegisterSportsman = createExcelRegisterSportsman;
 module.exports.createExcelCompetitionState = createExcelCompetitionState;
+module.exports.createtmp = createTmp;
+;
