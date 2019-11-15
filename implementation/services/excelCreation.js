@@ -92,25 +92,22 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             sportsMap.set(parseInt(sportsmenArr[i].id), {row: rowCell, col: 7});
             i++;
             rowCell++;
-            console.log(sportsMap)
         } else {
             let row = sportsMap.get(sportsmenArr[i].id).row;
             let col = sportsMap.get(sportsmenArr[i].id).col;
             worksheet.cell(row, col).string(sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : "").style(style);
             sportsMap.delete(sportsmenArr[i].id);
             sportsMap.set(parseInt(sportsmenArr[i].id), {row: row, col: 8})
-
             i++;
         }
     }
 
     await workbook.write('רישום ספורטאים לתחרות.xlsx');
-
-
-    return 'רישום ספורטאים לתחרות.xlsx';
-
+    let name = 'רישום ספורטאים לתחרות.xlsx';
+    return name;
 
 }
+
 
 function getListFromCategory(list) {
     let ans = ''
@@ -120,7 +117,6 @@ function getListFromCategory(list) {
         if (list[i].id == 5) continue;
         ans = ans + ',' + list[i].sex + ' ' + list[i].name + ' ' + setAgeCategory(list[i]) + ' ' + setIdCategory(list[i]);
     }
-    //ans = ans.substring(0,ans.length-1);
     return (ans);
 }
 
@@ -137,23 +133,3 @@ function setIdCategory(category) {
 
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
-
-
-/*
-// Set value of cell A1 to 100 as a number type styled with paramaters of style
-worksheet.cell(1,1).number(100).style(style);
-
-// Set value of cell B1 to 300 as a number type styled with paramaters of style
-worksheet.cell(1,2).number(200).style(style);
-
-// Set value of cell C1 to a formula styled with paramaters of style
-worksheet.cell(1,3).formula('A1 + B1').style(style);
-
-// Set value of cell A2 to 'string' styled with paramaters of style
-
-// Set value of cell A3 to true as a boolean type styled with paramaters of style but with an adjustment to the font size.
-worksheet.cell(3,1).bool(true).style(style).style({font: {size: 14}});
-
-
-
- */

@@ -182,6 +182,8 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
 
     let categoryData = await common_sportsman_module.getCategories();
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
+
+
     res.download(excelFile);
 
     //console.log(sportsManData.results)
