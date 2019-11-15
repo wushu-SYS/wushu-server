@@ -154,6 +154,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             i++;
         }
     }
+    
     lockCell(worksheet,"I1:I"+(rowCell*100));
     lockCell(worksheet,"J1:J"+(rowCell*100));
     lockCell(worksheet,"K1:K"+(rowCell*100));
