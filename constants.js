@@ -10,7 +10,7 @@ let eventType = {
 let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
 let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
-
+let defaultProfilePic = '../../wu-shu-project/server/resources/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
     sameCategory : 'קטגוריות זהות',
     ageFail : 'הספורטאי לא בטווח הגילאים של הקטגוריה',
@@ -39,12 +39,18 @@ let colRegisterUserExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
+    numCell :11
 
 
 };
 let sexEnum = {
     זכר: 111,
     נקבה: 112
+};
+let sexEnumCompetition = {
+    זכר: 111,
+    נקבה: 112,
+    מעורב: 113
 };
 
 let sportType = {
@@ -66,7 +72,7 @@ let errorMsg = {
     lastNameHeb: 'שם משפחה לא תקין,נא לכתוב שם משפחה בעברית',
     phoneErr: 'פאלפון לא תקין ,נא להכניס מספר בעל 10 ספרות',
     emailErr: 'נא הכנס מייל תקין, לדוגמא example@example.com',
-    sportClubErr: 'מספר לא תקין, נא הכנס מספר מזהה של מועדון',
+    sportClubErr: 'מספר מזהה מועדון לא תקין',
     sexErr: 'נא הכנס מין תקין, זכר/נקבה',
     sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachNotExists: 'ת.ז מאמן לא רשומה במערכת',
@@ -75,10 +81,13 @@ let errorMsg = {
     failDownload: 'Fail to download resource',
     samePassword: 'הסיסמא שהוזנה זהה לסיסמא הנוכחית',
     compAgeErr: 'גיל לא חוקי',
-    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מאקסימלי',
+    minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מקסימלי',
     hebErr: 'נא הכנס טקסט בעברית',
     addressErr: 'אנא הכנס כתובת חוקית בעברית',
-    idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו'
+    idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
+    emptyExcel:'קובץ ריק',
+    cellEmpty :'אנא מלא את כל התאים',
+    birthDateErr:'תאריך לידה לא תקין'
 }
 
 let msg = {
@@ -116,6 +125,7 @@ module.exports = {
     userType: userType,
     hebRegex: regexHeb,
     sexEnum: sexEnum,
+    sexEnumCompetition: sexEnumCompetition,
     sportType: sportType,
     errorMsg: errorMsg,
     fileName: fileName,
@@ -125,5 +135,6 @@ module.exports = {
     regexHebWithSpace: regexHebWithSpace,
     colRegisterUserExcel: colRegisterUserExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
-    excelCompetitionEroorMsg :excelCompetitionEroorMsg
+    excelCompetitionEroorMsg :excelCompetitionEroorMsg,
+    defaultProfilePic : defaultProfilePic
 };

@@ -24,13 +24,12 @@ async function sendMail(sendTo, message, sub) {
         text: message,
     }, (error, result, fullResult) => {
         if (error) console.error(error);
-        console.log(result);
     })
 
 }
 
 function setBirthDateFormat(birthdate) {
-    var initial = birthdate.split("/");
+    let initial = birthdate.split("/");
     return ([initial[1], initial[0], initial[2]].join('/'));
 
 }

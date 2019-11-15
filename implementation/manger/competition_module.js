@@ -257,7 +257,6 @@ function sortUsers(users) {
 }
 
 async function setCategoryRegistration(categoryForSportsman, compId) {
-    console.log(categoryForSportsman);
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
@@ -332,16 +331,16 @@ function validateDataBeforeAddCategory(newCategory) {
 function validateCategory(newCategory) {
     var err = [];
     //category Name
-    if (!validator.matches(newCategory.categoryName, Constants.hebRegex))
-        err.push(Constants.errorMsg.idSportmanErr);
+    if (!validator.matches(newCategory.categoryName, Constants.regexHebrewAndNumbers))
+        err.push(Constants.errorMsg.hebErr);
     //minAge
-    if (!validator.isInt(newCategory.minAge.toString(), {min: 0, max: 100}))
+    if (newCategory.minAge && !validator.isInt(newCategory.minAge.toString(), {min: 0, max: 100}))
         err.push(Constants.errorMsg.compAgeErr);
     //maxAge
-    if (!validator.isInt(newCategory.maxAge.toString(), {min: 0, max: 100}))
+    if (newCategory.maxAge && !validator.isInt(newCategory.maxAge.toString(), {min: 0, max: 100}))
         err.push(Constants.errorMsg.compAgeErr);
     //sex
-    if (!(newCategory.sex in Constants.sexEnum))
+    if (!(newCategory.sex in Constants.sexEnumCompetition))
         err.push(Constants.errorMsg.sexErr);
     //min < max
     if (newCategory.minAge > newCategory.maxAge)
@@ -355,7 +354,7 @@ async function addNewCategory(categoryDetails) {
     await dbUtils.sql(`INSERT INTO category (name,minAge,maxAge,sex)
                       VALUES (@categoryName,@minAge,@maxAge,@sex);`)
         .parameter('categoryName', tediousTYPES.NVarChar, categoryDetails.categoryName)
-        .parameter('minAge', tediousTYPES.Int, categoryDetails.minAge)
+        .parameter('minAge', tediousTYPES.Int, categoryDetails.minAge ? categoryDetails.minAge : 0)
         .parameter('maxAge', tediousTYPES.Int, categoryDetails.maxAge)
         .parameter('sex', tediousTYPES.NVarChar, categoryDetails.sex)
         .execute()
@@ -388,7 +387,6 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
                 .execute();
         })
         .then(async function (testResult) {
-            console.log("here")
             return await trans.sql(`Update events 
                                     set location =@location,type=@type,date=@eventDate,startHour=@evetTime, city=@city
                                     where idEvent =@idEvent;`)
@@ -402,13 +400,11 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
                 .execute();
         })
         .then(async function (testResult) {
-            console.log("good")
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.competitionUpdate;
             trans.commitTransaction();
         })
         .fail(function (err) {
-            console.log("bad")
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();

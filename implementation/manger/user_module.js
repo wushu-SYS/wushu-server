@@ -72,7 +72,6 @@ function registerCoach(req,res) {
     });
 }
 async function insertCoachTeam(req) {
-    console.log("insert coach team");
     DButilsAzure.execQuery(`INSERT INTO coach_team (id,sportStyle,teamname)
                     Values ('${req.body.id}','${req.body.sportStyle}','${req.body.teamname}')`)
         .catch((error) => {
