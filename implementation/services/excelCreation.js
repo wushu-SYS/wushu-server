@@ -38,8 +38,9 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     worksheet.cell(1, 5).string('גיל').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 6).string('קטגוריה-1').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 7).string('קטגוריה-2').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 8).string('קטגוריה-3').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('קטגוריה-3').style(style).style(({font: {bold: true},}));
     worksheet.row(1).freeze(); // Freezes the top four rows
+
 
     worksheet.column(6).setWidth(25);
     worksheet.column(7).setWidth(25);
@@ -93,6 +94,52 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             worksheet.cell(rowCell, 3).string(sportsmenArr[i].lastname).style(style);
             worksheet.cell(rowCell, 4).string(sportsmenArr[i].sex).style(style);
             worksheet.cell(rowCell, 5).number(sportsmenArr[i].age).style(style);
+            worksheet.addDataValidation({
+                type: 'custom',
+                allowBlank: false,
+                error: 'אינך יכול לשנות תא זה.',
+                sqref: 'A'+rowCell,
+                formulas: ['A'+rowCell],
+                style: style,
+
+            });
+            worksheet.addDataValidation({
+                type: 'custom',
+                allowBlank: false,
+                error: 'אינך יכול לשנות תא זה.',
+                sqref: 'B'+rowCell,
+                formulas: ['B'+rowCell],
+                style: style,
+
+            });
+            worksheet.addDataValidation({
+                type: 'custom',
+                allowBlank: false,
+                error: 'אינך יכול לשנות תא זה.',
+                sqref: 'C'+rowCell,
+                formulas: ['C'+rowCell],
+                style: style,
+
+            });
+            worksheet.addDataValidation({
+                type: 'custom',
+                allowBlank: false,
+                error: 'אינך יכול לשנות תא זה.',
+                sqref: 'D'+rowCell,
+                formulas: ['D'+rowCell],
+                style: style,
+
+            });
+            worksheet.addDataValidation({
+                type: 'custom',
+                allowBlank: false,
+                error: 'אינך יכול לשנות תא זה.',
+                sqref: 'E'+rowCell,
+                formulas: ['E'+rowCell],
+                style: style,
+
+            });
+
             worksheet.cell(rowCell, 6).string(sportsmenArr[i].category ? categoryMap.get(parseInt(sportsmenArr[i].category)) : "").style(style);
             sportsMap.set(parseInt(sportsmenArr[i].id), {row: rowCell, col: 7});
             i++;
@@ -107,13 +154,33 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             i++;
         }
     }
+    lockCell(worksheet,"I1:I50");
+    lockCell(worksheet,"J1:J50");
+    lockCell(worksheet,"K1:K50");
+    lockCell(worksheet,"L1:L50");
+    lockCell(worksheet,"A"+rowCell+":A"+(rowCell*2));
+    lockCell(worksheet,"B"+rowCell+":B"+(rowCell*2));
+    lockCell(worksheet,"C"+rowCell+":C"+(rowCell*2));
+    lockCell(worksheet,"D"+rowCell+":D"+(rowCell*2));
+    lockCell(worksheet,"E"+rowCell+":E"+(rowCell*2));
+    lockCell(worksheet,"F"+rowCell+":F"+(rowCell*2));
+    lockCell(worksheet,"G"+rowCell+":G"+(rowCell*2));
+    lockCell(worksheet,"H"+rowCell+":H"+(rowCell*2));
 
     fileName = 'רישום ספורטאים לתחרות.xlsx';
     return writeExcel(workbook, (path + fileName))
 
 
 }
-
+const lockCell = (worksheet, range) => {
+    worksheet.addDataValidation({
+        type: "textLength",
+        error: "This cell is locked",
+        operator: "equal",
+        sqref: range,
+        formulas: [""],
+    });
+};
 async function createExcelRegisterSportsman(clubList,coachList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
@@ -304,10 +371,13 @@ async function createExcelCompetitionState(compState,date) {
     }
     let fixDate =date.split('T')[0];
     fixDate=setDateFormat(fixDate)
+
     fileName = 'מצב רישום תחרות' + ' ' +fixDate + '.xlsx'
     return writeExcel(workbook, (path + fileName));
 
 }
+
+
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
