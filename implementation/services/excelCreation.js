@@ -12,7 +12,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             'rightToLeft': true
         }
     }
-    let worksheet = workbook.addWorksheet('sheet1', option);
+    let worksheet = workbook.addWorksheet('רישום ספרטאים לתחרות', option);
     let style = {
         font: {
             color: 'black',
@@ -190,7 +190,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         }
     };
 
-    let worksheet = workbook.addWorksheet('sheet1', option);
+    let worksheet = workbook.addWorksheet('רישום ספורטאים למערכת', option);
     let style = {
         font: {
             color: 'black',
