@@ -154,18 +154,18 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
             i++;
         }
     }
-    lockCell(worksheet,"I1:I50");
-    lockCell(worksheet,"J1:J50");
-    lockCell(worksheet,"K1:K50");
-    lockCell(worksheet,"L1:L50");
-    lockCell(worksheet,"A"+rowCell+":A"+(rowCell*2));
-    lockCell(worksheet,"B"+rowCell+":B"+(rowCell*2));
-    lockCell(worksheet,"C"+rowCell+":C"+(rowCell*2));
-    lockCell(worksheet,"D"+rowCell+":D"+(rowCell*2));
-    lockCell(worksheet,"E"+rowCell+":E"+(rowCell*2));
-    lockCell(worksheet,"F"+rowCell+":F"+(rowCell*2));
-    lockCell(worksheet,"G"+rowCell+":G"+(rowCell*2));
-    lockCell(worksheet,"H"+rowCell+":H"+(rowCell*2));
+    lockCell(worksheet,"I1:I"+(rowCell*100));
+    lockCell(worksheet,"J1:J"+(rowCell*100));
+    lockCell(worksheet,"K1:K"+(rowCell*100));
+    lockCell(worksheet,"L1:L"+(rowCell*100));
+    lockCell(worksheet,"A"+rowCell+":A"+(rowCell*100));
+    lockCell(worksheet,"B"+rowCell+":B"+(rowCell*100));
+    lockCell(worksheet,"C"+rowCell+":C"+(rowCell*100));
+    lockCell(worksheet,"D"+rowCell+":D"+(rowCell*100));
+    lockCell(worksheet,"E"+rowCell+":E"+(rowCell*100));
+    lockCell(worksheet,"F"+rowCell+":F"+(rowCell*100));
+    lockCell(worksheet,"G"+rowCell+":G"+(rowCell*100));
+    lockCell(worksheet,"H"+rowCell+":H"+(rowCell*100));
 
     fileName = 'רישום ספורטאים לתחרות.xlsx';
     return writeExcel(workbook, (path + fileName))
