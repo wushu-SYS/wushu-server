@@ -308,7 +308,6 @@ async function createExcelRegisterSportsman(clubList,coachList) {
     lockCell(worksheet,'Q1:Q100')
     lockCell(worksheet,'R1:R100')
 
-
     fileName = 'רישום ספורטאים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
 
