@@ -24,7 +24,6 @@ async function getSportsmen(queryData, id) {
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
         .execute()
         .then(result => {
-            console.log(result)
             ans.results = {
                 sportsmen: result
             };
