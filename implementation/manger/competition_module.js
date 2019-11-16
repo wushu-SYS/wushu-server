@@ -189,7 +189,7 @@ function buildConditions_forGetCompetitions(queryData) {
     if (status !== '' && status !== undefined) {
         conditions.push("events_competition.status in (" + status.split(',').map((val, index) => `@Value${index}`).join(',') + ")");
     }
-    if(startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
+    if (startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
         limits = ' where rowNum >= @startIndex and rowNum <= @endIndex';
     }
     let conditionsStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
@@ -272,12 +272,15 @@ async function setCategoryRegistration(categoryForSportsman, compId) {
                     ans.status = Constants.statusCode.badRequest;
                     ans.results = err;
                     trans.rollbackTransaction();
+                    console.log(err)
                 })
         })
         .fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();
+            console.log(err)
+
         });
 
     return ans
@@ -286,10 +289,11 @@ async function setCategoryRegistration(categoryForSportsman, compId) {
 async function insertCategoryRegistrationDB(trans, categoryForSportsman, category, i, compID) {
     return trans.sql(`update competition_sportsman
                       set category = @category
-                      where idSportsman = @idSportsman and idCompetition = @idCompetition`)
+                      where idSportsman = @idSportsman and idCompetition = @idCompetition and category = @oldCategory`)
         .parameter('idSportsman', tediousTYPES.Int, category[0])
         .parameter('category', tediousTYPES.Int, category[1])
         .parameter('idCompetition', tediousTYPES.Int, compID)
+        .parameter('oldCategory', tediousTYPES.Int, category[2])
         .execute()
         .then(async function (testResult) {
             if (i + 1 < categoryForSportsman.length)

@@ -197,8 +197,6 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
 
     let categoryData = await common_sportsman_module.getCategories();
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
-
-
     res.download(excelFile);
 
 });
@@ -314,16 +312,19 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
         let categoryData = await common_sportsman_module.getCategories();
         let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
         ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
-        if (ans.pass) {
-            let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
-            ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
-            if (ans.pass)
-                ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
+        if (sportsmenArr.length == 0)
+            res.status(Constants.statusCode.badRequest).send([{error: Constants.errorMsg.emptyExcel}])
+        else {
+            if (ans.pass) {
+                let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
+                ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
+                if (ans.pass)
+                    ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
 
-            res.status(ans.status).send(ans.results)
-        } else
-            res.status(Constants.statusCode.badRequest).send(ans.results)
-
+                res.status(ans.status).send(ans.results)
+            } else
+                res.status(Constants.statusCode.badRequest).send(ans.results)
+        }
 
         //res.status(ans.status).send(ans.results)
         //res.send("ok")
