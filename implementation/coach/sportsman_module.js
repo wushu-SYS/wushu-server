@@ -13,7 +13,7 @@ function initQury(queryData, id) {
 async function getSportsmen(queryData, id) {
     let ans = new Object();
     let query = initQury(queryData, id);
-
+    console.log(query.query)
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, id)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
@@ -83,7 +83,7 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
                         where sportsman_coach.idCoach = @idCoach) as sportsman_coach
-                    join competition_sportsman
+                    left join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman and idCompetition = @compId`;
             query.queryCount = `select count(*) as count from
                     (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
