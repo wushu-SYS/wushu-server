@@ -91,7 +91,7 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
                         where idCoach = @idCoach) as sportsman_coach
-                    join competition_sportsman
+                    left join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman and idCompetition = @compId`;
         }
         else if (queryData.competitionOperator == '==') {
