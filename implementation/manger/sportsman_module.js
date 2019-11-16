@@ -71,7 +71,7 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
         if(queryData.competitionOperator == undefined){
             query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                             from (
-                                    select ROW_NUMBER() OVER ( order by firstname)             AS rowNum,
+                                    select ROW_NUMBER() OVER ( order by firstname, id)             AS rowNum,
                                     *
                                     from user_Sportsman`;
             query.additionalData = `left join competition_sportsman
