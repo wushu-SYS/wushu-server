@@ -78,7 +78,7 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
     } else if (queryData.competition !== undefined ) {
         if(queryData.competitionOperator == undefined){
             query.query += `id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub from
-                    (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
+                    (Select user_Sportsman.id, firstname, lastname, photo, sex, birthdate, sportclub, sportsman_coach.idCoach
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
