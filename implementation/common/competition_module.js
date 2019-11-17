@@ -50,15 +50,34 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
     return;
 }
 
+async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanDetails, i, compId) {
+    if(sportsmanDetails != undefined)
+        return trans.sql(`update competition_sportsman
+                      set category = @category
+                      where idSportsman = @idSportsman and idCompetition = @idCompetition and category = @oldCategory`)
+            .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails.id)
+            .parameter('category', tediousTYPES.Int, sportsmanDetails.category)
+            .parameter('idCompetition', tediousTYPES.Int, compId)
+            .parameter('oldCategory', tediousTYPES.Int, sportsmanDetails.oldCategory)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < updateSportsman.length)
+                    await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[i + 1], i + 1, compId);
+                return testResult
+            });
+    return;
+}
 
-async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, compId) {
+
+async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, updateSportsman, compId) {
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(insertSportsman[0] ? await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0], 0, compId) : '',
-                await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId)
+            await Promise.all(insertSportsman && insertSportsman[0] ? await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0], 0, compId) : '',
+                await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId),
+                    await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[0], 0, compId)
                     .then((result) => {
                         //sendEmail(users);
                         ans.status = Constants.statusCode.ok;
@@ -66,12 +85,14 @@ async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, 
                         trans.commitTransaction();
                     })
                     .catch((err) => {
+                        console.log(err)
                         ans.status = Constants.statusCode.badRequest;
                         ans.results = err;
                         trans.rollbackTransaction();
                     }))
         })
         .fail(function (err) {
+            console.log(err)
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();

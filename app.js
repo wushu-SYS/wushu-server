@@ -316,7 +316,7 @@ app.post("/private/getCompetitionDetail", async function (req, res) {
 app.post("/private/competitionSportsmen", async function (req, res) {
     let ans;
     if (access == Constants.userType.COACH || access == Constants.userType.MANAGER)
-        ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.compId);
+        ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {

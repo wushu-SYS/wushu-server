@@ -6,13 +6,14 @@ function initQuery(queryData) {
     let query = buildQuery_forGetSportsman(queryData, orderBy);
     query.query += conditions.conditionStatement;
     query.queryCount += conditions.conditionStatement;
-    query.query += `) tmp` + conditions.limits;
+    query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + conditions.limits;
     return query;
 }
 
 async function getSportsmen(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
+    console.log(query.query);
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
@@ -68,10 +69,13 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
             on user_Sportsman.id = sportsman_sportStyle.id`;
     } else if (queryData.competition !== undefined) {
         if(queryData.competitionOperator == undefined){
-            query.query += `user_Sportsman.id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
-                    from user_Sportsman
-                    left join competition_sportsman
-                    on user_Sportsman.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+            query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+                            from (
+                                    select ROW_NUMBER() OVER ( order by firstname, id)             AS rowNum,
+                                    *
+                                    from user_Sportsman`;
+            query.additionalData = `left join competition_sportsman
+                    on tmp.id = competition_sportsman.idSportsman and idCompetition = @compId`;
             query.queryCount = `Select count(*) as count
                     from user_Sportsman`;
         }
