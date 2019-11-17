@@ -6,14 +6,13 @@ function initQury(queryData, id) {
     let query = buildQuery_forGetSportsman(queryData, orderby);
     query.query += conditions.conditionStatement;
     query.queryCount += conditions.conditionStatement;
-    query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + conditions.limits;
+    query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + (conditions.limits ? conditions.limits : '');
     return query;
 }
 
 async function getSportsmen(queryData, id) {
     let ans = new Object();
     let query = initQury(queryData, id);
-
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, id)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
