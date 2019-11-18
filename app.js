@@ -9,7 +9,6 @@ jwt = require("jsonwebtoken");
 validator = require('validator');
 
 secret = "wushuSecret";
-//const multer = require('multer');
 let schedule = require('node-schedule');
 
 global.__basedir = __dirname;
@@ -50,19 +49,7 @@ let statusCode = {
     initialServerError: 500
 }
 
-//uploade file const
-/*const storagePhoto = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, __basedir + '/resources/profilePic/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, String(id + ".jpeg"))
-    }
-});
-const uploadProfilePic = multer({storage: storagePhoto});
 
-
- */
 
 //server schedule Jobs
 let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
@@ -128,7 +115,6 @@ app.post("/private/registerSportsmenExcel", async function (req, res) {
 
 });
 
-
 app.post("/private/registerSportsman", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
         let ans = await coach_user_module.checkDataBeforeRegister(req.body[0]);
@@ -142,58 +128,33 @@ app.post("/private/registerSportsman", async function (req, res) {
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
-/*
-app.post("/private/registerCoach", function (req, res) {
-    if (access === userType.MANAGER)
-        manger_user_module._registerCoach(req, res);
-    else
-        res.status(400).send("Permission denied")
+app.post("/private/uploadUserProfileImage",function (req,res) {
+    uploadProfilePic(req,res,function (err) {
+        if (err)
+            console.log(err)
+    })
+    console.log("ok")
+res.send("ok")
+})
+app.post("/private/registerCoach", async function (req, res) {
+    if (access === Constants.userType.MANAGER) {
+        let ans = manger_user_module.checkDataBeforeRegister(common_function.getArrayFromJsonArray(req.body))
+        if (ans.users.length === 0) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = [{line: 0, errors: [Constants.errorMsg.emptyExcel]}];
+            res.status(ans.status).send(ans.results);
+        } else if (ans.isPassed) {
+            ans = await manger_user_module.registerCoaches(ans.users);
+            res.status(ans.status).send(ans.results);
+        } else
+            res.status(Constants.statusCode.badRequest).send(ans.results);
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.badRequest)
 
 });
 
- */
-/*
-app.post('/private/uploadPhoto', uploadProfilePic.single("userProfilePic"), async (req, res) => {
-    let ans;
-    ans = await common_user_module.uploadeProfilePic(common_user_module.getTabelName(access), id);
-    res.status(ans.status).send(ans.results);
-});
 
-
- */
-/*
-const uploadMedical = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, __basedir + '/uploads/sportsman/MedicalScan/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, String(id + ".jpeg"))
-    }
-});
-const uploadInsurance = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, __basedir + '/uploads/sportsman/InsuranceScan/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, String(id + ".jpeg"))
-    }
-});
-const uploadPhotos = multer({storage: storagePhoto});
-const uploadMedicals = multer({storage: uploadMedical});
-const uploadInsurances = multer({storage: uploadInsurance});
-app.post('/private/uploadPhoto', uploadPhotos.single("userphoto"), (req, res) => {
-    common_user_module._uploadPhoto(req, res);
-});
-app.post('/private/uploadMedicalFile', uploadMedicals.single("userMedical"), (req, res) => {
-    sportsman_user_module._uploadeMedical(req, res);
-});
-app.post('/private/uploadInsurance', uploadInsurances.single("userInsurance"), (req, res) => {
-    sportsman_user_module._uploadInsurances(req, res);
-});
-
- */
-
-
+// excel download
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
@@ -216,8 +177,6 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
 
 
 });
-
-/*
 app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
@@ -226,15 +185,13 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterCoaches(clubs.results);
-
         res.download(excelFile);
-
     }
     else
-        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
 });
-*/
+
 
 app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, res) => {
     let token = req.params.token
@@ -253,6 +210,51 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
     res.download(excelFile);
 
 });
+app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let data;
+    if (access == Constants.userType.MANAGER) {
+        data = await manger_competition_module.getRegistrationState(req.params.compId);
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    data = data.results;
+    let excelFile = await excelCreation.createExcelCompetitionState(data, req.params.date);
+
+    res.download(excelFile);
+
+
+});
+
+
+
+app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
+    let ans;
+    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
+        let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
+        let categoryData = await common_sportsman_module.getCategories();
+        let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
+        ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
+        if (sportsmenArr.length == 0)
+            res.status(Constants.statusCode.badRequest).send([{error: Constants.errorMsg.emptyExcel}])
+        else {
+            if (ans.pass) {
+                let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
+                ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
+                if (ans.pass)
+                    ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
+
+                res.status(ans.status).send(ans.results)
+            } else
+                res.status(Constants.statusCode.badRequest).send(ans.results)
+        }
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+});
+
 
 app.post("/private/changePassword", async function (req, res) {
     let userData = {
@@ -329,7 +331,6 @@ app.post("/private/addCompetition", async function (req, res) {
         ans = manger_competition_module.validateCompetitionDetails(req.body)
         if (ans.isPassed) {
             ans = await manger_competition_module.addCompetition(req.body);
-            console.log(ans)
             res.status(ans.status).send(ans.results)
         } else
             res.status(statusCode.badRequest).send(ans.results)
@@ -462,8 +463,6 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
     let excelFile = await excelCreation.createExcelCompetitionState(data, req.params.date);
 
     res.download(excelFile);
-
-
 });
 
 

@@ -43,10 +43,22 @@ let colRegisterSportsmanExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
-    numCell :11
+    numCell: 11
 
+}
 
+let colRegisterCoachExcel = {
+    idCoach: 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    address: 4,
+    email: 5,
+    birthDate: 6,
+    sportClub: 7,
+    numCell: 8
 };
+
 let sexEnum = {
     זכר: 111,
     נקבה: 112
@@ -162,9 +174,9 @@ module.exports = {
     constRegex :constRegex,
     colRegisterSportsmanExcel: colRegisterSportsmanExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
-    excelCompetitionEroorMsg :excelCompetitionEroorMsg,
-    defaultProfilePic : defaultProfilePic,
     userError:userError,
-    sportsManFields :sportsManFields
-
+    sportsManFields :sportsManFields,
+    excelCompetitionEroorMsg: excelCompetitionEroorMsg,
+    defaultProfilePic: defaultProfilePic,
+    colRegisterCoachExcel :colRegisterCoachExcel
 };
