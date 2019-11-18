@@ -12,10 +12,10 @@ let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u
 let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
 let defaultProfilePic = '/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
-    sameCategory : 'קטגוריות זהות',
-    ageFail : 'הספורטאי לא בטווח הגילאים של הקטגוריה',
-    sexFail : 'מין הספורטאי לא תואם לקטגוריה',
-    category :'קטגוריה'
+    sameCategory: 'קטגוריות זהות',
+    ageFail: 'הספורטאי לא בטווח הגילאים של הקטגוריה',
+    sexFail: 'מין הספורטאי לא תואם לקטגוריה',
+    category: 'קטגוריה'
 }
 let colRegisterCompetitionExcel = {
     idSportsman: 0,
@@ -39,10 +39,22 @@ let colRegisterUserExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
-    numCell :11
-
+    numCell: 11
 
 };
+
+let colRegisterCoachExcel = {
+    idCoach: 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    address: 4,
+    email: 5,
+    birthDate: 6,
+    sportClub: 7,
+    numCell: 8
+};
+
 let sexEnum = {
     זכר: 111,
     נקבה: 112
@@ -85,9 +97,9 @@ let errorMsg = {
     hebErr: 'נא הכנס טקסט בעברית',
     addressErr: 'אנא הכנס כתובת חוקית בעברית',
     idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
-    emptyExcel:'קובץ ריק',
-    cellEmpty :'אנא מלא את כל התאים',
-    birthDateErr:'תאריך לידה לא תקין'
+    emptyExcel: 'קובץ ריק',
+    cellEmpty: 'אנא מלא את כל התאים',
+    birthDateErr: 'תאריך לידה לא תקין'
 }
 
 let msg = {
@@ -135,6 +147,7 @@ module.exports = {
     regexHebWithSpace: regexHebWithSpace,
     colRegisterUserExcel: colRegisterUserExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
-    excelCompetitionEroorMsg :excelCompetitionEroorMsg,
-    defaultProfilePic : defaultProfilePic
+    excelCompetitionEroorMsg: excelCompetitionEroorMsg,
+    defaultProfilePic: defaultProfilePic,
+    colRegisterCoachExcel :colRegisterCoachExcel
 };
