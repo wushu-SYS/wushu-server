@@ -44,7 +44,7 @@ function buildOrderBy_forGetSportsmen(queryData) {
 
 async function sportsmanProfile(id) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as sfirstname, user_Sportsman.lastname as slastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, sportStyle
+    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as firstname, user_Sportsman.lastname as lastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, sportStyle
                                     from user_Sportsman
                                     join sportsman_sportStyle on user_Sportsman.id = sportsman_sportStyle.id
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
