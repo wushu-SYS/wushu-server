@@ -151,13 +151,13 @@ app.post("/private/registerSportsman", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
-app.post("/private/uploadUserProfileImage",function (req,res) {
-    uploadProfilePic(req,res,function (err) {
+app.post("/private/uploadUserProfileImage", function (req, res) {
+    uploadProfilePic(req, res, function (err) {
         if (err)
             console.log(err)
     })
     console.log("ok")
-res.send("ok")
+    res.send("ok")
 })
 app.post("/private/registerCoach", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
@@ -175,9 +175,6 @@ app.post("/private/registerCoach", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.badRequest)
 
 });
-
-
-
 
 
 // excel download
@@ -212,8 +209,7 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterCoaches(clubs.results);
         res.download(excelFile);
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
 });
@@ -252,7 +248,6 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 
 
 });
-
 
 
 app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
@@ -450,7 +445,14 @@ app.post("/private/updateCompetitionDetails", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 })
 
+app.post("/private/deleteCoachProfile", async function (req, res) {
+    if (access === Constants.userType.MANAGER) {
+        let ans = await manger_user_module.deleteCoach(req.body.userID)
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 
+})
 
 //start the server
 app.listen(3000, () => {
