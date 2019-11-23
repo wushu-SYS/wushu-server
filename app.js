@@ -183,7 +183,6 @@ app.post("/private/manager/registerCoach", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.results);
 
-});
 
 
 // excel download
@@ -252,7 +251,6 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
 });
 
 
-
 app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, res) => {
     let token = req.params.token
     const decoded = jwt.verify(token, secret);
@@ -270,56 +268,6 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
     res.download(excelFile);
 
 });
-app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
-    let token = req.params.token;
-    const decoded = jwt.verify(token, secret);
-    access = decoded.access;
-    id = decoded.id;
-    let data;
-    if (access == Constants.userType.MANAGER) {
-        data = await manger_competition_module.getRegistrationState(req.params.compId);
-    } else
-        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
-
-    data = data.results;
-    let excelFile = await excelCreation.createExcelCompetitionState(data, req.params.date);
-
-    res.download(excelFile);
-
-
-});
-
-
-app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
-    let ans;
-    let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
-    let categoryData = await common_sportsman_module.getCategories();
-    let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
-    ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
-    if (sportsmenArr.length == 0)
-        res.status(Constants.statusCode.badRequest).send([{error: Constants.errorMsg.emptyExcel}])
-    else {
-        if (ans.pass) {
-            let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
-            ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
-            if (ans.pass)
-                ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
-
-            res.status(ans.status).send(ans.results)
-        } else
-            res.status(Constants.statusCode.badRequest).send(ans.results)
-    }
-});
-
-app.post("/private/commonCoachManager/getCoachProfile", async function (req, res) {
-    let ans;
-    if (req.body.id !== undefined)
-        ans = await common_couches_module.getCoachProfileById(req.body.id);
-    else
-        ans = await common_couches_module.getCoachProfileById(id);
-    res.status(ans.status).send(ans.results)
-});
-
 
 app.post("/private/changePassword", async function (req, res) {
     let userData = {
