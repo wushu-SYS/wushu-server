@@ -258,7 +258,6 @@ app.post("/private/getCoachProfile", async function (req, res) {
         ans = await common_couches_module.getCoachProfileById(req.body.id);
     else
         ans = await common_couches_module.getCoachProfileById(id);
-    console.log(ans.results)
     res.status(ans.status).send(ans.results)
 });
 
