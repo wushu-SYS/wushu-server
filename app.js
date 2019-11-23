@@ -252,6 +252,16 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
+app.post("/private/getCoachProfile", async function (req, res) {
+    let ans;
+    if (req.body.id !== undefined)
+        ans = await common_couches_module.getCoachProfileById(req.body.id);
+    else
+        ans = await common_couches_module.getCoachProfileById(id);
+    console.log(ans.results)
+    res.status(ans.status).send(ans.results)
+});
+
 
 app.post("/private/changePassword", async function (req, res) {
     let userData = {
