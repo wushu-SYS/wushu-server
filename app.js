@@ -188,7 +188,7 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     if (access == Constants.userType.COACH) {
         clubs = await common_sportclub_module.getSportClubs(id)
         coaches = await common_couches_module.getCoachProfileById(id);
-        coaches.results =[coaches.results];
+        coaches.results = [coaches.results];
     } else if (access == Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         coaches = await common_couches_module.getCoaches();
