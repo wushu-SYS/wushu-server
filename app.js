@@ -112,6 +112,43 @@ app.use("/private/commonCoachManager", (req, res, next) => {
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
 
+app.use("/private/manager", (req, res, next) => {
+    if (access === Constants.userType.MANAGER)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+
+
+});
+app.use("/private/sportsman", (req, res, next) => {
+    if (access === Constants.userType.SPORTSMAN)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+
+
+});
+app.use("/private/coach", (req, res, next) => {
+    if (access === Constants.userType.COACH)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+
+
+});
+app.use("/private/allUsers", (req, res, next) => {
+    if (access === Constants.userType.SPORTSMAN || access === Constants.userType.MANAGER || access === Constants.userType.COACH)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+});
+app.use("/private/commonCoachManager", (req, res, next) => {
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+});
+
 app.use("/static", express.static(path.join(__dirname, 'resources')));
 
 
@@ -129,8 +166,6 @@ app.post("/login", async (req, res) => {
         res.status(statusCode.ok).send(token)
     }
 });
-
-
 app.post("/private/registerSportsmenExcel", async function (req, res) {
     console.log(new Date());
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
@@ -151,7 +186,7 @@ app.post("/private/registerSportsmenExcel", async function (req, res) {
 
 });
 
-app.post("/private/commonCoachManager/registerSportsman", async function (req, res) {
+    app.post("/private/commonCoachManager/registerSportsman", async function (req, res) {
         let ans = await coach_user_module.checkDataBeforeRegister(req.body[0]);
         if (ans.isPassed) {
             ans.users = common_function.getArrayFromJson(ans.users);
@@ -159,7 +194,7 @@ app.post("/private/commonCoachManager/registerSportsman", async function (req, r
             res.status(ans.status).send(ans.results);
         } else
             res.status(statusCode.badRequest).send(ans.results);
-});
+    });
 
 app.post("/private/uploadUserProfileImage", function (req, res) {
     uploadProfilePic(req, res, function (err) {
@@ -288,31 +323,28 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 });
 
 
-app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
+app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
-    if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
-        let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
-        let categoryData = await common_sportsman_module.getCategories();
-        let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
-        ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
-        if (sportsmenArr.length == 0)
-            res.status(Constants.statusCode.badRequest).send([{error: Constants.errorMsg.emptyExcel}])
-        else {
-            if (ans.pass) {
-                let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
-                ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
-                if (ans.pass)
-                    ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
+    let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
+    let categoryData = await common_sportsman_module.getCategories();
+    let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
+    ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
+    if (sportsmenArr.length == 0)
+        res.status(Constants.statusCode.badRequest).send([{error: Constants.errorMsg.emptyExcel}])
+    else {
+        if (ans.pass) {
+            let delSportsman = common_competition_module.getIdsForDelete(sportsmenArr)
+            ans = await common_competition_module.excelDelSportsmenDB(delSportsman, req.body.compId);
+            if (ans.pass)
+                ans = await common_competition_module.regExcelSportsmenCompDB(sportsmen, req.body.compId);
 
-                res.status(ans.status).send(ans.results)
-            } else
-                res.status(Constants.statusCode.badRequest).send(ans.results)
-        }
-    } else
-        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+            res.status(ans.status).send(ans.results)
+        } else
+            res.status(Constants.statusCode.badRequest).send(ans.results)
+    }
 });
 
-app.post("/private/getCoachProfile", async function (req, res) {
+app.post("/private/commonCoachManager/getCoachProfile", async function (req, res) {
     let ans;
     if (req.body.id !== undefined)
         ans = await common_couches_module.getCoachProfileById(req.body.id);
@@ -428,6 +460,7 @@ app.post("/private/commonCoachManager/competitionSportsmen", async function (req
     let ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
     res.status(ans.status).send(ans.results)
 });
+
 app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
     if (access == Constants.userType.COACH || access == Constants.userType.MANAGER) {
@@ -450,6 +483,10 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
         }
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+})
+app.post("/private/commonCoachManager/competitionSportsmen", async function (req, res) {
+    let ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
+    res.status(ans.status).send(ans.results)
 });
 
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
@@ -482,6 +519,7 @@ app.post("/private/commonCoachManager/getRegistrationState", async function (req
     res.status(ans.status).send(ans.results)
 
 });
+
 
 
 
@@ -522,19 +560,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
 );
-/*
-app.post("/private/manager/registerNewJudge", async function (req, res) {
-    let ans;
-    ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJson(req.body));
-    if (ans.isPassed) {
-        ans = await manager_judge_module.registerNewJudge(ans.data)
-        res.status(ans.status).send(ans.results)
-    } else
-        res.status(Constants.statusCode.badRequest).send(ans.errors)
-})
 
-
- */
 
 //start the server
 app.listen(process.env.PORT || 3000, () => {
