@@ -128,6 +128,37 @@ async function registerCoaches(users) {
     return ans
 }
 
+async function deleteCoach(coach){
+    let ans = new Object();
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @coachId;`)
+                .parameter('coachId', tediousTYPES.Int, coach)
+                .returnRowCount()
+                .execute();
+        })
+
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Coach WHERE id = @coachId;`)
+                .parameter('coachId', tediousTYPES.Int, coach)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.userDeleted;
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
+}
+
+
 
 async function sendMail(req) {
     var subject = 'רישום משתמש חדש wuhsu'
@@ -147,5 +178,5 @@ async function sendMail(req) {
 
 module.exports.registerCoaches = registerCoaches;
 module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
-
+module.exports.deleteCoach = deleteCoach;
 
