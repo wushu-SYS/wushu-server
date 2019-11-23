@@ -183,7 +183,7 @@ app.post("/private/manager/registerCoach", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.results);
 
-
+})
 
 // excel download
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
