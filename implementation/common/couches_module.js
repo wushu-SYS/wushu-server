@@ -14,7 +14,7 @@ async function getCoaches() {
 
 async function getCoachProfileById(id) {
     let ans = new Object();
-    await dbUtils.sql(`Select * from user_Coach Where id= @idCoach`)
+    await dbUtils.sql(`Select user_Coach.*, sportclub.name as club from user_Coach join sportclub on user_Coach.sportclub = sportclub.id Where user_Coach.id= @idCoach`)
         .parameter('idCoach', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
