@@ -1,6 +1,6 @@
 async function getCoaches() {
     let ans = new Object();
-    await dbUtils.sql(`Select id, firstname, lastname, sportclub from user_Coach`)
+    await dbUtils.sql(`Select id, firstname, lastname, sportclub, photo from user_Coach`)
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
