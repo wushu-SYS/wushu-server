@@ -13,7 +13,7 @@ let schedule = require('node-schedule');
 global.__basedir = __dirname;
 
 let id, access;
-bcrypt = require('bcrypt');
+bcrypt = require('bcryptjs');
 saltRounds = 10;
 
 //import all modules
