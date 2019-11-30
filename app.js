@@ -1,8 +1,10 @@
 DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
-let app = require("express")();
+let express = require('express');
+let app = express();
 let bodyParser = require("body-parser");
 let cors = require('cors');
+let path = require('path');
 jwt = require("jsonwebtoken");
 validator = require('validator');
 
@@ -74,6 +76,8 @@ app.use("/private", (req, res, next) => {
         res.status(400).send("Invalid token. Permission denied");
     }
 });
+
+app.use("/static", express.static(path.join(__dirname, 'resources')));
 
 
 //app options
