@@ -475,6 +475,19 @@ app.post("/private/manager/deleteCoachProfile", async function (req, res) {
 
 });
 
+app.post("/private/commonCoachManager/updateCoachProfile", async function (req, res) {
+        let ans;
+        if (id == req.body.oldId || access === Constants.userType.MANAGER) {
+            ans = manger_user_module.checkCoachBeforeUpdate(common_function.getArrayFromJson(req.body));
+            if (ans.isPassed) {
+                ans = await coach_user_module.updateCoachProfile(ans.data);
+                res.status(ans.status).send(ans.results)
+            } else
+                res.status(Constants.statusCode.badRequest).send(ans.err)
+        } else
+            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    }
+);
 
 
 
