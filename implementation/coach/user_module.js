@@ -216,7 +216,29 @@ async function sendEmail(users) {
 
 
 }
-
+async function updateCoachProfile(CoachData) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE user_Coach SET id =@idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address where id =@oldId;`)
+        .parameter('idCoach', tediousTYPES.Int, CoachData[0])
+        .parameter('firstName', tediousTYPES.NVarChar, CoachData[1])
+        .parameter('lastName', tediousTYPES.NVarChar, CoachData[2])
+        .parameter('phone', tediousTYPES.NVarChar, CoachData[3])
+        .parameter('email', tediousTYPES.NVarChar, CoachData[4])
+        .parameter('birthDate', tediousTYPES.Date, CoachData[5])
+        .parameter('address', tediousTYPES.NVarChar, CoachData[6])
+        .parameter('oldId', tediousTYPES.Int, CoachData[7])
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.updateUserDetails;
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 module.exports.registerSportsman = registerSportsman;
 module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
 module.exports.insertPasswordDB=insertPasswordDB;
+module.exports.updateCoachProfile = updateCoachProfile;

@@ -35,6 +35,41 @@ function checkDataBeforeRegister(coaches) {
     return res;
 }
 
+function checkCoachBeforeUpdate(coachDetails) {
+    let err = [];
+    let res = new Object()
+    //id user)
+    if (!checkUserData.checkIdUser(coachDetails[Constants.colRegisterCoachExcel.idCoach]))
+        err.push(Constants.errorMsg.idSportmanErr);
+    //firstName
+    if (!checkUserData.checkFirstNameLastName(coachDetails[Constants.colRegisterCoachExcel.firstName]))
+        err.push(Constants.errorMsg.firstNameHeb);
+    //lastName
+    if (!checkUserData.checkFirstNameLastName(coachDetails[Constants.colRegisterCoachExcel.lastName]))
+        err.push(Constants.errorMsg.lastNameHeb);
+    //phone
+    if (!checkUserData.checkPhone(coachDetails[Constants.colRegisterCoachExcel.phone]))
+        collectErr.push(Constants.errorMsg.phoneErr)
+    //email
+    if (!checkUserData.checkEmail(coachDetails[Constants.colRegisterCoachExcel.email]))
+        collectErr.push(Constants.errorMsg.emailErr)
+
+    //address
+    if (!checkUserData.checkAddress(coachDetails[Constants.colRegisterCoachExcel.address]))
+        collectErr.push(Constants.errorMsg.addressErr)
+
+    if (err.length > 0) {
+        res.isPassed = false;
+        res.err=err;
+    }
+    else{
+        res.data=coachDetails
+        res.isPassed = true;
+    }
+    return res;
+
+}
+
 function checkCoach(user) {
     let err = new Object()
     let collectErr = [];
@@ -79,7 +114,7 @@ function checkCoach(user) {
 
 }
 
-async function insertNewCoachDB (trans, users, coachDetails, i){
+async function insertNewCoachDB(trans, users, coachDetails, i) {
     return trans.sql(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub,photo)
                                     VALUES (@idCoach, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub ,@photo)`)
         .parameter('idCoach', tediousTYPES.Int, coachDetails[Constants.colRegisterCoachExcel.idCoach])
@@ -128,7 +163,7 @@ async function registerCoaches(users) {
     return ans
 }
 
-async function deleteCoach(coach){
+async function deleteCoach(coach) {
     let ans = new Object();
     let trans;
     await dbUtils.beginTransaction()
@@ -159,7 +194,6 @@ async function deleteCoach(coach){
 }
 
 
-
 async function sendMail(req) {
     var subject = 'רישום משתמש חדש wuhsu'
     var textMsg = "שלום" + req.body.firstname + "\n" +
@@ -179,4 +213,5 @@ async function sendMail(req) {
 module.exports.registerCoaches = registerCoaches;
 module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
 module.exports.deleteCoach = deleteCoach;
+module.exports.checkCoachBeforeUpdate = checkCoachBeforeUpdate;
 
