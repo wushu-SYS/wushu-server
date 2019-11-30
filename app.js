@@ -415,18 +415,21 @@ app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (r
 })
 
 app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
-        let ans;
-        if (access === Constants.userType.COACH) {
-        }
-        if (access === Constants.userType.MANAGER || id === req.body.id) {
-            ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
-            if (ans.isPassed)
-                ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
-            res.status(ans.status).send(ans.results)
-        } else
-            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    let ans;
+    let canEditSportsmanProfile;
+    if (access === Constants.userType.COACH) {
+        canEditSportsmanProfile = sportsman_user_module.checkCoach(id, req.body.id)
+    } else if (access === Constants.userType.MANAGER || id === req.body.id) {
+        canEditSportsmanProfile = true;
     }
-);
+    if (canEditSportsmanProfile) {
+        ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
+        if (ans.isPassed)
+            ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+});
 
 app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
     let ans = await manger_competition_module.getRegistrationState(req.body.compId);
