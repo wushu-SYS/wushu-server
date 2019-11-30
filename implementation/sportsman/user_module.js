@@ -122,7 +122,21 @@ async function updateSportsmanProfile(sportsManDetails) {
     return ans;
 }
 
+async function checkCoach(idCoach,idSportsman) {
+    await dbUtils.sql('select idCoach from sportsman_coach where idSportsman = @idSportsman ')
+        .parameter('idSportsman', tediousTYPES.Int, idSportsman)
+        .execute()
+        .then(result => {
+            return idCoach == result[0]
+        })
+        .fail((error) => {
+            return false;
+        });
+
+}
+
 module.exports._uploadeMedical = uploadeMedical;
 module.exports._uploadInsurances = uploadeInsurance;
 module.exports.updateSportsmanProfile = updateSportsmanProfile;
 module.exports.validateSportsmanData = validateSportsmanData;
+module.exports.checkCoach=checkCoach;
