@@ -286,6 +286,7 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
 });
 
 
+
 app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, res) => {
     let token = req.params.token
     const decoded = jwt.verify(token, secret);
