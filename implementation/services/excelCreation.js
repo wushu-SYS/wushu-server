@@ -466,6 +466,7 @@ async function createExcelCoachAsJudge(coachList) {
 
 }
 
+
 async function createExcelCompetitionState(compState, date) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
