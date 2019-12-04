@@ -1,7 +1,8 @@
 let userType = {
     MANAGER: 1,
     COACH: 2,
-    SPORTSMAN: 3
+    SPORTSMAN: 3,
+    JUDGE : 4
 };
 let eventType = {
     competition: 'תחרות',
@@ -30,6 +31,13 @@ let colRegisterCompetitionExcel = {
     category1: 5,
     category2: 6,
     category3: 7,
+}
+let colRegisterJudgeExcel ={
+    id : 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    email: 4,
 }
 let colRegisterSportsmanExcel = {
     idSportsman: 0,
@@ -178,5 +186,6 @@ module.exports = {
     sportsManFields :sportsManFields,
     excelCompetitionEroorMsg: excelCompetitionEroorMsg,
     defaultProfilePic: defaultProfilePic,
-    colRegisterCoachExcel :colRegisterCoachExcel
+    colRegisterCoachExcel :colRegisterCoachExcel,
+    colRegisterJudgeExcel:colRegisterJudgeExcel
 };
