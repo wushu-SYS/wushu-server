@@ -241,7 +241,7 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     let clubs;
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
-        let excelFile = await excelCreation.createExcelRegisterCoachesOrJudge(clubs.results, true);
+        let excelFile = await excelCreation.createExcelRegisterCoach(clubs.results);
         res.download(excelFile);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
@@ -254,7 +254,7 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
     let clubs;
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
-        let excelFile = await excelCreation.createExcelRegisterCoachesOrJudge(clubs.results, false);
+        let excelFile = await excelCreation.createExcelRegisterNewJudge();
         res.download(excelFile);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
