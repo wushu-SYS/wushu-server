@@ -31,6 +31,8 @@ const coach_competition_module = require("./implementation/coach/competition_mod
 const manger_sportsman_module = require("./implementation/manger/sportsman_module");
 const manger_user_module = require("./implementation/manger/user_module");
 const manger_competition_module = require("./implementation/manger/competition_module");
+const manager_judge_module = require("./implementation/manger/judge_module");
+
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
@@ -509,7 +511,15 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
 );
-
+app.post("/private/manager/registerNewJudge", async function (req, res) {
+    let ans;
+    ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJson(req.body));
+    if (ans.isPassed) {
+        ans = await manager_judge_module.registerNewJudge(ans.data)
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(ans.errors)
+})
 
 //start the server
 app.listen(3000, () => {

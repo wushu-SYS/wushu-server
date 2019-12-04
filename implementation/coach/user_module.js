@@ -129,8 +129,8 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
 
 async function insertPasswordDB(trans, users, userDetails, i, userType) {
     return trans.sql(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
-                    Values (@idSportsman ,@password,@userType,@isFirstLogin)`)
-        .parameter('idSportsman', tediousTYPES.Int, userDetails[Constants.colRegisterUserExcel.idSportsman])
+                    Values (@user ,@password,@userType,@isFirstLogin)`)
+        .parameter('user', tediousTYPES.Int, userDetails[Constants.colRegisterUserExcel.idSportsman])
         .parameter('password', tediousTYPES.NVarChar, bcrypt.hashSync(userDetails[Constants.colRegisterUserExcel.idSportsman].toString(), saltRounds))
         .parameter('userType', tediousTYPES.Int, userType)
         .parameter('isFirstLogin', tediousTYPES.Int, 1)
