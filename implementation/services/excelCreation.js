@@ -325,15 +325,12 @@ const addFormatRule = (workbook,worksheet,row,colFormat,colCondition,val)=>{
     });
 }
 
-async function createExcelRegisterCoachesOrJudge(clubList, isCoach) {
+async function createExcelRegisterCoaches(clubList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
     let worksheet = workbook.addWorksheet('sheet1', option);
-    if (isCoach)
-        worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
-    else
-        worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
 
+    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
@@ -412,14 +409,68 @@ async function createExcelRegisterCoachesOrJudge(clubList, isCoach) {
     lockCell(worksheet, 'Q1:Q100')
     lockCell(worksheet, 'R1:R100')
 
-    if (isCoach)
         fileName = 'רישום מאמנים למערכת.xlsx';
-    else
-        fileName = 'רישום שופטים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
 
 }
 
+async function createExcelRegisterNewJudge(){
+    let workbook = new excel.Workbook();
+    workbook.writeP = util.promisify(workbook.write);
+    let worksheet = workbook.addWorksheet('sheet1', option);
+
+    worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+
+
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז שופט',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9, 9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10, 10],
+
+    });
+
+
+
+    lockValueCell(worksheet, 'A', 1);
+    lockValueCell(worksheet, 'B', 1);
+    lockValueCell(worksheet, 'C', 1);
+    lockValueCell(worksheet, 'D', 1);
+    lockValueCell(worksheet, 'E', 1);
+
+    lockCell(worksheet, 'F1:F100');
+    lockCell(worksheet, 'G1:G100');
+    lockCell(worksheet, 'H1:H100');
+    lockCell(worksheet, 'I1:I100')
+    lockCell(worksheet, 'J1:J100')
+    lockCell(worksheet, 'K1:K100')
+    lockCell(worksheet, 'L1:L100')
+    lockCell(worksheet, 'M1:M100')
+    lockCell(worksheet, 'N1:N100')
+    lockCell(worksheet, 'O1:O100')
+    lockCell(worksheet, 'P1:P100')
+    lockCell(worksheet, 'Q1:Q100')
+    lockCell(worksheet, 'R1:R100')
+
+    fileName = 'רישום שופטים למערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
 async function createExcelCoachAsJudge(coachList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
@@ -434,6 +485,7 @@ async function createExcelCoachAsJudge(coachList) {
     lockValueCell(worksheet, 'A', 1);
     lockValueCell(worksheet, 'B', 1);
     lockValueCell(worksheet, 'C', 1);
+    lockValueCell(worksheet, 'D', 1);
     let row = 2;
     for (let i = 0; i < coachList.length; i++) {
         worksheet.cell(row, 1).number(coachList[i].id).style(style);
@@ -590,5 +642,5 @@ function setIdCoach(id) {
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
 module.exports.createExcelRegisterSportsman = createExcelRegisterSportsman;
 module.exports.createExcelCompetitionState = createExcelCompetitionState;
-module.exports.createExcelRegisterCoachesOrJudge = createExcelRegisterCoachesOrJudge;
 module.exports.createExcelCoachAsJudge = createExcelCoachAsJudge;
+module.exports.createExcelRegisterNewJudge=createExcelRegisterNewJudge;
