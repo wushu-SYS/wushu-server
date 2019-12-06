@@ -9,7 +9,7 @@ jwt = require("jsonwebtoken");
 validator = require('validator');
 
 secret = "wushuSecret";
-const multer = require('multer');
+//const multer = require('multer');
 let schedule = require('node-schedule');
 
 global.__basedir = __dirname;
