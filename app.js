@@ -436,7 +436,7 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 
 
 //start the server
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
     console.log("port 3000");
     console.log("wu-shu project");
