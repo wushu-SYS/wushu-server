@@ -34,6 +34,7 @@ let colRegisterJudgeExcel ={
     lastName: 2,
     phone: 3,
     email: 4,
+    numCell : 5
 }
 let colRegisterUserExcel = {
     idSportsman: 0,
