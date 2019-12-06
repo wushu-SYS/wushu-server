@@ -511,6 +511,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
 );
+/*
 app.post("/private/manager/registerNewJudge", async function (req, res) {
     let ans;
     ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJson(req.body));
@@ -520,6 +521,8 @@ app.post("/private/manager/registerNewJudge", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.errors)
 })
+
+ */
 
 //start the server
 app.listen(process.env.PORT || 3000, () => {

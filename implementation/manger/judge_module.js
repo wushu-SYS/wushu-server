@@ -1,4 +1,4 @@
-import * as coach_user_module from "../coach/user_module";
+//import * as coach_user_module from "../coach/user_module";
 
 async function insertNewJudgeDB(trans, judges, judge, number) {
     return trans.sql(` INSERT INTO user_Judge (id, firstname, lastname, phone, email,photo)
