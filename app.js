@@ -337,6 +337,21 @@ app.post("/private/commonCoachManager/getClubs", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 
+app.post("/private/commonCoachManager/getErgons", async function (req, res) {
+    let ans = await common_sportclub_module.getErgons();
+    res.status(ans.status).send(ans.results)
+});
+
+app.post("/private/commonCoachManager/getAmutas", async function (req, res) {
+    let ans = await common_sportclub_module.getAmutas();
+    res.status(ans.status).send(ans.results)
+});
+
+app.post("/private/commonCoachManager/getAgudas", async function (req, res) {
+    let ans = await common_sportclub_module.getAgudas();
+    res.status(ans.status).send(ans.results)
+});
+
 app.post("/private/commonCoachManager/getCategories", async function (req, res) {
     let ans = await common_sportsman_module.getCategories();
     res.status(ans.status).send(ans.results)
