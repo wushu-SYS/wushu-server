@@ -129,8 +129,8 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
 
 async function insertPasswordDB(trans, users, userDetails, i, userType) {
     return trans.sql(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
-                    Values (@idSportsman ,@password,@userType,@isFirstLogin)`)
-        .parameter('idSportsman', tediousTYPES.Int, userDetails[Constants.colRegisterUserExcel.idSportsman])
+                    Values (@user ,@password,@userType,@isFirstLogin)`)
+        .parameter('user', tediousTYPES.Int, userDetails[Constants.colRegisterUserExcel.idSportsman])
         .parameter('password', tediousTYPES.NVarChar, bcrypt.hashSync(userDetails[Constants.colRegisterUserExcel.idSportsman].toString(), saltRounds))
         .parameter('userType', tediousTYPES.Int, userType)
         .parameter('isFirstLogin', tediousTYPES.Int, 1)
@@ -216,7 +216,29 @@ async function sendEmail(users) {
 
 
 }
-
+async function updateCoachProfile(CoachData) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE user_Coach SET id =@idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address where id =@oldId;`)
+        .parameter('idCoach', tediousTYPES.Int, CoachData[0])
+        .parameter('firstName', tediousTYPES.NVarChar, CoachData[1])
+        .parameter('lastName', tediousTYPES.NVarChar, CoachData[2])
+        .parameter('phone', tediousTYPES.NVarChar, CoachData[3])
+        .parameter('email', tediousTYPES.NVarChar, CoachData[4])
+        .parameter('birthDate', tediousTYPES.Date, CoachData[5])
+        .parameter('address', tediousTYPES.NVarChar, CoachData[6])
+        .parameter('oldId', tediousTYPES.Int, CoachData[7])
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.updateUserDetails;
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 module.exports.registerSportsman = registerSportsman;
 module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
 module.exports.insertPasswordDB=insertPasswordDB;
+module.exports.updateCoachProfile = updateCoachProfile;

@@ -31,6 +31,8 @@ const coach_competition_module = require("./implementation/coach/competition_mod
 const manger_sportsman_module = require("./implementation/manger/sportsman_module");
 const manger_user_module = require("./implementation/manger/user_module");
 const manger_competition_module = require("./implementation/manger/competition_module");
+const manager_judge_module = require("./implementation/manger/judge_module");
+
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 
@@ -241,12 +243,40 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     let clubs;
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
-        let excelFile = await excelCreation.createExcelRegisterCoaches(clubs.results);
+        let excelFile = await excelCreation.createExcelRegisterCoach(clubs.results);
         res.download(excelFile);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
 });
+app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    let clubs;
+    if (access === Constants.userType.MANAGER) {
+        clubs = await common_sportclub_module.getSportClubs(undefined);
+        let excelFile = await excelCreation.createExcelRegisterNewJudge();
+        res.download(excelFile);
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+
+});
+
+app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    let coaches;
+    if (access === Constants.userType.MANAGER) {
+        coaches = await common_couches_module.getCoaches();
+        let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
+        res.download(excelFile);
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+
+});
+
 app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, res) => {
     let token = req.params.token
     const decoded = jwt.verify(token, secret);
@@ -430,18 +460,21 @@ app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (r
 })
 
 app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
-        let ans;
-        if (access === Constants.userType.COACH) {
-        }
-        if (access === Constants.userType.MANAGER || id === req.body.id) {
-            ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
-            if (ans.isPassed)
-                ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
-            res.status(ans.status).send(ans.results)
-        } else
-            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    let ans;
+    let canEditSportsmanProfile;
+    if (access === Constants.userType.COACH) {
+        canEditSportsmanProfile = sportsman_user_module.checkCoach(id, req.body.id)
+    } else if (access === Constants.userType.MANAGER || id === req.body.id) {
+        canEditSportsmanProfile = true;
     }
-);
+    if (canEditSportsmanProfile) {
+        ans = sportsman_user_module.validateSportsmanData(common_function.getArrayFromJson(req.body));
+        if (ans.isPassed)
+            ans = await sportsman_user_module.updateSportsmanProfile(ans.data);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+});
 
 app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
     let ans = await manger_competition_module.getRegistrationState(req.body.compId);
@@ -481,12 +514,30 @@ app.post("/private/manager/deleteCoachProfile", async function (req, res) {
 });
 
 app.post("/private/commonCoachManager/updateCoachProfile", async function (req, res) {
-    if (id == req.body.oldId || access === Constants.userType.MANAGER) {
+        let ans;
+        if (id == req.body.oldId || access === Constants.userType.MANAGER) {
+            ans = manger_user_module.checkCoachBeforeUpdate(common_function.getArrayFromJson(req.body));
+            if (ans.isPassed) {
+                ans = await coach_user_module.updateCoachProfile(ans.data);
+                res.status(ans.status).send(ans.results)
+            } else
+                res.status(Constants.statusCode.badRequest).send(ans.err)
+        } else
+            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
+);
+/*
+app.post("/private/manager/registerNewJudge", async function (req, res) {
+    let ans;
+    ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJson(req.body));
+    if (ans.isPassed) {
+        ans = await manager_judge_module.registerNewJudge(ans.data)
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(ans.errors)
+})
 
-
-});
-
+ */
 
 //start the server
 app.listen(3000, () => {
