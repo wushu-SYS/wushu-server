@@ -23,6 +23,8 @@ const common_sportclub_module = require("./implementation/common/sportclub_modul
 const common_sportsman_module = require("./implementation/common/sportsman_module");
 const common_user_module = require("./implementation/common/user_module");
 const common_competition_module = require("./implementation/common/competition_module");
+const common_Judge_module = require("./implementation/common/judge_module");
+
 
 const coach_sportsman_module = require("./implementation/coach/sportsman_module");
 const coach_user_module = require("./implementation/coach/user_module");
@@ -187,13 +189,13 @@ app.post("/private/commonCoachManager/registerSportsman", async function (req, r
         res.status(Constants.statusCode.badRequest).send(ans.results);
 });
 
-app.post("/private/uploadUserProfileImage",function (req,res) {
-    uploadProfilePic(req,res,function (err) {
+app.post("/private/uploadUserProfileImage", function (req, res) {
+    uploadProfilePic(req, res, function (err) {
         if (err)
             console.log(err)
     })
     console.log("ok")
-res.send("ok")
+    res.send("ok")
 })
 
 
@@ -267,10 +269,9 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    let coaches;
     if (access === Constants.userType.MANAGER) {
-        coaches = await common_couches_module.getCoaches();
-        let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
+        let registerCoachAsJudges = await common_Judge_module.getJudgesToRegister();
+        let excelFile = await excelCreation.createExcelCoachAsJudge(registerCoachAsJudges.results);
         res.download(excelFile);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
