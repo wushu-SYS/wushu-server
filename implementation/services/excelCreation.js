@@ -365,6 +365,7 @@ async function createExcelRegisterNewJudge() {
 
 async function createExcelCoachAsJudge(coachList) {
     let {workbook, worksheet} = createWorkBook();
+    console.log(coachList)
 
     worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
