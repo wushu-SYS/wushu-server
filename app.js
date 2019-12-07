@@ -23,6 +23,8 @@ const common_sportclub_module = require("./implementation/common/sportclub_modul
 const common_sportsman_module = require("./implementation/common/sportsman_module");
 const common_user_module = require("./implementation/common/user_module");
 const common_competition_module = require("./implementation/common/competition_module");
+const common_Judge_module = require("./implementation/common/judge_module");
+
 
 const coach_sportsman_module = require("./implementation/coach/sportsman_module");
 const coach_user_module = require("./implementation/coach/user_module");
@@ -267,10 +269,9 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    let coaches;
     if (access === Constants.userType.MANAGER) {
-        coaches = await common_couches_module.getCoaches();
-        let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
+        let registerCoachAsJudges = await common_Judge_module.getJudgesToRegister();
+        let excelFile = await excelCreation.createExcelCoachAsJudge(registerCoachAsJudges.results);
         res.download(excelFile);
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
@@ -526,10 +527,10 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     }
 );
-/*
+
 app.post("/private/manager/registerNewJudge", async function (req, res) {
     let ans;
-    ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJson(req.body));
+    ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJsonArray(req.body));
     if (ans.isPassed) {
         ans = await manager_judge_module.registerNewJudge(ans.data)
         res.status(ans.status).send(ans.results)
@@ -537,10 +538,14 @@ app.post("/private/manager/registerNewJudge", async function (req, res) {
         res.status(Constants.statusCode.badRequest).send(ans.errors)
 })
 
- */
-
+app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
+    let ans;
+    let coachAsJudgeData = manager_judge_module.cleanCoachAsJudgeExcelData(common_function.getArrayFromJsonArray(req.body))
+    ans = await manager_judge_module.registerCoachAsJudge(coachAsJudgeData);
+    res.status(ans.status).send(ans.results)
+})
 //start the server
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
     console.log("port 3000");
     console.log("wu-shu project");
