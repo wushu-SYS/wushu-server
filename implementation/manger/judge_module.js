@@ -102,5 +102,45 @@ function checkUser(user) {
 
 
 }
+
+function cleanCoachAsJudgeExcelData (data) {
+   let judges =[];
+    data.forEach((judge)=>{
+       if(judge.length==4)
+           judges.push(judge[0])
+   })
+    return judges;
+}
+
+async function registerCoachAsJudge (judges){
+    let ans = new Object();
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return trans.sql(`Insert into user_Judge (id,firstname,lastname,phone,photo,email)
+                        SELECT id, firstname, lastname, phone,photo,email
+                        from user_Coach
+                        where id in (${judges})`)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            ans.status = Constants.statusCode.ok;
+            ans.results =Constants.msg.registerSuccess
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
+}
+
+
+
 module.exports.registerNewJudge = registerNewJudge;
 module.exports.checkJudgeDataBeforeRegister=checkJudgeDataBeforeRegister;
+module.exports.cleanCoachAsJudgeExcelData=cleanCoachAsJudgeExcelData;
+module.exports.registerCoachAsJudge=registerCoachAsJudge;

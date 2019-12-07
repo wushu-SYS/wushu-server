@@ -532,13 +532,17 @@ app.post("/private/manager/registerNewJudge", async function (req, res) {
     ans = manager_judge_module.checkJudgeDataBeforeRegister(common_function.getArrayFromJsonArray(req.body));
     if (ans.isPassed) {
         ans = await manager_judge_module.registerNewJudge(ans.data)
-        console.log(ans)
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(ans.errors)
 })
 
-
+app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
+    let ans;
+    let coachAsJudgeData = manager_judge_module.cleanCoachAsJudgeExcelData(common_function.getArrayFromJsonArray(req.body))
+    ans = await manager_judge_module.registerCoachAsJudge(coachAsJudgeData);
+    res.status(ans.status).send(ans.results)
+})
 //start the server
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
