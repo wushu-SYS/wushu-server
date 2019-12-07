@@ -21,7 +21,9 @@ function checkDataBeforeRegister(userToRegsiter) {
                 user[Constants.colRegisterUserExcel.idCoach] = getCoachId(user[Constants.colRegisterUserExcel.idCoach]);
 
             tmpErr = checkUser(user)
-            user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setBirtdateFormat(user[Constants.colRegisterUserExcel.birthDate])
+            user[Constants.colRegisterUserExcel.birthDate] = sysfunc.setDateFormat(user[Constants.colRegisterUserExcel.birthDate])
+            console.log( user[Constants.colRegisterUserExcel.birthDate])
+
         }
         if (tmpErr.errors.length > 0) {
             tmpErr.line = line;
@@ -71,8 +73,12 @@ function checkUser(user) {
     if (!validator.matches(user[Constants.colRegisterUserExcel.address].toString(), Constants.regexHebrewAndNumbers) || user[Constants.colRegisterUserExcel.address].toString().length < 2)
         collectErr.push(Constants.errorMsg.addressErr)
     //birthDate
-    if (birthDateSplit.length != 3 || birthDateSplit[0].length != 2 || birthDateSplit[1].length != 2 || birthDateSplit[2].length != 4)
+    /*
+    console.log(birthDateSplit)
+    if (birthDateSplit.length != 3 || birthDateSplit[0].length != 2 || birthDateSplit[1].length != <31 || birthDateSplit[2].length != 4)
         collectErr.push(Constants.errorMsg.birthDateErr)
+
+     */
     //phone
     if (!validator.isInt(user[Constants.colRegisterUserExcel.phone].toString()) || user[Constants.colRegisterUserExcel.phone].toString().length != 10)
         collectErr.push(Constants.errorMsg.phoneErr)
@@ -106,7 +112,7 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.lastName])
         .parameter('phone', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.phone])
         .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.address])
-        .parameter('birthDate', tediousTYPES.Date, sportsmanDetails[Constants.colRegisterUserExcel.birthDate])
+        .parameter('birthDate', tediousTYPES.Date	, sportsmanDetails[Constants.colRegisterUserExcel.birthDate])
         .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.email])
         .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[Constants.colRegisterUserExcel.sportClub])
         .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[Constants.colRegisterUserExcel.sex])

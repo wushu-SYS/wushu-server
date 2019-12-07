@@ -104,6 +104,7 @@ app.post("/private/registerSportsman", async function (req, res) {
             res.status(ans.status).send(ans.results);
         } else if (ans.isPassed) {
             ans = await coach_user_module.registerSportsman(ans.users);
+            console.log(ans)
             res.status(ans.status).send(ans.results);
         } else
             res.status(Constants.statusCode.badRequest).send(ans.results);
@@ -298,6 +299,7 @@ app.post("/private/addCompetition", async function (req, res) {
         ans = manger_competition_module.validateCompetitionDetails(req.body)
         if (ans.isPassed) {
             ans = await manger_competition_module.addCompetition(req.body);
+            console.log(ans)
             res.status(ans.status).send(ans.results)
         } else
             res.status(Constants.statusCode.badRequest).send(ans.results)
