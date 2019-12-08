@@ -360,11 +360,8 @@ app.post("/private/changePassword", async function (req, res) {
 });
 
 app.post("/private/commonCoachManager/getCoaches", async function (req, res) {
-    if (access !== Constants.userType.SPORTSMAN) {
         let ans = await common_couches_module.getCoaches();
         res.status(ans.status).send(ans.results);
-    } else
-        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 
 app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
@@ -544,6 +541,26 @@ app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
     ans = await manager_judge_module.registerCoachAsJudge(coachAsJudgeData);
     res.status(ans.status).send(ans.results)
 })
+
+app.post("/private/commonCoachManager/getReferees", async function (req, res) {
+    let ans = await common_Judge_module.getReferees();
+    res.status(ans.status).send(ans.results);
+})
+app.post("/private/commonCoachManager/getReferees", async function (req, res) {
+    let ans = await common_Judge_module.getReferees();
+    res.status(ans.status).send(ans.results);
+})
+
+app.post("/private/commonCoachManager/getRefereeProfile", async function (req, res) {
+    let ans;
+    if (req.body.id !== undefined)
+        ans = await common_Judge_module.getRefereeProfileById(req.body.id);
+    else
+        ans = await common_Judge_module.getRefereeProfileById(id);
+    res.status(ans.status).send(ans.results)
+});
+
+
 //start the server
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
