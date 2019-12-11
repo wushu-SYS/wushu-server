@@ -34,6 +34,7 @@ const manger_sportsman_module = require("./implementation/manger/sportsman_modul
 const manger_user_module = require("./implementation/manger/user_module");
 const manger_competition_module = require("./implementation/manger/competition_module");
 const manager_judge_module = require("./implementation/manger/judge_module");
+const manger_sportclub_module = require("./implementation/manger/sportClub_module");
 
 
 const sportsman_user_module = require("./implementation/sportsman/user_module");
@@ -390,6 +391,15 @@ app.post("/private/commonCoachManager/getClubs", async function (req, res) {
     let ans = await common_sportclub_module.getSportClubs();
     res.status(ans.status).send(ans.results)
 });
+
+app.post("/private/manager/addClub", async function (req, res) {
+    let ans = manger_sportclub_module.validateSportClubDetails(req.body)
+    if (ans.isPassed) {
+        ans = await manger_sportclub_module.addSportClub(req.body);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(ans.results)
+})
 
 app.post("/private/commonCoachManager/getErgons", async function (req, res) {
     let ans = await common_sportclub_module.getErgons();
