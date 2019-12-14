@@ -561,10 +561,6 @@ app.post("/private/commonCoachManager/getReferees", async function (req, res) {
     let ans = await common_Judge_module.getReferees();
     res.status(ans.status).send(ans.results);
 })
-app.post("/private/commonCoachManager/getReferees", async function (req, res) {
-    let ans = await common_Judge_module.getReferees();
-    res.status(ans.status).send(ans.results);
-})
 
 app.post("/private/commonCoachManager/getRefereeProfile", async function (req, res) {
     let ans;
@@ -573,6 +569,19 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
     else
         ans = await common_Judge_module.getRefereeProfileById(id);
     res.status(ans.status).send(ans.results)
+});
+
+app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
+    let ans;
+    if (id == req.body.oldId || access === Constants.userType.MANAGER) {
+        //ans = manger_user_module.checkCoachBeforeUpdate(common_function.getArrayFromJson(req.body));
+        if (true){//ans.isPassed) {
+            ans = await common_Judge_module.updateRefereeProfile(common_function.getArrayFromJson(req.body));
+            res.status(ans.status).send(ans.results)
+        } else
+            res.status(Constants.statusCode.badRequest).send(ans.err)
+    } else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 
 
