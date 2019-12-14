@@ -16,6 +16,34 @@ async function getSportClubs(idCoach) {
     return ans;
 }
 
+async function getDetails(clubId){
+    let ans = new Object();
+    await dbUtils.sql('Select sportclub.*, amuta.name as amutaName, aguda.name as agudaName, sport_center.name ergonName from sportclub' +
+        ' join aguda on sportclub.agudaId = aguda.id' +
+        ' join amuta on sportclub.amutaId = amuta.id' +
+        ' join sport_center on sportclub.ergonId = sport_center.id' +
+        ' where sportclub.id = @id')
+        .parameter('id', tediousTYPES.Int, clubId)
+        .execute()
+        .then(async function (results) {
+            await dbUtils.sql('select id, firstname, lastname from user_Coach where sportclub = @id')
+                .parameter('id', tediousTYPES.Int, clubId)
+                .execute()
+                .then(function (resultsCoaches) {
+                    results[0].coaches = resultsCoaches;
+                    ans.status = Constants.statusCode.ok;
+                    ans.results = results[0]
+                }).fail(function (err) {
+                    ans.status = Constants.statusCode.badRequest;
+                    ans.results = err
+                })
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
 async function getErgons(idCoach) {
     let ans = new Object();
     await dbUtils.sql('Select * from sport_center order by name')
@@ -62,3 +90,4 @@ module.exports.getSportClubs = getSportClubs;
 module.exports.getErgons = getErgons;
 module.exports.getAmutas = getAmutas;
 module.exports.getAgudas = getAgudas;
+module.exports.getDetails = getDetails;
