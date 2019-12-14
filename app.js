@@ -389,6 +389,11 @@ app.post("/private/commonCoachManager/getClubs", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 
+app.get("/private/commonCoachManager/getClubs/:clubId", async function (req, res) {
+    let ans = await common_sportclub_module.getDetails(req.params.clubId);
+    res.status(ans.status).send(ans.results)
+});
+
 app.post("/private/manager/addClub", async function (req, res) {
     let ans = manger_sportclub_module.validateSportClubDetails(req.body)
     if (ans.isPassed) {
