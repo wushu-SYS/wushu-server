@@ -62,7 +62,7 @@ function validateSportsmanData(sportsmanDetails) {
     let ans = new Object();
     ans.isPassed = true;
     let tmpErr = validateData(sportsmanDetails);
-    sportsmanDetails[5] = sysfunc.setBirtdateFormat(sportsmanDetails[5]);
+    sportsmanDetails[5] = sysfunc.setDateFormat(sportsmanDetails[5]);
     if (tmpErr.length != 0) {
         ans.status = Constants.statusCode.badRequest;
         ans.isPassed = false;

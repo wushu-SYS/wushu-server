@@ -14,6 +14,8 @@ let style = {
     }
 }
 
+
+
 async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);

@@ -9,7 +9,7 @@ jwt = require("jsonwebtoken");
 validator = require('validator');
 
 secret = "wushuSecret";
-const multer = require('multer');
+//const multer = require('multer');
 let schedule = require('node-schedule');
 
 global.__basedir = __dirname;
@@ -104,6 +104,7 @@ app.post("/private/registerSportsman", async function (req, res) {
             res.status(ans.status).send(ans.results);
         } else if (ans.isPassed) {
             ans = await coach_user_module.registerSportsman(ans.users);
+            console.log(ans)
             res.status(ans.status).send(ans.results);
         } else
             res.status(Constants.statusCode.badRequest).send(ans.results);
@@ -298,6 +299,7 @@ app.post("/private/addCompetition", async function (req, res) {
         ans = manger_competition_module.validateCompetitionDetails(req.body)
         if (ans.isPassed) {
             ans = await manger_competition_module.addCompetition(req.body);
+            console.log(ans)
             res.status(ans.status).send(ans.results)
         } else
             res.status(Constants.statusCode.badRequest).send(ans.results)
@@ -436,7 +438,7 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 
 
 //start the server
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
     console.log("port 3000");
     console.log("wu-shu project");

@@ -28,14 +28,15 @@ async function sendMail(sendTo, message, sub) {
 
 }
 
-function setBirthDateFormat(birthdate) {
+function setDateFormat(birthdate) {
+    console.log(birthdate)
     let initial = birthdate.split("/");
-    return ([initial[1], initial[0], initial[2]].join('/'));
+    return ([initial[2], initial[0],(parseInt(initial[1])+1).toString()].join('-'));
 
 }
 
 
-module.exports.setBirtdateFormat = setBirthDateFormat;
+module.exports.setDateFormat = setDateFormat;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail = sendMail;
