@@ -67,7 +67,7 @@ function checkUser(user) {
     if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.firstName].toString().length < 1)
         collectErr.push(Constants.errorMsg.firstNameHeb)
 */
-    
+
     //lastname
     if (!validator.matches(user[Constants.colRegisterUserExcel.lastName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.lastName].toString().length < 2)
         collectErr.push(Constants.errorMsg.lastNameHeb)
