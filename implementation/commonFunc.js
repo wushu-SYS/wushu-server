@@ -35,8 +35,16 @@ function setDateFormat(birthdate) {
 
 }
 
+function getAgeRange(category){
+    if(category.maxAge == null)
+        return category.minAge != 0 ? category.minAge + "+" : "";
+    else
+        return category.minAge + "-" + category.maxAge;
+}
+
 
 module.exports.setDateFormat = setDateFormat;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail = sendMail;
+module.exports.getAgeRange = getAgeRange;

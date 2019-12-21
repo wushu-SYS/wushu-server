@@ -1,4 +1,5 @@
 let excel = require('excel4node');
+const sysfunc = require("../commonFunc")
 let path = './resources/files/';
 let fileName;
 const util = require('util');
@@ -423,7 +424,8 @@ async function createExcelCompetitionState(compState,date) {
     let j;
     for (let i = 0; i < compState.length; i++) {
         //worksheet.cell(row, 1).string(compState[i].category.name).style(style).style(({font: {bold: true}}));
-        worksheet.cell(row, 1, row, 3, true).string(compState[i].category.name).style(style).style(({
+        let categoryHeader = compState[i].category.name + " " + sysfunc.getAgeRange(compState[i].category);
+        worksheet.cell(row, 1, row, 3, true).string(categoryHeader).style(style).style(({
             font: {bold: true},
             alignment: {horizontal: 'center'},
             fill: {
