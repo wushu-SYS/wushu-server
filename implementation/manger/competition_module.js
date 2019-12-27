@@ -158,7 +158,7 @@ function getAllSportsman(req, res) {
 
 async function getRegistrationState(compId) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, isDeleted, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman

@@ -52,11 +52,13 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
 
 async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanDetails, i, compId) {
     if(sportsmanDetails != undefined)
+        console.log(sportsmanDetails.isDeleted)
         return trans.sql(`update competition_sportsman
-                      set category = @category
+                      set category = @category, isDeleted = @isDeleted
                       where idSportsman = @idSportsman and idCompetition = @idCompetition and category = @oldCategory`)
             .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails.id)
             .parameter('category', tediousTYPES.Int, sportsmanDetails.category)
+            .parameter('isDeleted', tediousTYPES.Bit, sportsmanDetails.isDeleted ? 1 : 0)
             .parameter('idCompetition', tediousTYPES.Int, compId)
             .parameter('oldCategory', tediousTYPES.Int, sportsmanDetails.oldCategory)
             .execute()
