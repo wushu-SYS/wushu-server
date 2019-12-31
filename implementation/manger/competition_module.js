@@ -5,7 +5,7 @@ function validateCompetitionDetails(eventDetails) {
     ans.isPassed = true;
     let err = [];
     //description
-    if (!validator.matches(eventDetails.description, Constants.regexHebWithSpace))
+    if (!validator.matches(eventDetails.description, Constants.hebRegex))
         err.push(Constants.errorMsg.hebErr)
     //location
     if (!validator.matches(eventDetails.location, Constants.regexHebrewAndNumbers))
@@ -14,7 +14,7 @@ function validateCompetitionDetails(eventDetails) {
     if (!(eventDetails.sportStyle in Constants.sportType))
         err.push(Constants.errorMsg.sportTypeErr)
     //city
-    if (!validator.matches(eventDetails.city, Constants.regexHebWithSpace))
+    if (!validator.matches(eventDetails.city, Constants.hebRegex))
         err.push(Constants.errorMsg.hebErr)
 
     if (err.length != 0)

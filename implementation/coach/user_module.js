@@ -1,5 +1,6 @@
 const common = require("../common/user_module");
-const sysfunc = require("../commonFunc")
+const sysfunc = require("../commonFunc");
+const userValidation = require("../services/userValidations/usersValidations");
 
 
 function checkDataBeforeRegister(userToRegsiter) {
@@ -10,7 +11,7 @@ function checkDataBeforeRegister(userToRegsiter) {
     let tmpErr = new Object();
     userToRegsiter.forEach(function (user) {
         line++
-        if (user.length != Constants.colRegisterUserExcel.numCell) {
+        if (userValidation.sportsMan.checkMandatoryFields()){
             tmpErr = new Object();
             res.isPassed = false;
             tmpErr.errors = [Constants.errorMsg.cellEmpty]
@@ -56,50 +57,6 @@ function getCoachId(line) {
 function checkUser(user) {
     let err = new Object()
     let collectErr = [];
-    let birthDateSplit = user[Constants.colRegisterUserExcel.birthDate].split('/')
-
-    //id user
-    if (!validator.isInt(user[Constants.colRegisterUserExcel.idSportsman].toString()) || user[Constants.colRegisterUserExcel.idSportsman].toString().length != 9)
-        collectErr.push(Constants.errorMsg.idSportmanErr)
-    //firstname
-
-    /*
-    if (!validator.matches(user[Constants.colRegisterUserExcel.firstName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.firstName].toString().length < 1)
-        collectErr.push(Constants.errorMsg.firstNameHeb)
-*/
-
-    //lastname
-    if (!validator.matches(user[Constants.colRegisterUserExcel.lastName].toString(), Constants.hebRegex) || user[Constants.colRegisterUserExcel.lastName].toString().length < 2)
-        collectErr.push(Constants.errorMsg.lastNameHeb)
-    //address
-    if (!validator.matches(user[Constants.colRegisterUserExcel.address].toString(), Constants.regexHebrewAndNumbers) || user[Constants.colRegisterUserExcel.address].toString().length < 2)
-        collectErr.push(Constants.errorMsg.addressErr)
-    //birthDate
-    /*
-    console.log(birthDateSplit)
-    if (birthDateSplit.length != 3 || birthDateSplit[0].length != 2 || birthDateSplit[1].length != <31 || birthDateSplit[2].length != 4)
-        collectErr.push(Constants.errorMsg.birthDateErr)
-
-     */
-    //phone
-    if (!validator.isInt(user[Constants.colRegisterUserExcel.phone].toString()) || user[Constants.colRegisterUserExcel.phone].toString().length != 10)
-        collectErr.push(Constants.errorMsg.phoneErr)
-    //email
-    if (!validator.isEmail(user[Constants.colRegisterUserExcel.email].toString()))
-        collectErr.push(Constants.errorMsg.emailErr)
-    //sportClub
-    if (!validator.isInt(user[Constants.colRegisterUserExcel.sportClub].toString()))
-        collectErr.push(Constants.errorMsg.sportClubErr)
-    //sex
-    if (!(user[Constants.colRegisterUserExcel.sex].toString() in Constants.sexEnum))
-        collectErr.push(Constants.errorMsg.sexErr)
-    //branch
-    if (!(user[Constants.colRegisterUserExcel.sportStyle].toString() in Constants.sportType))
-        collectErr.push(Constants.errorMsg.sportTypeErr)
-    //id coach
-    if (!validator.isInt(user[Constants.colRegisterUserExcel.idCoach].toString(), {gt: 100000000, lt: 1000000000}))
-        collectErr.push(Constants.errorMsg.idCoachErr)
-
     err.errors = collectErr;
     return err;
 
