@@ -1,47 +1,42 @@
 const constants = require("../../../constants")
 
 function checkId(id) {
-    if(id != null) {
+    if (id != null) {
         if (!(validator.isInt(id.toString()) && id.toString().length == 9))
             return constants.userError.idErr
-    }
-    else if("Id" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("Id"))
         return constants.sportsManFields.idErr
 }
 
 function checkFirstName(firstName) {
-    if(firstName != null) {
+    if (firstName != null) {
         if (!(validator.matches(firstName.toString(), constants.hebRegex) && firstName.toString().length > 0))
             return constants.userError.firstNameHebErr
-    }
-    else if("FirstName" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("FirstName"))
         return constants.sportsManFields.firstNameErr
 }
 
 function checkLastName(lastName) {
-    if(lastName != null) {
+    if (lastName != null) {
         if (!(validator.matches(lastName.toString(), constants.hebRegex) && lastName.toString().length > 0))
             return constants.userError.lastNameHebErr
-    }
-    else if ("LastName" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("LastName"))
         return constants.sportsManFields.lastNameErr
 }
 
 function checkAddress(address) {
-    if(address != null) {
+    if (address != null) {
         if (!(validator.matches(address.toString(), constants.regexHebrewAndNumbers) && address.toString().length > 0))
             return constants.userError.addressErr
-    }
-    else if ("Address" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("Address"))
         return constants.sportsManFields.addressErr
 }
 
 function checkPhone(phone) {
-    if(phone != null) {
-        if (!(validator.isInt(phone.toString()) && phone.toString().length != 10))
+    if (phone != null) {
+        if (!(validator.isInt(phone.toString()) || phone.toString().length != 10))
             return constants.userError.phoneErr
-    }
-    else if ("Phone" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("Phone"))
         return constants.sportsManFields.phoneErr
 }
 
@@ -49,58 +44,52 @@ function checkEmail(email) {
     if (email != null) {
         if (!validator.isEmail(email.toString()))
             return constants.userError.emailErr;
-    }else if ("Email" in constants.sportsManMandatoryFields) {
-            return constants.sportsManFields.emailErr
+    } else if (constants.sportsManMandatoryFields.includes("Email" )) {
+        return constants.sportsManFields.emailErr
     }
 }
 
 function checkSex(sex) {
-    if(sex != null) {
+    if (sex != null) {
         if (!(sex.toString() in constants.sexEnum))
             return constants.userError.sexErr
-    }
-    else if ("Sex" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("Sex"))
         return constants.sportsManFields.sexErr
 }
 
 function checkSportStyle(sportStyle) {
-    if(sportStyle != null) {
+    if (sportStyle != null) {
         if (!(sportStyle.toString() in constants.sportType))
             return (constants.userError.sportTypeErr)
-    }
-    else if ("SportStyle" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("SportStyle"))
         return constants.sportsManFields.sportStyleErr
 }
 
 function checkIdCoach(idCoach) {
-    if(idCoach) {
-        if (!(validator.isInt(id.toString()) && id.toString().length === 9))
+    if (idCoach != null) {
+        if (!(validator.isInt(idCoach.toString()) && idCoach.toString().length === 9))
             return constants.userError.idCoachErr
-    }
-    else if("IdCoach" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("IdCoach"))
         return constants.sportsManFields.idCoachErr
 }
 
 function checkSportClub(sportClub) {
-    if(sportClub != null) {
+    if (sportClub != null) {
         if (!validator.isInt(sportClub.toString()))
             return constants.userError.sportClubErr
-    }
-    else if("SportClub" in constants.sportsManMandatoryFields)
+    } else if (constants.sportsManMandatoryFields.includes("SportClub"))
         return constants.sportsManFields.sportClubErr
+
 }
 
 function setDateFormat(birthDate) {
-    if(birthDate != null) {
-        let initial = birthDate.split("/");
-        return ([initial[2], initial[0], initial[1]].join('-'));
-    }
-    else if ("BirthDate" in constants.sportsManMandatoryFields)
-        return constants.sportsManFields.birthDateErr
+    if (birthDate == null)
+        if (constants.sportsManMandatoryFields.includes("BirthDate"))
+            return constants.sportsManFields.birthDateErr
 }
 
 
-sportsManVal = {
+sportsmanVal = {
     idVal: checkId,
     firstNameVal: checkFirstName,
     lastNameVal: checkLastName,
@@ -132,7 +121,7 @@ judgeVal = {
 };
 
 module.exports = {
-    sportsMan: sportsManVal,
+    sportsman: sportsmanVal,
     coach: coachVal,
     judge: judgeVal
 }

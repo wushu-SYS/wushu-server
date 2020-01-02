@@ -26,7 +26,7 @@ let colRegisterCompetitionExcel = {
     category2: 6,
     category3: 7,
 }
-let colRegisterUserExcel = {
+let colRegisterSportsmanExcel = {
     idSportsman: 0,
     firstName: 1,
     lastName: 2,
@@ -155,7 +155,7 @@ module.exports = {
     fileName: fileName,
     msg: msg,
     regexHebrewAndNumbers: regexHebrewAndNumbers,
-    colRegisterUserExcel: colRegisterUserExcel,
+    colRegisterSportsmanExcel: colRegisterSportsmanExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
     excelCompetitionEroorMsg :excelCompetitionEroorMsg,
     defaultProfilePic : defaultProfilePic,

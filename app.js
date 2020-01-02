@@ -107,17 +107,32 @@ app.post("/login", async (req, res) => {
     }
 });
 
+
+app.post("/private/registerSportsmenExcel", async function (req, res) {
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
+        let usersToRegister = req.body;
+        if (usersToRegister.length==0)
+            res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
+        else {
+            let checkData = coach_user_module.checkExcelDataBeforeRegister(usersToRegister)
+            if (checkData.isPassed) {
+                let registerStatus = await coach_user_module.registerSportsman(checkData.users);
+                res.status(registerStatus.status).send(registerStatus.results);
+            } else
+                res.status(statusCode.badRequest).send(checkData.results);
+        }
+    } else
+        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+
+});
+
+
 app.post("/private/registerSportsman", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
-        console.log(req.body)
-        let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJsonArray(req.body))
-        if (ans.users.length === 0) {
-            ans.status = statusCode.badRequest;
-            ans.results = [{line: 0, errors: [Constants.errorMsg.emptyExcel]}];
-            res.status(ans.status).send(ans.results);
-        } else if (ans.isPassed) {
-            ans = await coach_user_module.registerSportsman(ans.users);
-            console.log(ans)
+        let ans = await coach_user_module.checkDataBeforeRegister(req.body[0]);
+        if (ans.isPassed) {
+            ans.users = common_function.getArrayFromJson(ans.users);
+            ans = await coach_user_module.registerSportsman([ans.users]);
             res.status(ans.status).send(ans.results);
         } else
             res.status(statusCode.badRequest).send(ans.results);
