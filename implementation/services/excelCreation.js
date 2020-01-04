@@ -13,7 +13,7 @@ let style = {
         color: 'black',
         size: 12
     }
-}
+};
 
 
 
@@ -165,6 +165,7 @@ const lockValueCell =(worksheet, range,rowCell) => {
     });
 
 }
+
 async function createExcelRegisterSportsman(clubList,coachList) {
     let workbook = new excel.Workbook();
     workbook.writeP = util.promisify(workbook.write);
@@ -239,15 +240,6 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         allowBlank: false,
         prompt: 'הכנס ת.ז ספורטאי',
         error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'K2:K100',
-        formulas: [9,9],
-
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז ספורטאי',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
         sqref: 'A2:A100',
         formulas: [9,9],
 
@@ -292,6 +284,7 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         style: style,
     });
 
+
     worksheet.addDataValidation({
         type: 'date',
         allowBlank: false,
@@ -299,7 +292,8 @@ async function createExcelRegisterSportsman(clubList,coachList) {
         error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
         sqref: 'F2:F100',
         style: {
-            dateFormat: 'dd/mm/yyyy',
+            numberFormat: 'dd/MM/YYYY',
+
         },
     });
 

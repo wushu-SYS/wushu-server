@@ -7,8 +7,15 @@ let eventType = {
     competition: 'תחרות',
     event: 'אירוע'
 };
-let regexHeb = new RegExp("^[\u0590-\u05FF ,.'-]+$");
-let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$");
+
+let constRegex = {
+    regexHeb : new RegExp("^[\u0590-\u05FF ,.'-]+$"),
+    regexHebrewAndNumbers : new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$"),
+    regexDate: new RegExp(("(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)"))
+};
+//let regexHeb = new RegExp("^[\u0590-\u05FF ,.'-]+$");
+//let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$");
+//let regexDate = new RegExp("(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)");
 let defaultProfilePic = '/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
     sameCategory : 'קטגוריות זהות',
@@ -91,6 +98,7 @@ let userError = {
     sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachErr: 'ת.ז מאמן לא תקינה,נא הכנס תעודת זהות תקינה',
     sportClubErr: 'מספר מזהה מועדון לא תקין',
+    birthDateErr : 'תאריך לידה לא תקין '
 
 }
 let errorMsg = {
@@ -147,18 +155,20 @@ module.exports = {
     competitionStatus: competitionStatus,
     eventType: eventType,
     userType: userType,
-    hebRegex: regexHeb,
+    //hebRegex: regexHeb,
     sexEnum: sexEnum,
     sexEnumCompetition: sexEnumCompetition,
     sportType: sportType,
     errorMsg: errorMsg,
     fileName: fileName,
     msg: msg,
-    regexHebrewAndNumbers: regexHebrewAndNumbers,
+    constRegex :constRegex,
+    //regexHebrewAndNumbers: regexHebrewAndNumbers,
     colRegisterSportsmanExcel: colRegisterSportsmanExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
     excelCompetitionEroorMsg :excelCompetitionEroorMsg,
     defaultProfilePic : defaultProfilePic,
     userError:userError,
     sportsManFields :sportsManFields
+
 };

@@ -14,8 +14,8 @@ function checkExcelDataBeforeRegister(users) {
         line++;
         user[constants.colRegisterSportsmanExcel.sportClub] = getClubId(user[constants.colRegisterSportsmanExcel.sportClub]);
         user[constants.colRegisterSportsmanExcel.idCoach] = getCoachId(user[constants.colRegisterSportsmanExcel.idCoach]);
-        user[constants.colRegisterSportsmanExcel.birthDate] = setDateFormat(user[constants.colRegisterSportsmanExcel.birthDate]);
         userError.errors = userValidation.sportsManExcelValidations(user);
+
         if (userError.errors.length !== 0) {
             userError.line = line;
             errorUsers.push(userError)
@@ -48,7 +48,6 @@ function checkDataBeforeRegister(user) {
 }
 
 function setDateFormat(birthDate) {
-    console.log(birthDate)
     if (birthDate != undefined) {
         let initial = birthDate.split("/");
         return ([initial[2], initial[0], initial[1]].join('-'));
@@ -71,7 +70,6 @@ function getCoachId(line) {
 
 
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
-    console.log(sportsmanDetails[constants.colRegisterSportsmanExcel.birthDate]);
     return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex,photo)
                                     VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex ,@photo)`)
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.idSportsman])
@@ -125,12 +123,17 @@ async function registerSportsman(users) {
                 .catch((err) => {
                     ans.status = constants.statusCode.badRequest;
                     ans.results = err;
+                    console.log(err)
+
                     trans.rollbackTransaction();
+
                 }))
         })
         .fail(function (err) {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
+            console.log(err)
+
             trans.rollbackTransaction();
         })
 

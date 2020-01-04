@@ -10,7 +10,7 @@ function checkId(id) {
 
 function checkFirstName(firstName) {
     if (firstName != null) {
-        if (!(validator.matches(firstName.toString(), constants.hebRegex) && firstName.toString().length > 0))
+        if (!(validator.matches(firstName.toString(), constants.constRegex.regexHeb) && firstName.toString().length > 0))
             return constants.userError.firstNameHebErr
     } else if (constants.sportsManMandatoryFields.includes("FirstName"))
         return constants.sportsManFields.firstNameErr
@@ -18,7 +18,7 @@ function checkFirstName(firstName) {
 
 function checkLastName(lastName) {
     if (lastName != null) {
-        if (!(validator.matches(lastName.toString(), constants.hebRegex) && lastName.toString().length > 0))
+        if (!(validator.matches(lastName.toString(), constants.constRegex.regexHeb) && lastName.toString().length > 0))
             return constants.userError.lastNameHebErr
     } else if (constants.sportsManMandatoryFields.includes("LastName"))
         return constants.sportsManFields.lastNameErr
@@ -26,7 +26,7 @@ function checkLastName(lastName) {
 
 function checkAddress(address) {
     if (address != null) {
-        if (!(validator.matches(address.toString(), constants.regexHebrewAndNumbers) && address.toString().length > 0))
+        if (!(validator.matches(address.toString(), constants.constRegex.regexHebrewAndNumbers) && address.toString().length > 0))
             return constants.userError.addressErr
     } else if (constants.sportsManMandatoryFields.includes("Address"))
         return constants.sportsManFields.addressErr
@@ -34,7 +34,7 @@ function checkAddress(address) {
 
 function checkPhone(phone) {
     if (phone != null) {
-        if (!(validator.isInt(phone.toString()) || phone.toString().length != 10))
+        if (!(validator.isInt(phone.toString()) && phone.toString().length === 10))
             return constants.userError.phoneErr
     } else if (constants.sportsManMandatoryFields.includes("Phone"))
         return constants.sportsManFields.phoneErr
@@ -82,8 +82,8 @@ function checkSportClub(sportClub) {
 
 }
 
-function setDateFormat(birthDate) {
-    if (birthDate == null)
+function checkDate(birthDate) {
+    if (birthDate==null)
         if (constants.sportsManMandatoryFields.includes("BirthDate"))
             return constants.sportsManFields.birthDateErr
 }
@@ -93,7 +93,7 @@ sportsmanVal = {
     idVal: checkId,
     firstNameVal: checkFirstName,
     lastNameVal: checkLastName,
-    setBirthDate: setDateFormat,
+    setBirthDate: checkDate,
     addressVal: checkAddress,
     phoneVal: checkPhone,
     emailVal: checkEmail,

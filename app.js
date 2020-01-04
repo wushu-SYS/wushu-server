@@ -109,6 +109,7 @@ app.post("/login", async (req, res) => {
 
 
 app.post("/private/registerSportsmenExcel", async function (req, res) {
+    console.log(new Date());
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
         let usersToRegister = req.body;
         if (usersToRegister.length==0)
@@ -117,6 +118,7 @@ app.post("/private/registerSportsmenExcel", async function (req, res) {
             let checkData = coach_user_module.checkExcelDataBeforeRegister(usersToRegister)
             if (checkData.isPassed) {
                 let registerStatus = await coach_user_module.registerSportsman(checkData.users);
+                console.log(new Date());
                 res.status(registerStatus.status).send(registerStatus.results);
             } else
                 res.status(statusCode.badRequest).send(checkData.results);
