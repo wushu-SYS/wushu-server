@@ -51,8 +51,7 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
 }
 
 async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanDetails, i, compId) {
-    if(sportsmanDetails != undefined)
-        console.log(sportsmanDetails.isDeleted)
+    if(sportsmanDetails) {
         return trans.sql(`update competition_sportsman
                       set category = @category, isDeleted = @isDeleted
                       where idSportsman = @idSportsman and idCompetition = @idCompetition and category = @oldCategory`)
@@ -67,7 +66,7 @@ async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanD
                     await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[i + 1], i + 1, compId);
                 return testResult
             });
-    return;
+    }
 }
 
 

@@ -97,6 +97,7 @@ app.post("/login", async (req, res) => {
 
 app.post("/private/registerSportsman", async function (req, res) {
     if (access === Constants.userType.MANAGER || access === Constants.userType.COACH) {
+        console.log(req.body)
         let ans = await coach_user_module.checkDataBeforeRegister(common_function.getArrayFromJsonArray(req.body))
         if (ans.users.length === 0) {
             ans.status = Constants.statusCode.badRequest;
