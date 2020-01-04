@@ -13,9 +13,7 @@ let constRegex = {
     regexHebrewAndNumbers : new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$"),
     regexDate: new RegExp(("(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)"))
 };
-//let regexHeb = new RegExp("^[\u0590-\u05FF ,.'-]+$");
-//let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$");
-//let regexDate = new RegExp("(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)");
+
 let defaultProfilePic = '/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
     sameCategory : 'קטגוריות זהות',
@@ -155,7 +153,6 @@ module.exports = {
     competitionStatus: competitionStatus,
     eventType: eventType,
     userType: userType,
-    //hebRegex: regexHeb,
     sexEnum: sexEnum,
     sexEnumCompetition: sexEnumCompetition,
     sportType: sportType,
@@ -163,7 +160,6 @@ module.exports = {
     fileName: fileName,
     msg: msg,
     constRegex :constRegex,
-    //regexHebrewAndNumbers: regexHebrewAndNumbers,
     colRegisterSportsmanExcel: colRegisterSportsmanExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
     excelCompetitionEroorMsg :excelCompetitionEroorMsg,
