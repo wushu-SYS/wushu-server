@@ -144,6 +144,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 
 }
+
 const lockCell = (worksheet, range) => {
     worksheet.addDataValidation({
         type: "textLength",
@@ -153,6 +154,7 @@ const lockCell = (worksheet, range) => {
         formulas: [""],
     });
 };
+
 const lockValueCell =(worksheet, range,rowCell) => {
     worksheet.addDataValidation({
         type: 'custom',
@@ -310,6 +312,21 @@ async function createExcelRegisterSportsman(clubList,coachList) {
 
 }
 
+const addFormatRule = (workbook,worksheet,row,colFormat,colCondition,val)=>{
+    let myStyle = workbook.createStyle({
+        font: {
+            color: 'black',
+            size: 12,
+            strike: true
+        }
+    });
+    worksheet.addConditionalFormattingRule(colFormat+row+':'+colFormat+row, {
+        type: 'expression',
+        priority: 1,
+        formula: '=$'+colCondition+'$'+row+'="'+val+'"',
+        style: myStyle,
+    });
+}
 
 async function createExcelRegisterCoaches(clubList,){
     let workbook = new excel.Workbook();
@@ -412,8 +429,12 @@ async function createExcelCompetitionState(compState,date) {
     worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1,4).string('מתחרה').style(style).style(({font: {bold :true}}));
     worksheet.row(1).freeze(); // Freezes the top four rows
-
+    lockValueCell(worksheet,'A',1);
+    lockValueCell(worksheet,'B',1);
+    lockValueCell(worksheet,'C',1);
+    lockValueCell(worksheet,'D',1);
     let row = 2;
     let j;
     for (let i = 0; i < compState.length; i++) {
@@ -432,15 +453,45 @@ async function createExcelCompetitionState(compState,date) {
         row++;
         let users = compState[i].users;
         for (j = 0; j < users.length; j++) {
+            addFormatRule(workbook,worksheet,row,'A','D',"לא")
+            addFormatRule(workbook,worksheet,row,'B','D',"לא")
+            addFormatRule(workbook,worksheet,row,'C','D',"לא")
 
-            worksheet.cell(row, 1).number(users[j].id).style(style);
-            worksheet.cell(row, 2).string(users[j].firstname).style(style);
-            worksheet.cell(row, 3).string(users[j].lastname).style(style);
+            if(users[j].isDeleted) {
+                worksheet.cell(row, 1).number(users[j].id).style(style).style(({font: {strike: true}}));
+                worksheet.cell(row, 2).string(users[j].firstname).style(style).style(({font: {strike: true}}));
+                worksheet.cell(row, 3).string(users[j].lastname).style(style).style(({font: {strike: true}}));
+                worksheet.cell(row, 4).string("לא").style(style);
+            }
+            else {
+                worksheet.cell(row, 1).number(users[j].id).style(style);
+                worksheet.cell(row, 2).string(users[j].firstname).style(style);
+                worksheet.cell(row, 3).string(users[j].lastname).style(style);
+                worksheet.cell(row, 4).string("כן").style(style);
+            }
+            lockValueCell(worksheet,'A',row);
+            lockValueCell(worksheet,'B',row);
+            lockValueCell(worksheet,'C',row);
             row++
         }
     }
+
+
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר אפשרות',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'D2:D100',
+        formulas: ['כן,לא'],
+        style: style,
+    });
+
+
     let fixDate =date.split('T')[0];
-    fixDate=setDateFormat(fixDate)
+    fixDate=setDateFormat(fixDate);
+
 
     fileName = 'מצב רישום תחרות' + ' ' +fixDate + '.xlsx'
     return writeExcel(workbook, (path + fileName));
