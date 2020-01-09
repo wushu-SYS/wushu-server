@@ -7,9 +7,13 @@ let eventType = {
     competition: 'תחרות',
     event: 'אירוע'
 };
-let regexHeb = new RegExp("^[\u0590-\u05fe]+$");
-let regexHebWithSpace = new RegExp("^[\u0590-\u05fe _]*[\u0590-\u05fe][\u0590-\u05fe _]*$");
-let regexHebrewAndNumbers = new RegExp("^[\u0590-\u05fe0-9 _]*[\u0590-\u05fe0-9][\u0590-\u05fe0-9 _]*$");
+
+let constRegex = {
+    regexHeb : new RegExp("^[\u0590-\u05FF ,.'-]+$"),
+    regexHebrewAndNumbers : new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$"),
+    regexDate: new RegExp(("(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)"))
+};
+
 let defaultProfilePic = '/profilePics/defalutProfileImg.jpg'
 let excelCompetitionEroorMsg = {
     sameCategory : 'קטגוריות זהות',
@@ -27,7 +31,7 @@ let colRegisterCompetitionExcel = {
     category2: 6,
     category3: 7,
 }
-let colRegisterUserExcel = {
+let colRegisterSportsmanExcel = {
     idSportsman: 0,
     firstName: 1,
     lastName: 2,
@@ -58,23 +62,48 @@ let sportType = {
     סנדא: 202,
 
 };
+
+let sportsManMandatoryFields = ["Id","FirstName","LastName","Phone","Address","BirthDate","Email","IdCoach","Sex","SportStyle","SportClub"];
+let sportsManFields ={
+    idErr: "ת.ז. הינו שדה חובה",
+    firstNameErr: "שם פרטי הינו שדה חובה",
+    lastNameErr: "שם משפחה הינו שדה חובה",
+    phoneErr: "טלפון הינו שדה חובה",
+    addressErr: "כתובת הינו שדה חובה",
+    birthDateErr: "תאריך לידה הינו שדה חובה",
+    emailErr: "איימיל הינו שדה חובה",
+    idCoachErr: "מאמן הינו שדה חובה",
+    sexErr: "מין הינו שדה חובה",
+    sportStyleErr: "ענף הינו שדה חובה",
+    sportClubErr: "מועדון הינו שדה חובה"
+};
+
+
 let competitionStatus = {
     close: 'סגור',
     open: 'פתוח',
     regclose: 'רישום סגור'
 };
 
-let errorMsg = {
-    idSportmanErr: 'ת.ז ספורטאי לא תקינה,נא הכנס תעודת זהות תקינה',
+let userError = {
+    idErr: 'ת.ז לא תקינה,נא הכנס תעודת זהות תקינה',
+    firstNameHebErr: 'שם פרטי לא תקין , נא לכתוב שם פרטי בעברית',
+    lastNameHebErr: 'שם משפחה לא תקין,נא לכתוב שם משפחה בעברית',
+    addressErr: 'אנא הכנס כתובת חוקית בעברית',
+    phoneErr: 'פאלפון לא תקין ,נא להכניס מספר בעל 10 ספרות',
+    emailErr: 'נא הכנס מייל תקין, לדוגמא example@example.com',
+    sexErr: 'נא הכנס מין תקין, זכר/נקבה',
+    sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachErr: 'ת.ז מאמן לא תקינה,נא הכנס תעודת זהות תקינה',
+    sportClubErr: 'מספר מזהה מועדון לא תקין',
+    birthDateErr : 'תאריך לידה לא תקין '
+
+}
+let errorMsg = {
+
     idSportmanExists: 'ת.ז ספורטאי כבר רשומה במערכת',
     firstNameHeb: 'שם פרטי לא תקין , נא לכתוב שם פרטי בעברית',
     lastNameHeb: 'שם משפחה לא תקין,נא לכתוב שם משפחה בעברית',
-    phoneErr: 'פאלפון לא תקין ,נא להכניס מספר בעל 10 ספרות',
-    emailErr: 'נא הכנס מייל תקין, לדוגמא example@example.com',
-    sportClubErr: 'מספר מזהה מועדון לא תקין',
-    sexErr: 'נא הכנס מין תקין, זכר/נקבה',
-    sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachNotExists: 'ת.ז מאמן לא רשומה במערכת',
     errLoginDetails: 'Access denied. Error in user\'s details',
     accessDenied: 'Access denied',
@@ -83,7 +112,6 @@ let errorMsg = {
     compAgeErr: 'גיל לא חוקי',
     minAgeErr: 'גיל מינימאלי חייב להיות קטן מגיל מקסימלי',
     hebErr: 'נא הכנס טקסט בעברית',
-    addressErr: 'אנא הכנס כתובת חוקית בעברית',
     idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
     emptyExcel:'קובץ ריק',
     cellEmpty :'אנא מלא את כל התאים',
@@ -120,21 +148,23 @@ let statusCode = {
 }
 
 module.exports = {
+    statusCode:statusCode,
+    sportsManMandatoryFields :sportsManMandatoryFields,
     competitionStatus: competitionStatus,
     eventType: eventType,
     userType: userType,
-    hebRegex: regexHeb,
     sexEnum: sexEnum,
     sexEnumCompetition: sexEnumCompetition,
     sportType: sportType,
     errorMsg: errorMsg,
     fileName: fileName,
     msg: msg,
-    statusCode: statusCode,
-    regexHebrewAndNumbers: regexHebrewAndNumbers,
-    regexHebWithSpace: regexHebWithSpace,
-    colRegisterUserExcel: colRegisterUserExcel,
+    constRegex :constRegex,
+    colRegisterSportsmanExcel: colRegisterSportsmanExcel,
     colRegisterCompetitionExcel: colRegisterCompetitionExcel,
     excelCompetitionEroorMsg :excelCompetitionEroorMsg,
-    defaultProfilePic : defaultProfilePic
+    defaultProfilePic : defaultProfilePic,
+    userError:userError,
+    sportsManFields :sportsManFields
+
 };
