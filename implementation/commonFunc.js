@@ -28,10 +28,11 @@ async function sendMail(sendTo, message, sub) {
 
 }
 
-function setDateFormat(birthdate) {
-    let initial = birthdate.split("/");
-    return ([initial[2], initial[0],(parseInt(initial[1])+1).toString()].join('-'));
-
+function setDateFormatRegisterUser(birthDate) {
+    if (birthDate != undefined) {
+        let initial = birthDate.split("/");
+        return ([initial[2], initial[0], initial[1]].join('-'));
+    }
 }
 
 function getAgeRange(category){
@@ -42,7 +43,9 @@ function getAgeRange(category){
 }
 
 
-module.exports.setDateFormat = setDateFormat;
+
+
+module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail = sendMail;

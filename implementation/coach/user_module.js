@@ -1,72 +1,6 @@
-const common = require("../common/user_module");
-const sysfunc = require("../commonFunc");
-const userValidation = require("../services/userValidations/userValidationService");
+const common_func = require("../commonFunc");
 const constants = require("../../constants")
 
-
-function checkExcelDataBeforeRegister(users) {
-    let errorUsers = [];
-    let res = {};
-    res.isPassed = true;
-    let line = 1;
-    users.forEach(function (user) {
-        let userError = new Object();
-        line++;
-        user[constants.colRegisterSportsmanExcel.sportClub] = getClubId(user[constants.colRegisterSportsmanExcel.sportClub]);
-        user[constants.colRegisterSportsmanExcel.idCoach] = getCoachId(user[constants.colRegisterSportsmanExcel.idCoach]);
-        userError.errors = userValidation.sportsManExcelValidations(user);
-
-        if (userError.errors.length !== 0) {
-            userError.line = line;
-            errorUsers.push(userError)
-            res.isPassed = false;
-        }
-    });
-    res.results = errorUsers;
-    res.users = users;
-    return res;
-
-}
-
-function checkDataBeforeRegister(user) {
-    let errorUsers = [];
-    let res = new Object();
-    res.isPassed = true;
-    user.birthDate = setDateFormat(user.birthDate);
-    let userError = new Object();
-    userError.errors = userValidation.sportsmanManualValidations(user);
-
-    if (userError.errors.length !== 0) {
-        userError.line = 1;
-        errorUsers.push(userError);
-        res.isPassed = false;
-    }
-    res.results = errorUsers;
-    res.users = user;
-
-    return res;
-}
-
-function setDateFormat(birthDate) {
-    if (birthDate != undefined) {
-        let initial = birthDate.split("/");
-        return ([initial[2], initial[0], initial[1]].join('-'));
-    }
-}
-
-function getClubId(line) {
-    line = line.split(" ")[line.split(" ").length - 1];
-    line = line.substring(0, line.length - 1);
-    return parseInt(line)
-
-}
-
-function getCoachId(line) {
-    line = line.split(" ")[line.split(" ").length - 1];
-    line = line.substring(0, line.length - 1);
-    return parseInt(line)
-
-}
 
 
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
@@ -166,6 +100,31 @@ async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
         })
 }
 
+
+
+
+async function updateCoachProfile(coachDetails) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE user_Coach SET  firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address where id =@idCoach;`)
+        .parameter('idCoach', tediousTYPES.Int, coachDetails[0])
+        .parameter('firstName', tediousTYPES.NVarChar, coachDetails[1])
+        .parameter('lastName', tediousTYPES.NVarChar, coachDetails[2])
+        .parameter('phone', tediousTYPES.NVarChar, coachDetails[3])
+        .parameter('email', tediousTYPES.NVarChar, coachDetails[4])
+        .parameter('birthDate', tediousTYPES.Date, coachDetails[5])
+        .parameter('address', tediousTYPES.NVarChar, coachDetails[6])
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.updateUserDetails;
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
 async function sendEmail(users) {
     var subject = 'רישום משתמש חדש wuhsu'
     users.forEach((user) => {
@@ -181,12 +140,12 @@ async function sendEmail(users) {
             + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
             + "בברכה, " + "\n" +
             "מערכת או-שו"
-        sysfunc.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
+        common_func.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
     })
 
 
 }
 
 module.exports.registerSportsman = registerSportsman;
-module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
-module.exports.checkExcelDataBeforeRegister = checkExcelDataBeforeRegister;
+module.exports.updateCoachProfile = updateCoachProfile;
+module.exports.insertPasswordDB = insertPasswordDB;

@@ -1,118 +1,5 @@
-const mutual = require("../common/user_module");
-const sysfunc = require("../commonFunc")
-let checkUserData = require("../services/commonExcelDataCheck");
+const common_func = require("../commonFunc")
 const coach_user_module = require("../coach/user_module");
-
-function checkDataBeforeRegister(coaches) {
-    let errorUsers = []
-    let res = new Object();
-    res.isPassed = true;
-    let line = 1;
-    let tmpErr = new Object();
-    coaches.forEach(function (coach) {
-        line++
-        if (coach.length != Constants.colRegisterCoachExcel.numCell) {
-            tmpErr = new Object();
-            res.isPassed = false;
-            tmpErr.errors = [Constants.errorMsg.cellEmpty]
-        } else {
-            if (coach[Constants.colRegisterCoachExcel.sportClub].length > 5)
-                coach[Constants.colRegisterCoachExcel.sportClub] = checkUserData.getClubId(coach[Constants.colRegisterCoachExcel.sportClub]);
-
-            tmpErr = checkCoach(coach)
-            coach[Constants.colRegisterCoachExcel.birthDate] = sysfunc.setBirtdateFormat(coach[Constants.colRegisterCoachExcel.birthDate])
-        }
-        if (tmpErr.errors.length > 0) {
-            tmpErr.line = line;
-            errorUsers.push(tmpErr)
-            res.isPassed = false;
-
-        }
-    })
-    res.results = errorUsers;
-    res.users = coaches;
-
-    return res;
-}
-
-function checkCoachBeforeUpdate(coachDetails) {
-    let err = [];
-    let res = new Object()
-    //id user)
-    if (!checkUserData.checkIdUser(coachDetails[Constants.colRegisterCoachExcel.idCoach]))
-        err.push(Constants.errorMsg.idSportmanErr);
-    //firstName
-    if (!checkUserData.checkFirstNameLastName(coachDetails[Constants.colRegisterCoachExcel.firstName]))
-        err.push(Constants.errorMsg.firstNameHeb);
-    //lastName
-    if (!checkUserData.checkFirstNameLastName(coachDetails[Constants.colRegisterCoachExcel.lastName]))
-        err.push(Constants.errorMsg.lastNameHeb);
-    //phone
-    if (!checkUserData.checkPhone(coachDetails[Constants.colRegisterCoachExcel.phone]))
-        collectErr.push(Constants.errorMsg.phoneErr)
-    //email
-    if (!checkUserData.checkEmail(coachDetails[Constants.colRegisterCoachExcel.email]))
-        collectErr.push(Constants.errorMsg.emailErr)
-
-    //address
-    if (!checkUserData.checkAddress(coachDetails[Constants.colRegisterCoachExcel.address]))
-        collectErr.push(Constants.errorMsg.addressErr)
-
-    if (err.length > 0) {
-        res.isPassed = false;
-        res.err=err;
-    }
-    else{
-        res.data=coachDetails
-        res.isPassed = true;
-    }
-    return res;
-
-}
-
-function checkCoach(user) {
-    let err = new Object()
-    let collectErr = [];
-
-    //id user
-    if (!checkUserData.checkIdUser(user[Constants.colRegisterCoachExcel.idCoach]))
-        collectErr.push(Constants.errorMsg.idSportmanErr)
-
-
-    //firstname
-    if (!checkUserData.checkFirstNameLastName(user[Constants.colRegisterCoachExcel.firstName]))
-        collectErr.push(Constants.errorMsg.firstNameHeb)
-
-
-    //lastname
-    if (!checkUserData.checkFirstNameLastName(user[Constants.colRegisterCoachExcel.lastName]))
-        collectErr.push(Constants.errorMsg.lastNameHeb)
-
-    //address
-    if (!checkUserData.checkAddress(user[Constants.colRegisterCoachExcel.address]))
-        collectErr.push(Constants.errorMsg.addressErr)
-
-    //birthDate
-    /*
-    if (!checkUserData.checkBirthDate(user[Constants.colRegisterCoachExcel.birthDate]))
-        collectErr.push(Constants.errorMsg.birthDateErr)
-
-     */
-    //phone
-    if (!checkUserData.checkPhone(user[Constants.colRegisterCoachExcel.phone]))
-        collectErr.push(Constants.errorMsg.phoneErr)
-    //email
-    if (!checkUserData.checkEmail(user[Constants.colRegisterCoachExcel.email]))
-        collectErr.push(Constants.errorMsg.emailErr)
-    //sportClub
-    if (!checkUserData.checkSportClub(user[Constants.colRegisterCoachExcel.sportClub]))
-        collectErr.push(Constants.errorMsg.sportClubErr)
-
-    err.errors = collectErr;
-    return err;
-
-
-}
 
 async function insertNewCoachDB(trans, users, coachDetails, i) {
     return trans.sql(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub,photo)
@@ -122,7 +9,7 @@ async function insertNewCoachDB(trans, users, coachDetails, i) {
         .parameter('lastName', tediousTYPES.NVarChar, coachDetails[Constants.colRegisterCoachExcel.lastName])
         .parameter('phone', tediousTYPES.NVarChar, coachDetails[Constants.colRegisterCoachExcel.phone])
         .parameter('address', tediousTYPES.NVarChar, coachDetails[Constants.colRegisterCoachExcel.address])
-        .parameter('birthDate', tediousTYPES.Date, coachDetails[Constants.colRegisterCoachExcel.birthDate])
+        .parameter('birthDate', tediousTYPES.NVarChar, coachDetails[Constants.colRegisterCoachExcel.birthDate])
         .parameter('email', tediousTYPES.NVarChar, coachDetails[Constants.colRegisterCoachExcel.email])
         .parameter('sportClub', tediousTYPES.Int, coachDetails[Constants.colRegisterCoachExcel.sportClub])
         .parameter('photo', tediousTYPES.NVarChar, Constants.defaultProfilePic)
@@ -167,16 +54,16 @@ async function deleteCoach(coach) {
     let ans = new Object();
     let trans;
     await dbUtils.beginTransaction()
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @coachId;`)
-                .parameter('coachId', tediousTYPES.Int, coach)
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @id;`)
+                .parameter('id', tediousTYPES.Int, coach)
                 .returnRowCount()
                 .execute();
         })
-
         .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM user_Coach WHERE id = @coachId;`)
-                .parameter('coachId', tediousTYPES.Int, coach)
+            return await trans.sql(`DELETE FROM user_Coach WHERE id = @id;`)
+                .parameter('id', tediousTYPES.Int, coach)
                 .returnRowCount()
                 .execute();
         })
@@ -207,11 +94,9 @@ async function sendMail(req) {
     + "תעודת זהות: " + req.body.id + "\n"
     + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות"
     + "בברכה, מערכת או-שו"
-    sysfunc.sendEmail(req.body.email, subject, textMsg)
+    common_func.sendEmail(req.body.email, subject, textMsg)
 }
 
 module.exports.registerCoaches = registerCoaches;
-module.exports.checkDataBeforeRegister = checkDataBeforeRegister;
 module.exports.deleteCoach = deleteCoach;
-module.exports.checkCoachBeforeUpdate = checkCoachBeforeUpdate;
 
