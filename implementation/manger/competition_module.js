@@ -5,7 +5,7 @@ function validateCompetitionDetails(eventDetails) {
     ans.isPassed = true;
     let err = [];
     //description
-    if (!validator.matches(eventDetails.description, Constants.regexHebWithSpace))
+    if (!validator.matches(eventDetails.description, Constants.hebRegex))
         err.push(Constants.errorMsg.hebErr)
     //location
     if (!validator.matches(eventDetails.location, Constants.regexHebrewAndNumbers))
@@ -14,7 +14,7 @@ function validateCompetitionDetails(eventDetails) {
     if (!(eventDetails.sportStyle in Constants.sportType))
         err.push(Constants.errorMsg.sportTypeErr)
     //city
-    if (!validator.matches(eventDetails.city, Constants.regexHebWithSpace))
+    if (!validator.matches(eventDetails.city, Constants.hebRegex))
         err.push(Constants.errorMsg.hebErr)
 
     if (err.length != 0)
@@ -158,7 +158,7 @@ function getAllSportsman(req, res) {
 
 async function getRegistrationState(compId) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, isDeleted, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
@@ -187,17 +187,23 @@ function sortUsers(users) {
             let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
             return x - y;
         });
-    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => ({
-        id: id,
-        name: id != null ? users.find(u => u.category == id).categoryName : 'ללא קטגוריה'
-    }));
+    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
+        let currUser = users.find(u => u.category === id);
+        return {
+            id: id,
+            name: currUser.categoryName,
+            minAge: currUser.minAge,
+            maxAge: currUser.maxAge,
+            sex: currUser.categorySex
+        };
+    });
     let i = 0;
     usedCategories.forEach(category => {
         let categoryUsers = {
             category: category,
             users: []
         };
-        while (i < users.length && category.name === (users[i].categoryName ? users[i].categoryName : 'ללא קטגוריה')) {
+        while (i < users.length && category.id === users[i].category) {
             categoryUsers.users.push(users[i]);
             i++;
         }

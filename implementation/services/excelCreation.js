@@ -21,6 +21,320 @@ function createWorkBook() {
     return {workbook, worksheet};
 }
 
+
+async function createExcelRegisterSportsman(clubList, coachList) {
+    let {workbook, worksheet} = createWorkBook();
+    let row = 2;
+
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+
+
+    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < clubList.length; i++) {
+        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+
+    row = 2;
+    worksheet.cell(1, 27).string("מאמנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < coachList.length; i++) {
+        worksheet.cell(row, 27).string(coachList[i].firstname + ' ' + coachList[i].lastname + ' ' + setIdCoach(coachList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+
+    for (let i = 2; i < 1000; i++) {
+        worksheet.cell(i, 4).style(style).style(({
+            font: {color: 'black'},
+            alignment: {horizontal: 'right'},
+            numberFormat: '@'
+        }));
+    }
+
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'I2:I100',
+        formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז מאמן',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'K2:K100',
+        formulas: [9, 9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז ספורטאי',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9, 9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10, 10],
+
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'H2:H100',
+        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מין',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'I2:I100',
+        formulas: ['זכר,נקבה'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר ענף',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'J2:J100',
+        formulas: ['טאולו,סנדא'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'date',
+        allowBlank: false,
+        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
+        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
+        sqref: 'F2:F100',
+        style: {
+            dateFormat: 'dd/mm/yyyy',
+        },
+    });
+
+    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","S1:S100","T1:T100","Q1:Q100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 1);
+
+    fileName = 'רישום ספורטאים למערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+
+}
+async function createExcelRegisterCoaches(clubList) {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('תאריך לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+
+    let row = 2;
+    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < clubList.length; i++) {
+        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'H2:H100',
+        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז מאמן',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9, 9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10, 10],
+
+    });
+    worksheet.addDataValidation({
+        type: 'date',
+        allowBlank: false,
+        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
+        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
+        sqref: 'G2:G100',
+        style: {
+            dateFormat: 'dd/mm/yyyy',
+        },
+    });
+
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 1);
+    lockListCell(worksheet, ["I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","S1:S100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+
+    fileName = 'רישום מאמנים למערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+
+}
+async function createExcelRegisterNewJudge() {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז שופט',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9, 9],
+
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10, 10],
+
+    });
+
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E'], 1);
+    lockListCell(worksheet, ["F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+
+
+    fileName = 'רישום שופטים למערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
+async function createExcelCoachAsJudge(coachList) {
+    let {workbook, worksheet} = createWorkBook();
+    console.log(coachList)
+
+    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('הפוך לשופט').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    let row = 2;
+    for (let i = 0; i < coachList.length; i++) {
+        worksheet.cell(row, 1).number(coachList[i].id).style(style);
+        worksheet.cell(row, 2).string(coachList[i].firstname).style(style);
+        worksheet.cell(row, 3).string(coachList[i].lastname).style(style);
+        lockListValueCell(worksheet, ['A', 'B', 'C'], row)
+        row++;
+    }
+
+
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
+    lockListCell(worksheet, ["E1:E100", "F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'הפוך לשופט ?',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'D2:D100',
+        formulas: ['כן,לא'],
+        style: style,
+    });
+
+
+    fileName = 'שיוך מאמנים כשופטים במערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+
+}
+
+
+async function createExcelCompetitionState(compState, date) {
+    let {workbook, worksheet} = createWorkBook();
+
+
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+
+    let row = 2;
+    let j;
+    for (let i = 0; i < compState.length; i++) {
+        worksheet.cell(row, 1, row, 3, true).string(compState[i].category.name).style(style).style(({
+            font: {bold: true},
+            alignment: {horizontal: 'center'},
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                fgColor: '2172d7',
+                // bgColor: 'ffffff'
+            }
+        }));
+        row++;
+        let users = compState[i].users;
+        for (j = 0; j < users.length; j++) {
+
+            worksheet.cell(row, 1).number(users[j].id).style(style);
+            worksheet.cell(row, 2).string(users[j].firstname).style(style);
+            worksheet.cell(row, 3).string(users[j].lastname).style(style);
+            row++
+        }
+    }
+    let fixDate = date.split('T')[0];
+    fixDate = setDateFormat(fixDate)
+
+    fileName = 'מצב רישום תחרות' + ' ' + fixDate + '.xlsx'
+    return writeExcel(workbook, (path + fileName));
+
+}
 async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -127,323 +441,6 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 }
 
-async function createExcelRegisterSportsman(clubList, coachList) {
-    let {workbook, worksheet} = createWorkBook();
-    let row = 2;
-
-    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze(); // Freezes the top four rows
-
-
-
-    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
-    for (let i = 0; i < clubList.length; i++) {
-        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
-            font: {color: 'white'},
-            alignment: {horizontal: 'right'}
-        }));
-        row++;
-    }
-    row = 2;
-    worksheet.cell(1, 27).string("מאמנים").style(style).style({font: {color: 'white'}});
-    for (let i = 0; i < coachList.length; i++) {
-        worksheet.cell(row, 27).string(coachList[i].firstname + ' ' + coachList[i].lastname + ' ' + setIdCoach(coachList[i])).style(style).style(({
-            font: {color: 'white'},
-            alignment: {horizontal: 'right'}
-        }));
-        row++;
-    }
-
-    for (let i = 2; i < 1000; i++) {
-        worksheet.cell(i, 4).style(style).style(({
-            font: {color: 'black'},
-            alignment: {horizontal: 'right'},
-            numberFormat: '@'
-        }));
-    }
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'בחר מועדון',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'K2:K100',
-        formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
-        style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז ספורטאי',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'K2:K100',
-        formulas: [9, 9],
-
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז ספורטאי',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'A2:A100',
-        formulas: [9, 9],
-
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס פאלפון',
-        error: 'פאלפון צריך להכיל 10 ספרות',
-        sqref: 'D2:D100',
-        formulas: [10, 10],
-
-    });
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'בחר מועדון',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'H2:H100',
-        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
-        style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'בחר מין',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'I2:I100',
-        formulas: ['זכר,נקבה'],
-        style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'בחר ענף',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'J2:J100',
-        formulas: ['טאולו,סנדא'],
-        style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'date',
-        allowBlank: false,
-        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
-        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
-        sqref: 'F2:F100',
-        style: {
-            dateFormat: 'dd/mm/yyyy',
-        },
-    });
-
-    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100"]);
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 1);
-
-    fileName = 'רישום ספורטאים למערכת.xlsx';
-    return writeExcel(workbook, (path + fileName));
-
-}
-
-async function createExcelRegisterCoaches(clubList) {
-    let {workbook, worksheet} = createWorkBook();
-
-    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 6).string('אימייל').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 7).string('תאריך לידה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze(); // Freezes the top four rows
-
-    let row = 2;
-    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
-    for (let i = 0; i < clubList.length; i++) {
-        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
-            font: {color: 'white'},
-            alignment: {horizontal: 'right'}
-        }));
-        row++;
-    }
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'בחר מועדון',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'H2:H100',
-        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
-        style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז ספורטאי',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'A2:A100',
-        formulas: [9, 9],
-
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס פאלפון',
-        error: 'פאלפון צריך להכיל 10 ספרות',
-        sqref: 'D2:D100',
-        formulas: [10, 10],
-
-    });
-    worksheet.addDataValidation({
-        type: 'date',
-        allowBlank: false,
-        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
-        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
-        sqref: 'G2:G100',
-        style: {
-            dateFormat: 'dd/mm/yyyy',
-        },
-    });
-
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 1);
-    lockListCell(worksheet, ["I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100"]);
-
-    fileName = 'רישום מאמנים למערכת.xlsx';
-    return writeExcel(workbook, (path + fileName));
-
-}
-
-async function createExcelRegisterNewJudge() {
-    let {workbook, worksheet} = createWorkBook();
-
-    worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze();
-
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז שופט',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'A2:A100',
-        formulas: [9, 9],
-
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס פאלפון',
-        error: 'פאלפון צריך להכיל 10 ספרות',
-        sqref: 'D2:D100',
-        formulas: [10, 10],
-
-    });
-
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E'], 1);
-    lockListCell(worksheet, ["F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100"]);
-
-
-    fileName = 'רישום שופטים למערכת.xlsx';
-    return writeExcel(workbook, (path + fileName));
-}
-
-async function createExcelCoachAsJudge(coachList) {
-    let {workbook, worksheet} = createWorkBook();
-    console.log(coachList)
-
-    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('הפוך לשופט').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze();
-
-    let row = 2;
-    for (let i = 0; i < coachList.length; i++) {
-        worksheet.cell(row, 1).number(coachList[i].id).style(style);
-        worksheet.cell(row, 2).string(coachList[i].firstname).style(style);
-        worksheet.cell(row, 3).string(coachList[i].lastname).style(style);
-        lockListValueCell(worksheet, ['A', 'B', 'C'], row)
-        row++;
-    }
-
-
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
-    lockListCell(worksheet, ["E1:E100", "F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100"]);
-    worksheet.addDataValidation({
-        type: 'list',
-        allowBlank: false,
-        prompt: 'הפוך לשופט ?',
-        error: 'Invalid choice was chosen',
-        showDropDown: true,
-        sqref: 'D2:D100',
-        formulas: ['כן,לא'],
-        style: style,
-    });
-
-
-    fileName = 'שיוך מאמנים כשופטים במערכת.xlsx';
-    return writeExcel(workbook, (path + fileName));
-
-}
-
-
-async function createExcelCompetitionState(compState, date) {
-    let {workbook, worksheet} = createWorkBook();
-
-
-    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze(); // Freezes the top four rows
-
-    let row = 2;
-    let j;
-    for (let i = 0; i < compState.length; i++) {
-        worksheet.cell(row, 1, row, 3, true).string(compState[i].category.name).style(style).style(({
-            font: {bold: true},
-            alignment: {horizontal: 'center'},
-            fill: {
-                type: 'pattern',
-                patternType: 'solid',
-                fgColor: '2172d7',
-                // bgColor: 'ffffff'
-            }
-        }));
-        row++;
-        let users = compState[i].users;
-        for (j = 0; j < users.length; j++) {
-
-            worksheet.cell(row, 1).number(users[j].id).style(style);
-            worksheet.cell(row, 2).string(users[j].firstname).style(style);
-            worksheet.cell(row, 3).string(users[j].lastname).style(style);
-            row++
-        }
-    }
-    let fixDate = date.split('T')[0];
-    fixDate = setDateFormat(fixDate)
-
-    fileName = 'מצב רישום תחרות' + ' ' + fixDate + '.xlsx'
-    return writeExcel(workbook, (path + fileName));
-
-}
-
-
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
@@ -510,6 +507,7 @@ const setWidthListCell = (worksheet, list, width) => {
         worksheet.column(col).setWidth(width);
     })
 }
+
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
 module.exports.createExcelRegisterSportsman = createExcelRegisterSportsman;

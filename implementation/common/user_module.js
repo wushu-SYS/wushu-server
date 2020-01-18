@@ -1,3 +1,6 @@
+let constants = require("../../constants");
+
+
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
     await dbUtils.sql(`select * from user_Passwords where id = @id`)
@@ -50,33 +53,9 @@ function buildToken(userDetails, userData) {
     };
 }
 
-function getTabelName(userType) {
-    switch (userType) {
-        case 1:
-            return "user_Manger";
-        case 2:
-            return "user_Coach";
-        case 3:
-            return "user_Sportsman"
-    }
-}
 
-async function uploadeProfilePic(tblName, id) {
-    let ans = new Object();
-    await dbUtils.sql(`UPDATE @tblName SET picture ='${"./resources/profilePic/" + id + ".jpeg"}' WHERE id = @id;`)
-        .parameter('id', tediousTYPES.Int, id)
-        .parameter('tblName', tediousTYPES.Text, tblName)
-        .execute()
-        .then(function (results) {
-            ans.isPassed = true;
-            ans.results = Constants.msg.profilePicUpdate;
-        }).fail(function (err) {
-            ans.isPassed = false;
-            ans.results = err;
-        });
 
-    return ans;
-}
+
 
 async function validateDiffPass(userData) {
     var ans = new Object()
@@ -180,11 +159,42 @@ async function deleteSportsman(sportsmanId) {
     return ans;
 }
 
+
+async function updateProfilePic(path ,id,userType){
+    let sql = getSqlUpdatePic(userType);
+    let ans = new Object();
+    await dbUtils.sql(sql)
+        .parameter('id', tediousTYPES.Int, id)
+        .parameter('photo', tediousTYPES.NVarChar, path)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = "upload"
+
+        }).fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
+function getSqlUpdatePic(userType){
+    switch (userType) {
+        case "judge":
+            return `update ${constants.databaseUserTableName.judge} set photo =@photo where id = @id`;
+        case "sportsman":
+            return `update ${constants.databaseUserTableName.sportsman} set photo =@photo where id = @id`;
+        case "coach":
+            return `update ${constants.databaseUserTableName.coach} set photo =@photo where id = @id`;
+
+    }
+}
+
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
-module.exports.uploadeProfilePic = uploadeProfilePic;
 module.exports.changeUserPassword = changeUserPassword;
 module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;
-module.exports.getTabelName=getTabelName;
+module.exports.updateProfilePic=updateProfilePic;
