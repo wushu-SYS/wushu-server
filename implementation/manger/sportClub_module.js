@@ -17,9 +17,14 @@ function validateSportClubDetails(data){
     ans.results = err;
     return ans;
 }
+
+/**
+ * handle inserting new club to the db
+ * @param data - the new club details
+ * @return {status, results}
+ */
 async function addSportClub(data){
     let ans = new Object();
-    let trans;
     await dbUtils.sql(`insert into sportclub (name, phone, address, contactname, amutaId, agudaId, ergonId)
                         values (@name, @phone, @address, @contactname, @amutaId, @agudaId, @ergonId);`)
         .parameter('name', tediousTYPES.NVarChar, data.clubName)

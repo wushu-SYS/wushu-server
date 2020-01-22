@@ -17,6 +17,12 @@ async function insertNewJudgeDB(trans, judges, judge, number) {
             return testResult
         })
 }
+
+/**
+ * handle inserting new judge to the db
+ * @param judges
+ * @return {status, results}
+ */
 async function registerNewJudge(judges) {
     let ans = new Object()
     let trans;
@@ -54,6 +60,11 @@ function cleanCoachAsJudgeExcelData (data) {
     return judges;
 }
 
+/**
+ * handle registration of coach as a judge in the system
+ * @param judges
+ * @return {status, results}
+ */
 async function registerCoachAsJudge (judges){
     let ans = new Object();
     let trans;

@@ -50,6 +50,11 @@ async function registerCoaches(users) {
     return ans
 }
 
+/**
+ * handle deleting coach from the system
+ * @param coach - to delete
+ * @return {status, results}
+ */
 async function deleteCoach(coach) {
     let ans = new Object();
     let trans;

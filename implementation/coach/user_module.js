@@ -41,6 +41,11 @@ async function insertPasswordDB(trans, users, userDetails, i, userType) {
         })
 }
 
+/**
+ * register new sportsmen to the system, supports manual registration of one sportsman and also excel registration
+ * @param users - list of users to register
+ * @return {status, results} - result contains successful message or errors
+ */
 async function registerSportsman(users) {
     let ans = new Object()
     let trans;
@@ -100,9 +105,11 @@ async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
         })
 }
 
-
-
-
+/**
+ * updating the details of coach entity
+ * @param coachDetails
+ * @return {status, results} - result contains successful message or errors
+ */
 async function updateCoachProfile(coachDetails) {
     let ans = new Object();
     await dbUtils.sql(`UPDATE user_Coach SET  firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,

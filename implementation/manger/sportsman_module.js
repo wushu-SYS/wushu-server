@@ -10,6 +10,11 @@ function initQuery(queryData) {
     return query;
 }
 
+/**
+ * handle getting list of sportsmen by query data filters
+ * @param queryData - filters
+ * @return {status, results}
+ */
 async function getSportsmen(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
@@ -35,6 +40,12 @@ async function getSportsmen(queryData) {
         });
     return ans
 }
+
+/**
+ * handle getting the number of sportsmen exists in db
+ * @param queryData - filters to filter by
+ * @return {status, results}
+ */
 async function getSportsmenCount(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);

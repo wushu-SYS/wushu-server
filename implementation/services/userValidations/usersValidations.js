@@ -1,3 +1,6 @@
+/**
+ * validate user's fields
+ */
 const constants = require("../../../constants")
 
 function checkId(id) {
@@ -88,7 +91,9 @@ function checkDate(birthDate) {
             return constants.sportsManFields.birthDateErr
 }
 
-
+/**
+ * needed validates for sportsman
+ */
 sportsmanVal = {
     idVal: checkId,
     firstNameVal: checkFirstName,
@@ -102,6 +107,9 @@ sportsmanVal = {
     sportClubVal: checkSportClub,
     idCoachVal: checkIdCoach
 };
+/**
+ * needed validates for coach
+ */
 coachVal = {
     idVal: checkId,
     firstNameVal: checkFirstName,
@@ -112,6 +120,9 @@ coachVal = {
     sportStyleVal: checkSportStyle,
     sportClubVal: checkSportClub
 };
+/**
+ * needed validates for judge
+ */
 judgeVal = {
     idVal: checkId,
     firstNameVal: checkFirstName,

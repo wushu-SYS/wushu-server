@@ -114,7 +114,9 @@ app.use("/private/commonCoachManager", (req, res, next) => {
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
-app.use("/static", express.static(path.join(__dirname, 'resources')));
+app.use("/static",
+    //TODO: I think need to get the photo from drive and if photo doen't exists send the default photo
+    express.static(path.join(__dirname, 'resources')));
 
 //app options
 app.options('*', cors());

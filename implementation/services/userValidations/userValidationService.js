@@ -1,7 +1,15 @@
+/**
+ * handle the whole user validation
+ */
 const userValidation = require("../userValidations/usersValidations");
 const constants = require("../../../constants");
 const common_func = require("../../commonFunc");
 
+/**
+ * validate sportsman for excel insert
+ * @param user - to validate
+ * @return errors list for the given list, return empty list if all fields are valid
+ */
 function sportsManExcelValidations(user) {
     let errList = [];
     pushErrorsToList(errList, userValidation.sportsman.idVal(user[constants.colRegisterSportsmanExcel.idSportsman]));
@@ -19,7 +27,13 @@ function sportsManExcelValidations(user) {
     return errList
 }
 
-function sportsmanManualValidations(user, update) {
+/**
+ * validate sportsman for manual insert or update
+ * @param user - to validate
+ * @param isUpdate - true if the calling query is update, else false
+ * @return list of errors, return empty list if all fields are valid
+ */
+function sportsmanManualValidations(user, isUpdate) {
     let errList = [];
     pushErrorsToList(errList, userValidation.sportsman.idVal(user.id));
     pushErrorsToList(errList, userValidation.sportsman.firstNameVal(user.firstName));
@@ -29,7 +43,7 @@ function sportsmanManualValidations(user, update) {
     pushErrorsToList(errList, userValidation.sportsman.emailVal(user.email));
     pushErrorsToList(errList, userValidation.sportsman.setBirthDate(user.birthDate));
     pushErrorsToList(errList, userValidation.sportsman.sexVal(user.sex));
-    if (!update) {
+    if (!isUpdate) {
         pushErrorsToList(errList, userValidation.sportsman.sportStyleVal(user.sportStyle));
         pushErrorsToList(errList, userValidation.sportsman.sportClubVal(user.sportClub));
         pushErrorsToList(errList, userValidation.sportsman.idCoachVal(user.idCoach));
@@ -37,6 +51,11 @@ function sportsmanManualValidations(user, update) {
     return errList
 }
 
+/**
+ * validate judge for manual insert
+ * @param user - to validate
+ * @return list of errors, return empty list if all fields are valid
+ */
 function judgeManualValidation(user) {
     let errList = [];
     pushErrorsToList(errList, userValidation.judge.idVal(user.id));
@@ -48,7 +67,13 @@ function judgeManualValidation(user) {
 
 }
 
-function coachManualValidation(user, update) {
+/**
+ * validate coach for manual insert or update
+ * @param user - to validate
+ * @param isUpdate - true if the calling query is update, else false
+ * @return list of errors, return empty list if all fields are valid
+ */
+function coachManualValidation(user, isUpdate) {
     let errList = [];
     pushErrorsToList(errList, userValidation.coach.idVal(user.id));
     pushErrorsToList(errList, userValidation.coach.firstNameVal(user.firstName));
@@ -57,7 +82,7 @@ function coachManualValidation(user, update) {
     pushErrorsToList(errList, userValidation.coach.phoneVal(user.phone));
     pushErrorsToList(errList, userValidation.coach.addressVal(user.address));
 
-    if (!update) {
+    if (!isUpdate) {
         pushErrorsToList(errList, userValidation.coach.sportClubVal(user.sportClub));
     }
     return errList
@@ -68,6 +93,11 @@ function pushErrorsToList(errList, err) {
         errList.push(err)
 }
 
+/**
+ * validate coach for excel insert
+ * @param user - to validate
+ * @return list of errors for the given user, return empty list if all fields are valid
+ */
 function coachExcelValidation(user) {
     let errList = [];
     pushErrorsToList(errList, userValidation.coach.idVal(user[constants.colRegisterCoachExcel.idCoach]));
@@ -81,6 +111,12 @@ function coachExcelValidation(user) {
     return errList
 }
 
+/**
+ * the main handler, deciding which validator is needed by the user type
+ * @param users - the list of users to validate
+ * @param userType - sportsman/coach
+ * @return {user, results} - results are the errors for the appropriate user
+ */
 function checkExcelDataBeforeRegister(users, userType) {
     let errorUsers = [];
     let res = {};
@@ -113,6 +149,12 @@ function checkExcelDataBeforeRegister(users, userType) {
 
 }
 
+/**
+ * the main handler, deciding which validator to apply
+ * @param user - to validate
+ * @param userType - sportsman/coach/judge
+ * @return {user, results} - results are the errors for the appropriate user
+ */
 function checkDataBeforeRegister(user, userType) {
     let errorUsers = [];
     let res = new Object();

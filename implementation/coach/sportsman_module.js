@@ -1,6 +1,6 @@
 const common_sportsman_module = require('../common/sportsman_module');
 
-function initQury(queryData, id) {
+function initQuery(queryData, id) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData, id);
     let orderby = common_sportsman_module.buildOrderBy_forGetSportsmen(queryData);
     let query = buildQuery_forGetSportsman(queryData, orderby);
@@ -10,11 +10,17 @@ function initQury(queryData, id) {
     return query;
 }
 
-async function getSportsmen(queryData, id) {
+/**
+ * getting list of sportsmen from the DB according the query data
+ * @param queryData - filters to filter the result set
+ * @param idCoach - whose sportsmen to return
+ * @return the following json {status, results}
+ */
+async function getSportsmen(queryData, idCoach) {
     let ans = new Object();
-    let query = initQury(queryData, id);
+    let query = initQuery(queryData, idCoach);
     await dbUtils.sql(query.query)
-        .parameter('idCoach', tediousTYPES.Int, id)
+        .parameter('idCoach', tediousTYPES.Int, idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
         .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
@@ -35,12 +41,19 @@ async function getSportsmen(queryData, id) {
         });
     return ans
 }
-async function getSportsmenCount(queryData, id) {
+
+/**
+ * getting the number of sportsmen exists according to the query data
+ * @param queryData - filters to filter the result set
+ * @param idCoach - whose sportsmen to retrieve
+ * @return {status, results}
+ */
+async function getSportsmenCount(queryData, idCoach) {
     let ans = new Object();
-    let query = initQury(queryData, id);
+    let query = initQuery(queryData, idCoach);
 
     await dbUtils.sql(query.queryCount)
-        .parameter('idCoach', tediousTYPES.Int, id)
+        .parameter('idCoach', tediousTYPES.Int, idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
         .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
