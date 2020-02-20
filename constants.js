@@ -143,7 +143,8 @@ let errorMsg = {
     idNotMatchName: 'ת.ז ספורטאי לא תואמת לשם שלו',
     emptyExcel: 'קובץ ריק',
     cellEmpty: 'אנא מלא את כל התאים',
-    birthDateErr: 'תאריך לידה לא תקין'
+    birthDateErr: 'תאריך לידה לא תקין',
+    sportClubContactPhoneErr: 'טלפון איש קשר לא תקין'
 }
 
 let msg = {

@@ -263,6 +263,32 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+//---------------------------------------------Competition registration-------------------------------------------------
+app.post("/private/commonCoachManager/competitionSportsmen", async function (req, res) {
+    let ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
+    res.status(ans.status).send(ans.results)
+});
+app.post("/private/manager/competitionJudge", async function (req, res) {
+    let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId);
+    res.status(ans.status).send(ans.results)
+});
+
+app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
+    let ans = await manger_competition_module.getRegistrationState(req.body.compId);
+    res.status(ans.status).send(ans.results)
+});
+app.post("/private/manager/getJudgeRegistrationState", async function (req, res) {
+    req.query.competitionOperator = '==';
+    let registeredJudges = await manager_judge_module.getJudges(req.query);
+    req.query.competitionOperator = '!=';
+    let unRegisteredJudges = await manager_judge_module.getJudges(req.query);
+    res.status(Math.max(registeredJudges.status, unRegisteredJudges.status)).send({
+        registeredJudges : registeredJudges.results,
+        unRegisteredJudges : unRegisteredJudges.results
+    })
+});
+//----------------------------------------------------------------------------------------------------------------------
+
 //----------------------------------------------excel download----------------------------------------------------------
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let token = req.params.token;
@@ -431,15 +457,6 @@ app.post("/private/commonCoachManager/getCompetitions", async function (req, res
 });
 app.post("/private/allUsers/getCompetitionDetail", async function (req, res) {
     let ans = await common_competition_module.getDetail(req.body.id);
-    res.status(ans.status).send(ans.results)
-});
-app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
-    let ans = await manger_competition_module.getRegistrationState(req.body.compId);
-    res.status(ans.status).send(ans.results)
-
-});
-app.post("/private/commonCoachManager/competitionSportsmen", async function (req, res) {
-    let ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
     res.status(ans.status).send(ans.results)
 });
 app.get("/getCompetitions/count", async function (req, res) {

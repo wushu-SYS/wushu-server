@@ -396,6 +396,65 @@ async function getIdEvent(idComp) {
     return res;
 }
 
+async function registerJudgeToCompetition(insertJudge, deleteJudge, compId){
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(insertJudge && insertJudge[0] ? await insertJudgeToCompetitionDB(trans, insertJudge, insertJudge[0], 0, compId) : '',
+                await deleteJudgeFromCompetitionDB(trans, deleteJudge, deleteJudge[0], 0, compId)
+                    .then((result) => {
+                        ans.status = Constants.statusCode.ok;
+                        ans.results = Constants.msg.registerSuccess;
+                        trans.commitTransaction();
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        ans.status = Constants.statusCode.badRequest;
+                        ans.results = err;
+                        trans.rollbackTransaction();
+                    }))
+        })
+        .fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans
+}
+async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, compId) {
+    if (judgeDetails != undefined)
+        return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge)
+                     SELECT * FROM (select @compId as idCompetition, @id as idJudge) AS tmp
+                     WHERE NOT EXISTS (
+                     SELECT idCompetition, idJudge FROM competition_judge WHERE idCompetition = @compId and idJudge = @id)`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('id', tediousTYPES.Int, judgeDetails.id)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < insertJudge.length) {
+                    await insertJudgeToCompetitionDB(trans, insertJudge, insertJudge[i + 1], i + 1, compId)
+                }
+                return testResult
+            });
+    return;
+}
+async function deleteJudgeFromCompetitionDB(trans, deleteJudge, judgeDetails, i, compId) {
+    if (judgeDetails != undefined)
+        return trans.sql(`DELETE FROM competition_judge WHERE idCompetition=@compId and idJudge = @id;`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('id', tediousTYPES.Int, judgeDetails.id)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < deleteJudge.length)
+                    await deleteJudgeFromCompetitionDB(trans, deleteJudge, deleteJudge[i + 1], i + 1, compId)
+                return testResult
+            })
+    return;
+}
+
 module.exports.addCompetition = addCompetition;
 module.exports.getCompetitions = getCompetitions;
 module.exports.getCompetitionsCount = getCompetitionsCount;
@@ -409,3 +468,4 @@ module.exports.autoCloseRegCompetition = autoCloseRegCompetition;
 module.exports.getIdEvent = getIdEvent;
 module.exports.validateDataBeforeAddCategory = validateDataBeforeAddCategory;
 module.exports.validateCompetitionDetails = validateCompetitionDetails;
+module.exports.registerJudgeToCompetition = registerJudgeToCompetition;

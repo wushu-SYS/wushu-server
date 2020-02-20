@@ -1,5 +1,41 @@
 const pass = require("../coach/user_module")
 
+function initQueryGetJudges(queryData) {
+    let query = 'select * from user_Coach';
+
+    if (queryData){
+        if (queryData.competitionOperator === '=='){
+            query += ' join competition_judge' +
+                ' on user_Coach.id = competition_judge.idJudge' +
+                ' where competition_judge.idCompetition = @compId';
+        }
+        else if (queryData.competitionOperator === '!='){
+            query += ' except' +
+                ' select user_Coach.* from user_Coach' +
+                ' join competition_judge' +
+                ' on user_Coach.id = competition_judge.idJudge' +
+                ' where competition_judge.idCompetition = @compId';
+        }
+    }
+
+    return query
+}
+async function getJudges(queryData){
+    let query = initQueryGetJudges(queryData);
+    let ans = new Object();
+    let compId = queryData ? queryData.competitionId : undefined;
+    await dbUtils.sql(query)
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+        });
+    return ans;
+}
 
 async function insertNewJudgeDB(trans, judges, judge, number) {
     return trans.sql(` INSERT INTO user_Judge (id, firstname, lastname, phone, email,photo)
@@ -92,7 +128,7 @@ async function registerCoachAsJudge (judges){
 }
 
 
-
+module.exports.getJudges = getJudges;
 module.exports.registerNewJudge = registerNewJudge;
 module.exports.cleanCoachAsJudgeExcelData=cleanCoachAsJudgeExcelData;
 module.exports.registerCoachAsJudge=registerCoachAsJudge;

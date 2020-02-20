@@ -1,16 +1,21 @@
 const checkUserData = require("../services/commonExcelDataCheck");
 
+/**
+ * validate club's data
+ * @param data - the club details
+ * @return {status, results}
+ */
 function validateSportClubDetails(data){
     let ans = new Object();
     ans.isPassed = true;
     let err = [];
-    //clubName
-    // if (!validator.matches(data.clubName, Constants.regexHebWithSpace))
-    //     err.push(Constants.errorMsg.hebErr)
-    // //address
-    // if (!validator.matches(data.address, Constants.regexHebrewAndNumbers))
-    //     err.push(Constants.errorMsg.hebErr)
 
+    //address
+    if (!validator.matches(data.address, Constants.regexHebrewAndNumbers))
+        err.push(Constants.errorMsg.hebErr);
+    //phone
+    if(!(validator.isInt(data.phone.toString()) && data.phone.toString().length === 10))
+        err.push(Constants.errorMsg.sportClubContactPhoneErr);
 
     if (err.length != 0)
         ans.isPassed = false;
