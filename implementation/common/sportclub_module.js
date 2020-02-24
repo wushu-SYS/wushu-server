@@ -29,10 +29,19 @@ async function getDetails(clubId){
             await dbUtils.sql('select id, firstname, lastname from user_Coach where sportclub = @id')
                 .parameter('id', tediousTYPES.Int, clubId)
                 .execute()
-                .then(function (resultsCoaches) {
+                .then(async function (resultsCoaches) {
                     results[0].coaches = resultsCoaches;
-                    ans.status = Constants.statusCode.ok;
-                    ans.results = results[0]
+                    await dbUtils.sql("select id, firstname, lastname from user_Sportsman where sportclub = @id")
+                        .parameter('id', tediousTYPES.Int, clubId)
+                        .execute()
+                        .then(function (resultSportsmen) {
+                            results[0].sportsmen = resultSportsmen;
+                            ans.status = Constants.statusCode.ok;
+                            ans.results = results[0]
+                        }).fail(function (err) {
+                            ans.status = Constants.statusCode.badRequest;
+                            ans.results = err
+                        })
                 }).fail(function (err) {
                     ans.status = Constants.statusCode.badRequest;
                     ans.results = err
