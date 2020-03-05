@@ -5,20 +5,9 @@ const constants = require('./constants');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
+
 const TOKEN_PATH = __dirname+'/token.json';
 
-// Load client secrets from a local file.
-/*fs.readFile(__dirname +'/'+'credentials.json', (err, content) => {
-    if (err) return console.log('Error loading client secret file:', err);
-    // Authorize a client with credentials, then call the Google Drive API.
-    authorize(JSON.parse(content), findFolderID);
-
-});
-
- */
 
 
 
@@ -111,10 +100,44 @@ async function uploadUserPicture(auth,id,file_path,picName){
 }
 async function createGoogleDriveTreeFolder(auth,name){
     let parentsFolder = await createGoogleDriveFolder(auth,name);
-    await createSubGoogleDriveFolder(auth,constants.googleDriveFolderNames.medical,parentsFolder)
+    await createSubGoogleDriveFolder(auth,constants.googleDriveFolderNames.medical,parentsFolder);
     return parentsFolder
 }
+
+async function findFile(auth,folderId,Name){
+    const drive = google.drive({version: 'v3', auth});
+    let result= new Object();
+    result.find = false;
+    await drive.files.list({
+        q: `name='${Name}'`,
+        fields: 'nextPageToken, files(id, name)',
+        parents: [folderId]
+
+    }).then((res)=>{
+        if(res.data.files.length!=0) {
+            result.find = true
+            result.fileId= res.data.files[0].id;
+        }
+    }).catch((err)=>{
+        console.log(err)
+    });
+    return result
+}
+
+async function deleteGoogleDriveFile(auth, folderId, fileId) {
+    const drive = google.drive({version: 'v3', auth});
+    drive.files.delete({
+        'fileId':fileId,
+        parents : [folderId]
+    }).then((res)=>{
+        console.log(res)
+    }).catch((err)=>{console.log(err)})
+}
+
 async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
+    let findPreFile =await findFile(auth,folderId,picName);
+    if(findPreFile.find)
+       await deleteGoogleDriveFile(auth,folderId,findPreFile.fileId);
     const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': picName,
@@ -131,6 +154,7 @@ async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
     }).then((res)=>{
         console.log(res)
     }).catch((err)=>{console.error(err);})
+
 }
 async function createGoogleDriveFolder(auth,name){
     const drive = google.drive({version: 'v3', auth});

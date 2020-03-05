@@ -127,14 +127,16 @@ app.use("/static",
     express.static(path.join(__dirname, 'resources')));
 
 
-
+/*
 async function a() {
-    let new_path = __dirname + '/resources/profilePics/' + 'pic.jpg';
+    let new_path = __dirname + '/resources/profilePics/' + 'defalutProfileImg.jpg';
     await googleDrive.uploadUserPicture(authGoogleDrive,9899,new_path,'pic.jpg');
 
 }
 
 a()
+
+ */
 
 //----------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------app options------------------------------------------------------------------
@@ -633,8 +635,9 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let new_path = __dirname + '/resources/profilePics/' + picName;
         fs.rename(old_path, new_path, function (err) {});
 
-        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName);
-
+        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName).then((res)=>{
+            fs.unlink(new_path)
+        }).catch((err)=>{console.log(err)});
 
         //TODO: update the url for the picture and check how to display it from google drive .
         let ans = await common_user_module.updateProfilePic('/profilePics/' + id + '_pic.jpeg', id, userType);
