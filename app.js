@@ -14,11 +14,17 @@ secret = "wushuSecret";
 let schedule = require('node-schedule');
 
 global.__basedir = __dirname;
-
 let id, access;
 bcrypt = require('bcryptjs');
 saltRounds = 10;
 
+//---------------------------------------------Google-Drive-------------------------------------------------------------
+const googleDrive = require("./index");
+let googleDriveCredentials = (fs.readFileSync(__dirname +'/credentials.json'));
+googleDriveCredentials = JSON.parse(googleDriveCredentials);
+let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
+
+//----------------------------------------------------------------------------------------------------------------------
 //import all modules
 const common_couches_module = require("./implementation/common/coaches_module");
 const common_sportclub_module = require("./implementation/common/sportclub_module");
@@ -44,6 +50,7 @@ common_function = require("./implementation/commonFunc");
 const excelCreation = require("./implementation/services/excelCreation");
 const userVaildationService = require("./implementation/services/userValidations/userValidationService");
 
+
 let statusCode = {
     ok: 200,
     created: 201,
@@ -61,7 +68,7 @@ let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
 
-//app uses
+//----------------------------------------app uses----------------------------------------------------------------------
 app.use(bodyParser.urlencoded({extend: true}));
 app.use(bodyParser.json());
 app.use(cors());
@@ -114,14 +121,29 @@ app.use("/private/commonCoachManager", (req, res, next) => {
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
+
 app.use("/static",
     //TODO: I think need to get the photo from drive and if photo doen't exists send the default photo
     express.static(path.join(__dirname, 'resources')));
 
-//app options
+
+
+async function a() {
+    let new_path = __dirname + '/resources/profilePics/' + 'pic.jpg';
+    await googleDrive.uploadUserPicture(authGoogleDrive,9899,new_path,'pic.jpg');
+
+}
+
+a()
+
+//----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------app options------------------------------------------------------------------
+
 app.options('*', cors());
 
-//Login
+//----------------------------------------------------------------------------------------------------------------------
+
+//--------------------------------------------Login---------------------------------------------------------------------
 app.post("/login", async (req, res) => {
     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
     if (!ans.isPassed)
@@ -144,6 +166,8 @@ app.post("/private/changePassword", async function (req, res) {
     } else
         res.status(ans.status).send(ans.err)
 });
+
+//----------------------------------------------------------------------------------------------------------------------
 
 
 //--------------------------------------------Register------------------------------------------------------------------
@@ -499,13 +523,14 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
-        let ans = await common_user_module.deleteSportsman(req.body.userID)
+        //TODO: use sql cascade to delete sportsman
+        let ans = await common_user_module.deleteSportsman(req.body.userID);
         res.status(ans.status).send(ans.results)
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
-})
+});
 
-//TODO: DELETE COACH FROM ALL TABLE -> BY ORDER .
+//TODO: DELETE COACH FROM ALL TABLE -> BY ORDER . use sql cascade to delete coach. and check that there is no sportsman that connected to the coach.
 app.post("/private/manager/deleteCoachProfile", async function (req, res) {
 
     let ans = await manger_user_module.deleteCoach(req.body.id);
@@ -602,11 +627,16 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
     let form = new formidable.IncomingForm();
     form.parse(req, async function (err, fields, files) {
         let id = req.params.id;
+        let picName =id + '_pic.jpeg';
         let userType = req.params.userType;
-        var old_path = files.file.path;
-        var new_path = __dirname + '/resources/profilePics/' + id + '_pic.jpeg';
-        fs.rename(old_path, new_path, function (err) {
-        });
+        let old_path = files.file.path;
+        let new_path = __dirname + '/resources/profilePics/' + picName;
+        fs.rename(old_path, new_path, function (err) {});
+
+        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName);
+
+
+        //TODO: update the url for the picture and check how to display it from google drive .
         let ans = await common_user_module.updateProfilePic('/profilePics/' + id + '_pic.jpeg', id, userType);
         res.status(ans.status).send(ans.results)
     });

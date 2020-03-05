@@ -175,6 +175,10 @@ let statusCode = {
     notFound: 404,
     Conflict: 409,
     initialServerError: 500
+};
+let googleDriveFolderNames = {
+    medical :'medical insurance',
+
 }
 
 module.exports = {
@@ -199,4 +203,5 @@ module.exports = {
     colRegisterCoachExcel: colRegisterCoachExcel,
     colRegisterJudgeExcel: colRegisterJudgeExcel,
     databaseUserTableName:databaseUserTableName,
+    googleDriveFolderNames:googleDriveFolderNames
 };
