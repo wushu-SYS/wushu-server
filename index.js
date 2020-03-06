@@ -73,7 +73,6 @@ function getAccessToken(oAuth2Client){
 }
 
 async function findFolderByName(auth,name) {
-    const drive = google.drive({version: 'v3', auth});
     let result =new Object();
      await drive.files.list({
          q: `name='${name}'`,
@@ -105,7 +104,6 @@ async function createGoogleDriveTreeFolder(auth,name){
 }
 
 async function findFile(auth,folderId,Name){
-    const drive = google.drive({version: 'v3', auth});
     let result= new Object();
     result.find = false;
     await drive.files.list({
@@ -125,7 +123,6 @@ async function findFile(auth,folderId,Name){
 }
 
 async function deleteGoogleDriveFile(auth, folderId, fileId) {
-    const drive = google.drive({version: 'v3', auth});
     drive.files.delete({
         'fileId':fileId,
         parents : [folderId]
@@ -138,7 +135,6 @@ async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
     let findPreFile =await findFile(auth,folderId,picName);
     if(findPreFile.find)
        await deleteGoogleDriveFile(auth,folderId,findPreFile.fileId);
-    const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': picName,
         parents: [folderId]
@@ -157,7 +153,6 @@ async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
 
 }
 async function createGoogleDriveFolder(auth,name){
-    const drive = google.drive({version: 'v3', auth});
     let newFolderId = undefined;
     var fileMetadata = {
         'name': name,
@@ -174,7 +169,6 @@ async function createGoogleDriveFolder(auth,name){
     return newFolderId
 }
 async function createSubGoogleDriveFolder(auth,name,folderId){
-    const drive = google.drive({version: 'v3', auth});
     let newFolderId = undefined;
     var fileMetadata = {
         'name': name,
