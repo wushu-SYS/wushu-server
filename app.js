@@ -9,6 +9,7 @@ jwt = require("jsonwebtoken");
 validator = require('validator');
 let formidable = require('formidable');
 let fs = require("fs");
+const {google} = require('googleapis');
 
 secret = "wushuSecret";
 let schedule = require('node-schedule');
@@ -23,7 +24,7 @@ const googleDrive = require("./index");
 let googleDriveCredentials = (fs.readFileSync(__dirname +'/credentials.json'));
 googleDriveCredentials = JSON.parse(googleDriveCredentials);
 let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
-global.drive = google.drive({version: 'v3', authGoogleDrive});
+//global.drive = google.drive({version: 'v3', authGoogleDrive});
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -124,21 +125,6 @@ app.use("/private/commonCoachManager", (req, res, next) => {
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
 
-app.use("/static",
-    //TODO: I think need to get the photo from drive and if photo doen't exists send the default photo
-    express.static(path.join(__dirname, 'resources')));
-
-
-/*
-async function a() {
-    let new_path = __dirname + '/resources/profilePics/' + 'defalutProfileImg.jpg';
-    await googleDrive.uploadUserPicture(authGoogleDrive,9899,new_path,'pic.jpg');
-
-}
-
-a()
-
- */
 
 //----------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------app options------------------------------------------------------------------
@@ -636,13 +622,13 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let old_path = files.file.path;
         let new_path = __dirname + '/resources/profilePics/' + picName;
         fs.rename(old_path, new_path, function (err) {});
-
+        let path = undefined
         await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName).then((res)=>{
-            fs.unlink(new_path)
+            fs.unlink(new_path,function (err) {if (err) console.log(err)})
+            path = Constants.googleDrivePath +res
         }).catch((err)=>{console.log(err)});
-
         //TODO: update the url for the picture and check how to display it from google drive .
-        let ans = await common_user_module.updateProfilePic('/profilePics/' + id + '_pic.jpeg', id, userType);
+        let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
     });
 
