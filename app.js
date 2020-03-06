@@ -23,6 +23,8 @@ const googleDrive = require("./index");
 let googleDriveCredentials = (fs.readFileSync(__dirname +'/credentials.json'));
 googleDriveCredentials = JSON.parse(googleDriveCredentials);
 let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
+global.drive = google.drive({version: 'v3', authGoogleDrive});
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //import all modules
