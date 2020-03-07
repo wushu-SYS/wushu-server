@@ -2,7 +2,10 @@ let userType = {
     MANAGER: 1,
     COACH: 2,
     SPORTSMAN: 3,
-    JUDGE: 4
+    JUDGE: 4,
+    sportsman : "sportsman",
+    coach: "coach",
+    judge :"judge"
 };
 let eventType = {
     competition: 'תחרות',

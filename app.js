@@ -20,8 +20,8 @@ bcrypt = require('bcryptjs');
 saltRounds = 10;
 
 //---------------------------------------------Google-Drive-------------------------------------------------------------
-const googleDrive = require("./index");
-let googleDriveCredentials = (fs.readFileSync(__dirname +'/credentials.json'));
+const googleDrive = require("./implementation/services/googleDrive/googleDriveService");
+let googleDriveCredentials = (fs.readFileSync('./implementation/services/googleDrive/credentials.json'));
 googleDriveCredentials = JSON.parse(googleDriveCredentials);
 let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
 //global.drive = google.drive({version: 'v3', authGoogleDrive});
@@ -623,7 +623,7 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let new_path = __dirname + '/resources/profilePics/' + picName;
         fs.rename(old_path, new_path, function (err) {});
         let path = undefined
-        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName).then((res)=>{
+        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName,userType).then((res)=>{
             fs.unlink(new_path,function (err) {if (err) console.log(err)})
             path = Constants.googleDrivePath +res
         }).catch((err)=>{console.log(err)});
