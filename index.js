@@ -1,7 +1,8 @@
 const fs = require('fs');
 const readline = require('readline');
-const {google} = require('googleapis');
 const constants = require('./constants');
+const {google} = require('googleapis');
+const async = require('async')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
@@ -74,7 +75,8 @@ function getAccessToken(oAuth2Client){
 
 async function findFolderByName(auth,name) {
     let result =new Object();
-     await drive.files.list({
+    const drive = google.drive({version: 'v3', auth});
+    await drive.files.list({
          q: `name='${name}'`,
         fields: 'nextPageToken, files(id, name)',
     }).then((res)=>{
@@ -93,9 +95,17 @@ async function findFolderByName(auth,name) {
 async function uploadUserPicture(auth,id,file_path,picName){
     let res = await findFolderByName(auth,id);
     let folderId =res.folderID;
+    let fileId = undefined;
     if(!res.find)
         folderId = await createGoogleDriveTreeFolder(auth,id);
     await uploadGoogleDrivePicture(auth,folderId,file_path,picName)
+        .then(async(res)=>{
+            console.log(res)
+            fileId = res;
+            await setReadPermission(auth,fileId)
+
+        }).catch((err)=>{console.log(err)})
+    return fileId;
 }
 async function createGoogleDriveTreeFolder(auth,name){
     let parentsFolder = await createGoogleDriveFolder(auth,name);
@@ -106,6 +116,7 @@ async function createGoogleDriveTreeFolder(auth,name){
 async function findFile(auth,folderId,Name){
     let result= new Object();
     result.find = false;
+    const drive = google.drive({version: 'v3', auth});
     await drive.files.list({
         q: `name='${Name}'`,
         fields: 'nextPageToken, files(id, name)',
@@ -123,6 +134,7 @@ async function findFile(auth,folderId,Name){
 }
 
 async function deleteGoogleDriveFile(auth, folderId, fileId) {
+    const drive = google.drive({version: 'v3', auth});
     drive.files.delete({
         'fileId':fileId,
         parents : [folderId]
@@ -133,6 +145,8 @@ async function deleteGoogleDriveFile(auth, folderId, fileId) {
 
 async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
     let findPreFile =await findFile(auth,folderId,picName);
+    let fileId = undefined;
+    const drive = google.drive({version: 'v3', auth});
     if(findPreFile.find)
        await deleteGoogleDriveFile(auth,folderId,findPreFile.fileId);
     var fileMetadata = {
@@ -148,12 +162,15 @@ async function uploadGoogleDrivePicture(auth,folderId,file_path,picName){
         media: media,
         fields: 'name,id'
     }).then((res)=>{
+        fileId=res.data.id
         console.log(res)
-    }).catch((err)=>{console.error(err);})
 
+    }).catch((err)=>{console.error(err);});
+    return fileId;
 }
 async function createGoogleDriveFolder(auth,name){
     let newFolderId = undefined;
+    const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': name,
         'mimeType': 'application/vnd.google-apps.folder'
@@ -170,6 +187,7 @@ async function createGoogleDriveFolder(auth,name){
 }
 async function createSubGoogleDriveFolder(auth,name,folderId){
     let newFolderId = undefined;
+    const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': name,
         'mimeType': 'application/vnd.google-apps.folder',
@@ -186,7 +204,28 @@ async function createSubGoogleDriveFolder(auth,name,folderId){
     });
     return newFolderId
 }
+async function setReadPermission(auth,fileId){
+    const drive = google.drive({version: 'v3', auth});
+    var permission=
+        {
+            'type': 'anyone',
+            'role': 'reader'
+        }
+// Using the NPM module 'async'
+    await drive.permissions.create({
+            resource: permission,
+            fileId: fileId,
+            fields: 'id',
+        }, function (err, res) {
+            if (err) {
+                // Handle error...
+                console.error(err);
 
+            } else {
+                console.log('Permission ID: ', res.id)
+            }
+        });
+}
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
 

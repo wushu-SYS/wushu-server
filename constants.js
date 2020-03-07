@@ -179,7 +179,9 @@ let statusCode = {
 let googleDriveFolderNames = {
     medical :'medical insurance',
 
-}
+};
+let googleDrivePath = "https://drive.google.com/uc?id="
+
 
 module.exports = {
     statusCode: statusCode,
@@ -203,5 +205,6 @@ module.exports = {
     colRegisterCoachExcel: colRegisterCoachExcel,
     colRegisterJudgeExcel: colRegisterJudgeExcel,
     databaseUserTableName:databaseUserTableName,
-    googleDriveFolderNames:googleDriveFolderNames
+    googleDriveFolderNames:googleDriveFolderNames,
+    googleDrivePath:googleDrivePath
 };
