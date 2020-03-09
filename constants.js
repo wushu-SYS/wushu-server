@@ -2,7 +2,10 @@ let userType = {
     MANAGER: 1,
     COACH: 2,
     SPORTSMAN: 3,
-    JUDGE: 4
+    JUDGE: 4,
+    sportsman : "sportsman",
+    coach: "coach",
+    judge :"judge"
 };
 let eventType = {
     competition: 'תחרות',
@@ -177,10 +180,14 @@ let statusCode = {
     initialServerError: 500
 };
 let googleDriveFolderNames = {
-    medical :'medical insurance',
+    medical :'medical scan',
+    insurance :'Insurance'
 
 };
-let googleDrivePath = "https://drive.google.com/uc?id="
+let googleDrivePath = {
+    profilePicPath : "https://drive.google.com/uc?id=",
+    medicalInsurancePath :"https://drive.google.com/file/d/"
+}
 
 
 module.exports = {

@@ -167,5 +167,43 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
     return query;
 }
 
+async function updateMedicalScanDB(path, id){
+    let sql = `INSERT INTO sportman_files (id, medicalscan) VALUES (@id,@medicalScan)`;
+    if(await checkIfNeedUpdate(id))
+        sql =`UPDATE sportman_files SET medicalscan = @medicalScan Where id= @id`
+    let ans = new Object();
+    await dbUtils.sql(sql)
+        .parameter('id', tediousTYPES.Int, id)
+        .parameter('medicalScan', tediousTYPES.NVarChar, path)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = "upload"
+
+        }).fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
+async function checkIfNeedUpdate(id){
+    let sql = `SELECT * FROM sportman_files WHERE id = @id`
+    await dbUtils.sql(sql)
+        .parameter('id', tediousTYPES.Int, id)
+        .execute()
+        .then(function (results) {
+            if (results.length!=0)
+                return true
+            return false
+
+        }).fail(function (err) {
+            console.log(err)
+        });
+}
+
 module.exports.getSportsmen = getSportsmen;
 module.exports.getSportsmenCount = getSportsmenCount;
+module.exports.updateMedicalScanDB = updateMedicalScanDB;
+
