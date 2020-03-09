@@ -24,7 +24,6 @@ const googleDrive = require("./implementation/services/googleDrive/googleDriveSe
 let googleDriveCredentials = (fs.readFileSync('./implementation/services/googleDrive/credentials.json'));
 googleDriveCredentials = JSON.parse(googleDriveCredentials);
 let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
-//global.drive = google.drive({version: 'v3', authGoogleDrive});
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -614,6 +613,8 @@ app.post("/private/commonCoachManager/updateRefereeProfile", async function (req
 
 //------------------------------------------------------files-----------------------------------------------------------
 app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, res) {
+    //TODO : try to send to picture directly from the client
+    // TODO : try to limit the size of the pic +send correct status of the upload
     let form = new formidable.IncomingForm();
     form.parse(req, async function (err, fields, files) {
         let id = req.params.id;
@@ -625,14 +626,34 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let path = undefined
         await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName,userType).then((res)=>{
             fs.unlink(new_path,function (err) {if (err) console.log(err)})
-            path = Constants.googleDrivePath +res
+            path = Constants.googleDrivePath.profilePicPath +res
         }).catch((err)=>{console.log(err)});
-        //TODO: update the url for the picture and check how to display it from google drive .
         let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
     });
 
 });
+
+app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (req, res) {
+    let form = new formidable.IncomingForm();
+    let fileName =Date.now().toString()+".pdf";
+    let new_path = __dirname + '/resources/' + fileName;
+    let path ;
+    let id = req.params.id;
+    let userType = req.params.userType;
+    await form.parse(req, async function (err, fields, files) {
+        let old_path = files.file.path;
+        await fs.rename(old_path, new_path, function (err){})
+    await googleDrive.uploadSportsmanMedicalScan(authGoogleDrive,id,new_path,fileName,userType).then(async (res)=>{
+        fs.unlinkSync(new_path)
+        path = Constants.googleDrivePath.medicalInsurancePath +res +"/preview";
+        }).catch((err)=>{console.log(err)});
+        let ans = await coach_sportsman_module.updateMedicalScanDB(path, id, userType);
+        console.log(ans)
+        res.status(200).send("ok")
+    });
+});
+
 //----------------------------------------------------------------------------------------------------------------------
 
 

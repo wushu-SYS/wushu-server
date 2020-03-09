@@ -180,10 +180,14 @@ let statusCode = {
     initialServerError: 500
 };
 let googleDriveFolderNames = {
-    medical :'medical insurance',
+    medical :'medical scan',
+    insurance :'Insurance'
 
 };
-let googleDrivePath = "https://drive.google.com/uc?id="
+let googleDrivePath = {
+    profilePicPath : "https://drive.google.com/uc?id=",
+    medicalInsurancePath :"https://drive.google.com/file/d/"
+}
 
 
 module.exports = {

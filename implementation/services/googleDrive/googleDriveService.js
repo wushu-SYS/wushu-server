@@ -122,7 +122,7 @@ async function uploadUserPicture(auth,id,file_path,picName,userType){
  */
 async function createGoogleDriveTreeFolder(auth,name,userType){
     let parentsFolder = await createGoogleDriveFolder(auth,name);
-    await createSubGoogleDriveFolder(auth,parentsFolder,userType)
+    await createSubGoogleDriveFolder(auth,parentsFolder,userType);
     return parentsFolder
 }
 
@@ -136,18 +136,19 @@ async function createGoogleDriveTreeFolder(auth,name,userType){
 async function createGoogleDriveFolder(auth,name,parent){
     let newFolderId = undefined;
     let parentArr = [];
-    if (parent)
+    if (parent!=undefined)
         parentArr.push(parent)
     const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': name,
         'mimeType': 'application/vnd.google-apps.folder',
+        parents : parentArr
 
     };
+    console.log(parentArr)
     await drive.files.create({
         resource: fileMetadata,
         fields: 'name,id',
-        parents :parentArr
     }).then((res)=>{
         newFolderId=res.data.id;
     }).catch((err)=>{
@@ -165,7 +166,9 @@ async function createGoogleDriveFolder(auth,name,parent){
 async function createSubGoogleDriveFolder(auth,parentFolderId,userType){
     switch (userType) {
         case constants.userType.sportsman:
+            console.log(parentFolderId)
             await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.medical,parentFolderId);
+            await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.insurance,parentFolderId)
         case constants.userType.coach:
             break;
         case constants.userType.judge:
@@ -280,7 +283,47 @@ async function setReadPermission(auth,fileId){
         });
 }
 
+async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
+    let parentsFolder = await findFolderByName(auth,id,[]);
+    let folderId = parentsFolder.folderID;
+    let fileId = undefined;
+    if(!parentsFolder.find)
+        folderId = await createGoogleDriveTreeFolder(auth,id,userType);
+    let medicalScanFolder = await findFolderByName(auth,constants.googleDriveFolderNames.medical,[folderId]);
+    let medicalScanFolderId = medicalScanFolder.folderID
+    await uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName)
+        .then(async(res)=>{
+            fileId = res;
+            await setReadPermission(auth,fileId)
+
+        }).catch((err)=>{console.log(err)})
+    return fileId;
+}
+
+async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName){
+    let fileId = undefined;
+    const drive = google.drive({version: 'v3', auth});
+    var fileMetadata = {
+        'name': fileName,
+        parents: [medicalScanFolderId]
+    };
+    var media = {
+        mimeType: 'application/pdf',
+        body: fs.createReadStream(file_path)
+    };
+    await drive.files.create({
+        resource: fileMetadata,
+        media: media,
+        fields: 'name,id'
+    }).then((res)=>{
+        fileId=res.data.id
+
+    }).catch((err)=>{console.error(err);});
+    return fileId;
+
+}
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
+module.exports.uploadSportsmanMedicalScan = uploadSportsmanMedicalScan;
 
 
