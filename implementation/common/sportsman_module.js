@@ -50,13 +50,14 @@ async function sportsmanProfile(id) {
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
                                     join user_Coach on sportsman_coach.idCoach = user_Coach.id
                                     join sportclub on user_Sportsman.sportclub = sportclub.id
-                                    join sportman_files on sportman_files.id =@id
+                                    left join sportman_files on sportman_files.id = @id
                                     where user_Sportsman.id = @id`)
         .parameter('id', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
             ans.results = results[0]
+            console.log(results[0])
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
