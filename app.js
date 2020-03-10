@@ -633,7 +633,6 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
     });
 
 });
-
 app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName =Date.now().toString()+".pdf";
@@ -652,6 +651,19 @@ app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (re
         console.log(ans)
         res.status(200).send("ok")
     });
+});
+app.get("/downloadSportsmanMedicalScan/:fileId/:token",async function (req,res){
+    let fileId = req.params.fileId;
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    if(access in Constants.userType)
+        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,decoded.id)
+            .then((result)=>{
+                res.export(result)
+            })
+    else
+        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 
 //----------------------------------------------------------------------------------------------------------------------

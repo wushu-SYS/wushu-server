@@ -322,8 +322,26 @@ async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,f
     return fileId;
 
 }
+
+async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id){
+    const drive = google.drive({version: 'v3', auth});
+    var dest = fs.createWriteStream(homeDir+'/resources/'+id+'medicalScan.pdf');
+    drive.files.export({
+        fileId: fileId,
+        mimeType: 'application/pdf'
+    })
+        .on('end', function () {
+            console.log('Done');
+        })
+        .on('error', function (err) {
+            console.log('Error during download', err);
+        })
+        .pipe(dest);
+}
+
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
 module.exports.uploadSportsmanMedicalScan = uploadSportsmanMedicalScan;
+module.exports.downloadFileFromGoogleDrive = downloadFileFromGoogleDrive;
 
 

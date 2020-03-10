@@ -190,17 +190,18 @@ async function updateMedicalScanDB(path, id){
 
 async function checkIfNeedUpdate(id){
     let sql = `SELECT * FROM sportman_files WHERE id = @id`
+    let result =false
     await dbUtils.sql(sql)
         .parameter('id', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
             if (results.length!=0)
-                return true
-            return false
+                result= true
 
         }).fail(function (err) {
             console.log(err)
         });
+    return result
 }
 
 module.exports.getSportsmen = getSportsmen;
