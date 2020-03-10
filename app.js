@@ -658,7 +658,7 @@ app.get("/downloadSportsmanMedicalScan/:fileId/:token",async function (req,res){
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     if(access in Constants.userType)
-        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname)
+        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,decoded.id)
             .then((result)=>{
                 res.export(result)
             })

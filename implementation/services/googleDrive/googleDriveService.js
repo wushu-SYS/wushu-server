@@ -323,9 +323,9 @@ async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,f
 
 }
 
-async function downloadFileFromGoogleDrive(auth,fileId,homeDir){
+async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id){
     const drive = google.drive({version: 'v3', auth});
-    var dest = fs.createWriteStream(homeDir+'/resources/medicalScan.pdf');
+    var dest = fs.createWriteStream(homeDir+'/resources/'+id+'medicalScan.pdf');
     drive.files.export({
         fileId: fileId,
         mimeType: 'application/pdf'
