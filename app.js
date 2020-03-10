@@ -652,12 +652,12 @@ app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (re
         res.status(200).send("ok")
     });
 });
-app.get("/downloadSportsmanMedicalScan/:fileId/:token",async function (req,res){
-    let fileId = req.params.fileId;
+app.get("/downloadSportsmanMedicalScan/:token/:filePath",async function (req,res){
+    let fileId = req.params.filePath;
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    if(access in Constants.userType)
+    if(access == 1)
         await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,decoded.id)
             .then((result)=>{
                 res.export(result)
