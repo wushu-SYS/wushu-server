@@ -662,8 +662,12 @@ app.get("/downloadSportsmanMedicalScan/:token/:filePath",async function (req,res
             .then((result)=>{
                 res.export(result)
             })
+            .catch((err)=>{console.log(err)})
     else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    // //Todo:: wait until file as been created and then download
+    // res.download(__dirname+'/resources/0medicalScan.pdf')
 });
 
 //----------------------------------------------------------------------------------------------------------------------

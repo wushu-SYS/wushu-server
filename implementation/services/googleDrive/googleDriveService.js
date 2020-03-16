@@ -5,7 +5,8 @@ const fs = require('fs');
 const readline = require('readline');
 const constants = require('../../../constants');
 const {google} = require('googleapis');
-const async = require('async')
+const util = require('util');
+const isStream = require('is-stream')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
@@ -108,7 +109,7 @@ async function uploadUserPicture(auth,id,file_path,picName,userType){
     await uploadGoogleDrivePicture(auth,folderId,file_path,picName)
         .then(async(res)=>{
             fileId = res;
-            await setReadPermission(auth,fileId)
+            await setPermission(auth,fileId,'reader')
 
         }).catch((err)=>{console.log(err)})
     return fileId;
@@ -263,12 +264,12 @@ async function deleteGoogleDriveFile(auth, parentFolderId, fileId) {
  * @param auth - authentication
  * @param fileId - file id
  */
-async function setReadPermission(auth,fileId){
+async function setPermission(auth,fileId,rule){
     const drive = google.drive({version: 'v3', auth});
     var permission=
         {
             'type': 'anyone',
-            'role': 'reader'
+            'role': rule
         }
 // Using the NPM module 'async'
     await drive.permissions.create({
@@ -283,6 +284,7 @@ async function setReadPermission(auth,fileId){
         });
 }
 
+
 async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
     let parentsFolder = await findFolderByName(auth,id,[]);
     let folderId = parentsFolder.folderID;
@@ -294,7 +296,7 @@ async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
     await uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName)
         .then(async(res)=>{
             fileId = res;
-            await setReadPermission(auth,fileId)
+            await setPermission(auth,fileId,"writer")
 
         }).catch((err)=>{console.log(err)})
     return fileId;
