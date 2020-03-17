@@ -105,37 +105,7 @@ async function deleteSportsman(sportsmanId) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportsman_coach WHERE idSportman = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
             return await trans.sql(`DELETE FROM user_Passwords WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportman_files WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM competition_sportsman WHERE idSportsman = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
                 .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
                 .returnRowCount()
                 .execute();
@@ -147,6 +117,7 @@ async function deleteSportsman(sportsmanId) {
                 .execute();
         })
         .then(async function (testResult) {
+            //TODO: delete sportsman directory on drive - job name deleteSportsmanFilesFromGoogleDrive
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.userDeleted;
             trans.commitTransaction();

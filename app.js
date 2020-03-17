@@ -512,7 +512,6 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
-        //TODO: use sql cascade to delete sportsman
         let ans = await common_user_module.deleteSportsman(req.body.userID);
         res.status(ans.status).send(ans.results)
     } else
