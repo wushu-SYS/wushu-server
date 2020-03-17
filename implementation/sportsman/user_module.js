@@ -21,8 +21,9 @@ async function sendMail(req) {
 
 async function updateSportsmanProfile(sportsManDetails) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Sportsman SET firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
-                      address = @address, sex = @sex where id =@idSportsman;`)
+    console.log(sportsManDetails);
+    await dbUtils.sql(`UPDATE user_Sportsman SET id = @idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address, sex = @sex where id =@oldId;`)
         .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
         .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
         .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
@@ -31,6 +32,7 @@ async function updateSportsmanProfile(sportsManDetails) {
         .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
         .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
         .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[7])
+        .parameter('oldId', tediousTYPES.Int, sportsManDetails[8])
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;

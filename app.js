@@ -600,7 +600,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
 app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
     let ans;
     let user = req.body;
-    ans = userVaildationService.validateUserDetails(user,"Judge");
+    ans = userVaildationService.validateUserDetails(user,"judge");
     if (ans.canUpdate) {
         ans = await common_judge_module.updateRefereeProfile(common_function.getArrayFromJson(ans.data));
         res.status(ans.status).send(ans.results);

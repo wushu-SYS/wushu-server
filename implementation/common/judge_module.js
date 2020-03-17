@@ -45,12 +45,13 @@ async function getRefereeProfileById(id) {
 
 async function updateRefereeProfile(user) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Judge SET firstname = @firstName, lastname = @lastName, phone = @phone, email = @email where id =@id;`)
+    await dbUtils.sql(`UPDATE user_Judge SET id = @id, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email where id =@oldId;`)
         .parameter('id', tediousTYPES.Int, user[0])
         .parameter('firstName', tediousTYPES.NVarChar, user[1])
         .parameter('lastName', tediousTYPES.NVarChar, user[2])
         .parameter('phone', tediousTYPES.NVarChar, user[3])
         .parameter('email', tediousTYPES.NVarChar, user[4])
+        .parameter('oldId', tediousTYPES.Int, user[5])
         .execute()
         .then(function (results) {
             ans.status = constants.statusCode.ok;

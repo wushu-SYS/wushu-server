@@ -112,8 +112,8 @@ async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
  */
 async function updateCoachProfile(coachDetails) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Coach SET  firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
-                      address = @address where id =@idCoach;`)
+    await dbUtils.sql(`UPDATE user_Coach SET id = @idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+                      address = @address where id =@oldId;`)
         .parameter('idCoach', tediousTYPES.Int, coachDetails[0])
         .parameter('firstName', tediousTYPES.NVarChar, coachDetails[1])
         .parameter('lastName', tediousTYPES.NVarChar, coachDetails[2])
@@ -121,6 +121,7 @@ async function updateCoachProfile(coachDetails) {
         .parameter('email', tediousTYPES.NVarChar, coachDetails[4])
         .parameter('birthDate', tediousTYPES.Date, coachDetails[5])
         .parameter('address', tediousTYPES.NVarChar, coachDetails[6])
+        .parameter('oldId', tediousTYPES.Int, coachDetails[7])
         .execute()
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
