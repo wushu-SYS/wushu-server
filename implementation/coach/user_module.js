@@ -2,7 +2,6 @@ const common_func = require("../commonFunc");
 const constants = require("../../constants")
 
 
-
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
     return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex,photo)
                                     VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex ,@photo)`)
@@ -11,7 +10,7 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('lastName', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.lastName])
         .parameter('phone', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.phone])
         .parameter('address', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.address])
-        .parameter('birthDate', tediousTYPES.NVarChar	, sportsmanDetails[constants.colRegisterSportsmanExcel.birthDate])
+        .parameter('birthDate', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.birthDate])
         .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.email])
         .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.sportClub])
         .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sex])
@@ -112,23 +111,41 @@ async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
  */
 async function updateCoachProfile(coachDetails) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Coach SET id = @idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`UPDATE user_Coach SET id = @idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
                       address = @address where id =@oldId;`)
-        .parameter('idCoach', tediousTYPES.Int, coachDetails[0])
-        .parameter('firstName', tediousTYPES.NVarChar, coachDetails[1])
-        .parameter('lastName', tediousTYPES.NVarChar, coachDetails[2])
-        .parameter('phone', tediousTYPES.NVarChar, coachDetails[3])
-        .parameter('email', tediousTYPES.NVarChar, coachDetails[4])
-        .parameter('birthDate', tediousTYPES.Date, coachDetails[5])
-        .parameter('address', tediousTYPES.NVarChar, coachDetails[6])
-        .parameter('oldId', tediousTYPES.Int, coachDetails[7])
-        .execute()
+                .parameter('idCoach', tediousTYPES.Int, coachDetails[0])
+                .parameter('firstName', tediousTYPES.NVarChar, coachDetails[1])
+                .parameter('lastName', tediousTYPES.NVarChar, coachDetails[2])
+                .parameter('phone', tediousTYPES.NVarChar, coachDetails[3])
+                .parameter('email', tediousTYPES.NVarChar, coachDetails[4])
+                .parameter('birthDate', tediousTYPES.Date, coachDetails[5])
+                .parameter('address', tediousTYPES.NVarChar, coachDetails[6])
+                .parameter('oldId', tediousTYPES.Int, coachDetails[7])
+                .execute()
+        })
+        .then(async function (testResult) {
+            let newId = coachDetails[0];
+            let oldId = coachDetails[7];
+            if (newId != oldId) {
+                return await trans.sql(`UPDATE user_Passwords SET id = @sportsmanId WHERE id = @oldId;`)
+                    .parameter('sportsmanId', tediousTYPES.Int, newId)
+                    .parameter('oldId', tediousTYPES.Int, oldId)
+                    .returnRowCount()
+                    .execute();
+            }
+        })
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.updateUserDetails;
+            trans.commitTransaction();
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
+            trans.rollbackTransaction();
         });
     return ans;
 }

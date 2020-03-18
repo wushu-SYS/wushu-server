@@ -21,25 +21,42 @@ async function sendMail(req) {
 
 async function updateSportsmanProfile(sportsManDetails) {
     let ans = new Object();
-    console.log(sportsManDetails);
-    await dbUtils.sql(`UPDATE user_Sportsman SET id = @idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`UPDATE user_Sportsman SET id = @idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
                       address = @address, sex = @sex where id =@oldId;`)
-        .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
-        .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
-        .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
-        .parameter('phone', tediousTYPES.NVarChar, sportsManDetails[3])
-        .parameter('email', tediousTYPES.NVarChar, sportsManDetails[4])
-        .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
-        .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
-        .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[7])
-        .parameter('oldId', tediousTYPES.Int, sportsManDetails[8])
-        .execute()
+                .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
+                .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
+                .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
+                .parameter('phone', tediousTYPES.NVarChar, sportsManDetails[3])
+                .parameter('email', tediousTYPES.NVarChar, sportsManDetails[4])
+                .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
+                .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
+                .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[7])
+                .parameter('oldId', tediousTYPES.Int, sportsManDetails[8])
+                .execute()
+        })
+        .then(async function (testResult) {
+            let newId = sportsManDetails[0];
+            let oldId = sportsManDetails[8];
+            if (newId != oldId) {
+                return await trans.sql(`UPDATE user_Passwords SET id = @sportsmanId WHERE id = @oldId;`)
+                    .parameter('sportsmanId', tediousTYPES.Int, newId)
+                    .parameter('oldId', tediousTYPES.Int, oldId)
+                    .returnRowCount()
+                    .execute();
+            }
+        })
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.updateUserDetails;
+            trans.commitTransaction();
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
-            ans.results = err
+            ans.results = err;
+            trans.rollbackTransaction();
         });
     return ans;
 }
