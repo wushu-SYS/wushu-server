@@ -593,6 +593,11 @@ app.post("/private/manager/deleteCoachProfile", async function (req, res) {
     res.status(ans.status).send(ans.results)
 
 });
+
+app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
+    let ans = await manager_judge_module.deleteJudge(req.body.userID);
+    res.status(ans.status).send(ans.results)
+});
 //----------------------------------------------------------------------------------------------------------------------
 
 //-------------------------------------------------Add------------------------------------------------------------------

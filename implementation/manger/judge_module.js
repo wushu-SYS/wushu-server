@@ -127,6 +127,36 @@ async function registerCoachAsJudge (judges){
     return ans;
 }
 
+async function deleteJudge(judgeId){
+    let ans = new Object();
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @judgeId;`)
+                .parameter('judgeId', tediousTYPES.Int, judgeId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Judge WHERE id = @judgeId;`)
+                .parameter('judgeId', tediousTYPES.Int, judgeId)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            //TODO: delete judge directory on drive - job name deleteSportsmanFilesFromGoogleDrive
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.userDeleted;
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
+}
 
 async function updateCriminalRecordDB (path,id){
     let sql = `INSERT INTO judge_files (id, criminalRecord) VALUES (@id,@criminalRecord)`;
@@ -169,4 +199,5 @@ module.exports.getJudges = getJudges;
 module.exports.registerNewJudge = registerNewJudge;
 module.exports.cleanCoachAsJudgeExcelData=cleanCoachAsJudgeExcelData;
 module.exports.registerCoachAsJudge=registerCoachAsJudge;
+module.exports.deleteJudge = deleteJudge;
 module.exports.updateCriminalRecordDB=updateCriminalRecordDB;
