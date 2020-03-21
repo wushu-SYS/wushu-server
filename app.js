@@ -718,18 +718,18 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
         })
         switch (req.params.fileType) {
             case 'medicalScan' :
-                await googleDrive.uploadSportsmanFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
+                await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
                     fs.unlinkSync(new_path)
-                    path = Constants.googleDrivePath.medicalInsurancePath + res + "/preview";
+                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
                     console.log(err)
                 });
                 ans = await coach_sportsman_module.updateMedicalScanDB(path, id);
                 break;
             case 'healthInsurance' :
-                await googleDrive.uploadSportsmanFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.insurance).then(async (res) => {
+                await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.insurance).then(async (res) => {
                     fs.unlinkSync(new_path)
-                    path = Constants.googleDrivePath.medicalInsurancePath + res + "/preview";
+                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
                     console.log(err)
                 });
@@ -769,6 +769,32 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
 
     else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+});
+
+app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
+    let form = new formidable.IncomingForm();
+    let fileName = Date.now().toString() + ".pdf";
+    let new_path = __dirname + '/resources/' + fileName;
+    let path, ans;
+    let id = req.params.id;
+    await form.parse(req, async function (err, fields, files) {
+        let old_path = files.file.path;
+        await fs.rename(old_path, new_path, function (err) {
+        })
+        switch (req.params.fileType) {
+            case 'criminalRecord' :
+                await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'judge', Constants.googleDriveFolderNames.criminalRecord).then(async (res) => {
+                    fs.unlinkSync(new_path)
+                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
+                }).catch((err) => {
+                    console.log(err)
+                });
+                ans = await manager_judge_module.updateCriminalRecordDB(path, id);
+                break;
+        }
+        console.log(ans)
+        res.status(200).send("ok")
+    });
 });
 
 //----------------------------------------------------------------------------------------------------------------------

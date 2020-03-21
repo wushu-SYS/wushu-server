@@ -187,7 +187,7 @@ let googleDriveFolderNames = {
 };
 let googleDrivePath = {
     profilePicPath : "https://drive.google.com/uc?id=",
-    medicalInsurancePath :"https://drive.google.com/file/d/"
+    pdfPreviewPath :"https://drive.google.com/file/d/"
 }
 
 let googleDriveRootFoldersName ={

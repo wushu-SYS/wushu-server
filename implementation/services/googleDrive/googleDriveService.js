@@ -299,7 +299,7 @@ async function setPermission(auth,fileId,rule){
  * @param userType - using for creating directory tree (firthe first time)
  * @returns new file id
  */
-async function uploadSportsmanFile(auth,id,file_path,fileName,userType,fileType){
+async function uploadGoogleDriveFile(auth,id,file_path,fileName,userType,fileType){
     let parentsFolder = await findFolderByName(auth,id,[]);
     let folderId = parentsFolder.folderID;
     let fileId = undefined;
@@ -307,7 +307,7 @@ async function uploadSportsmanFile(auth,id,file_path,fileName,userType,fileType)
         folderId = await createGoogleDriveTreeFolder(auth,id,userType);
     let parentFolder = await findFolderByName(auth,fileType,[folderId]);
     let parentFolderID = parentFolder.folderID
-    await uploadGoogleDriveSportsmanFile(auth,parentFolderID,file_path,fileName)
+    await uploadGoogleDrivePdfFile(auth,parentFolderID,file_path,fileName)
         .then(async(res)=>{
             fileId = res;
             await setPermission(auth,fileId,"writer")
@@ -324,7 +324,7 @@ async function uploadSportsmanFile(auth,id,file_path,fileName,userType,fileType)
  * @param fileName - new file name
  * @returns file id of the created file
  */
-async function uploadGoogleDriveSportsmanFile(auth,parentFolderID,file_path,fileName){
+async function uploadGoogleDrivePdfFile(auth,parentFolderID,file_path,fileName){
     let fileId = undefined;
     const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
@@ -380,7 +380,7 @@ async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id,fileType){
 
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
-module.exports.uploadSportsmanFile = uploadSportsmanFile;
+module.exports.uploadGoogleDriveFile = uploadGoogleDriveFile;
 module.exports.downloadFileFromGoogleDrive = downloadFileFromGoogleDrive;
 
 
