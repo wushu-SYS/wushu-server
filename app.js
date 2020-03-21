@@ -400,6 +400,23 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 
 
 });
+app.get('/downloadSportsmanList/:token', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let data;
+    if (access === Constants.userType.MANAGER)
+        data = await manger_sportsman_module.getSportsmen(req.query);
+    else if (access === Constants.userType.COACH)
+        data = await coach_sportsman_module.getSportsmen(req.query, id);
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    data = data.results.sportsmen;
+    let excelFile = await excelCreation.createSportsmenExcel(data);
+    res.download(excelFile);
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -508,7 +525,7 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
 });
 //----------------------------------------------------------------------------------------------------------------------
 
-
+//TODO: when implementing delete don't forget to delete also from user_passwords table (you need 2 delete queries -> look at the implementation for the sportsmans)
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
