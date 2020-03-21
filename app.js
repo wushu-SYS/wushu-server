@@ -514,7 +514,6 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
-        //TODO: use sql cascade to delete sportsman
         let ans = await common_user_module.deleteSportsman(req.body.userID);
         res.status(ans.status).send(ans.results)
     } else
@@ -603,7 +602,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
 app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
     let ans;
     let user = req.body;
-    ans = userVaildationService.validateUserDetails(user,"Judge");
+    ans = userVaildationService.validateUserDetails(user,"judge");
     if (ans.canUpdate) {
         ans = await common_judge_module.updateRefereeProfile(common_function.getArrayFromJson(ans.data));
         res.status(ans.status).send(ans.results);

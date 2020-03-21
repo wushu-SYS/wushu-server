@@ -71,7 +71,8 @@ async function getSportsmenCount(queryData) {
 
 function buildQuery_forGetSportsman(queryData, orderBy) {
     let query = new Object();
-    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, `;
+    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, 
+                    (SELECT COUNT(*) FROM competition_sportsman WHERE competition_sportsman.idSportsman = user_Sportsman.id) AS competitionCount, `;
     if (queryData.sportStyle != undefined) {
         query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_sportStyle
             on user_Sportsman.id = sportsman_sportStyle.id`;
