@@ -467,6 +467,30 @@ async function createSportsmenExcel(sportsmen) {
     return writeExcel(workbook, (path + fileName));
 }
 
+async function createCoachExcel(coaches) {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    let row = 2;
+    for (i = 0; i < coaches.length; i++) {
+        worksheet.cell(row, 1).number(coaches[i].id).style(style);
+        worksheet.cell(row, 2).string(coaches[i].firstname).style(style);
+        worksheet.cell(row, 3).string(coaches[i].lastname).style(style);
+        worksheet.cell(row, 4).string(coaches[i].phone).style(style);
+        worksheet.cell(row, 5).string(coaches[i].email).style(style);
+        row++;
+    }
+
+    fileName = 'ייצוא מאמנים' + '.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
+
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
@@ -542,3 +566,4 @@ module.exports.createExcelRegisterCoach = createExcelRegisterCoaches;
 module.exports.createExcelCoachAsJudge = createExcelCoachAsJudge;
 module.exports.createExcelRegisterNewJudge = createExcelRegisterNewJudge;
 module.exports.createSportsmenExcel = createSportsmenExcel;
+module.exports.createCoachExcel = createCoachExcel;

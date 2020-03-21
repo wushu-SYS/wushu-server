@@ -417,6 +417,21 @@ app.get('/downloadSportsmanList/:token', async (req, res) => {
     let excelFile = await excelCreation.createSportsmenExcel(data);
     res.download(excelFile);
 });
+app.get('/downloadCoachList/:token', async (req, res) => {
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let data;
+    if (access !== Constants.userType.SPORTSMAN)
+        data = await common_couches_module.getCoaches();
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    data = data.results;
+    let excelFile = await excelCreation.createCoachExcel(data);
+    res.download(excelFile);
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 
