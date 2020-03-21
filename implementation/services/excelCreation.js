@@ -441,6 +441,79 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 }
 
+async function createSportsmenExcel(sportsmen) {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('מספר תחרויות').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('מין').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('גיל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    let row = 2;
+    for (i = 0; i < sportsmen.length; i++) {
+        worksheet.cell(row, 1).number(sportsmen[i].id).style(style);
+        worksheet.cell(row, 2).string(sportsmen[i].firstname).style(style);
+        worksheet.cell(row, 3).string(sportsmen[i].lastname).style(style);
+        worksheet.cell(row, 4).number(sportsmen[i].competitionCount).style(style);
+        worksheet.cell(row, 5).string(sportsmen[i].sex).style(style);
+        worksheet.cell(row, 6).number(sportsmen[i].age).style(style);
+        row++;
+    }
+
+    fileName = 'ייצוא ספורטאיים' + '.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
+
+async function createCoachExcel(coaches) {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    let row = 2;
+    for (i = 0; i < coaches.length; i++) {
+        worksheet.cell(row, 1).number(coaches[i].id).style(style);
+        worksheet.cell(row, 2).string(coaches[i].firstname).style(style);
+        worksheet.cell(row, 3).string(coaches[i].lastname).style(style);
+        worksheet.cell(row, 4).string(coaches[i].phone).style(style);
+        worksheet.cell(row, 5).string(coaches[i].email).style(style);
+        row++;
+    }
+
+    fileName = 'ייצוא מאמנים' + '.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
+async function createJudgeExcel(judges) {
+    let {workbook, worksheet} = createWorkBook();
+
+    worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze();
+
+    let row = 2;
+    for (i = 0; i < judges.length; i++) {
+        worksheet.cell(row, 1).number(judges[i].id).style(style);
+        worksheet.cell(row, 2).string(judges[i].firstname).style(style);
+        worksheet.cell(row, 3).string(judges[i].lastname).style(style);
+        worksheet.cell(row, 4).string(judges[i].phone).style(style);
+        worksheet.cell(row, 5).string(judges[i].email).style(style);
+        row++;
+    }
+
+    fileName = 'ייצוא שופטים' + '.xlsx';
+    return writeExcel(workbook, (path + fileName));
+}
+
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
@@ -515,3 +588,6 @@ module.exports.createExcelCompetitionState = createExcelCompetitionState;
 module.exports.createExcelRegisterCoach = createExcelRegisterCoaches;
 module.exports.createExcelCoachAsJudge = createExcelCoachAsJudge;
 module.exports.createExcelRegisterNewJudge = createExcelRegisterNewJudge;
+module.exports.createSportsmenExcel = createSportsmenExcel;
+module.exports.createCoachExcel = createCoachExcel;
+module.exports.createJudgeExcel = createJudgeExcel;
