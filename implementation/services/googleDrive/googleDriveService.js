@@ -297,15 +297,15 @@ async function setPermission(auth,fileId,rule){
  * @param userType - using for creating directory tree (firthe first time)
  * @returns new file id
  */
-async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
+async function uploadSportsmanFile(auth,id,file_path,fileName,userType,fileType){
     let parentsFolder = await findFolderByName(auth,id,[]);
     let folderId = parentsFolder.folderID;
     let fileId = undefined;
     if(!parentsFolder.find)
         folderId = await createGoogleDriveTreeFolder(auth,id,userType);
-    let medicalScanFolder = await findFolderByName(auth,constants.googleDriveFolderNames.medical,[folderId]);
-    let medicalScanFolderId = medicalScanFolder.folderID
-    await uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName)
+    let parentFolder = await findFolderByName(auth,fileType,[folderId]);
+    let parentFolderID = parentFolder.folderID
+    await uploadGoogleDriveSportsmanFile(auth,parentFolderID,file_path,fileName)
         .then(async(res)=>{
             fileId = res;
             await setPermission(auth,fileId,"writer")
@@ -322,12 +322,12 @@ async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
  * @param fileName - new file name
  * @returns file id of the created file
  */
-async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName){
+async function uploadGoogleDriveSportsmanFile(auth,parentFolderID,file_path,fileName){
     let fileId = undefined;
     const drive = google.drive({version: 'v3', auth});
     var fileMetadata = {
         'name': fileName,
-        parents: [medicalScanFolderId]
+        parents: [parentFolderID]
     };
     var media = {
         mimeType: 'application/pdf',
@@ -376,12 +376,9 @@ async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id,fileType){
     return ans;
 }
 
-
-
-
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
-module.exports.uploadSportsmanMedicalScan = uploadSportsmanMedicalScan;
+module.exports.uploadSportsmanFile = uploadSportsmanFile;
 module.exports.downloadFileFromGoogleDrive = downloadFileFromGoogleDrive;
 
 
