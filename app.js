@@ -4,12 +4,11 @@ let express = require('express');
 let app = express();
 let bodyParser = require("body-parser");
 let cors = require('cors');
-let path = require('path');
 jwt = require("jsonwebtoken");
 validator = require('validator');
 let formidable = require('formidable');
 let fs = require("fs");
-const {google} = require('googleapis');
+const util = require('util');
 
 secret = "wushuSecret";
 let schedule = require('node-schedule');
@@ -65,10 +64,12 @@ let statusCode = {
 };
 
 
-//server schedule Jobs
+//---------------------------------------server schedule Jobs-----------------------------------------------------------
 let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
+
+//----------------------------------------------------------------------------------------------------------------------
 
 //----------------------------------------app uses----------------------------------------------------------------------
 app.use(bodyParser.urlencoded({extend: true}));
@@ -161,32 +162,32 @@ app.post("/private/changePassword", async function (req, res) {
 
 //--------------------------------------------Register------------------------------------------------------------------
 app.post("/private/commonCoachManager/registerSportsmenExcel", async function (req, res) {
-        let usersToRegister = req.body;
-        if (usersToRegister.length == 0)
-            res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
-        else {
-            let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister,"sportsman");
-            if (checkData.isPassed) {
-                let registerStatus = await coach_user_module.registerSportsman(checkData.users);
-                res.status(registerStatus.status).send(registerStatus.results);
-            } else
-                res.status(statusCode.badRequest).send(checkData.results);
-        }
+    let usersToRegister = req.body;
+    if (usersToRegister.length == 0)
+        res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
+    else {
+        let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister, "sportsman");
+        if (checkData.isPassed) {
+            let registerStatus = await coach_user_module.registerSportsman(checkData.users);
+            res.status(registerStatus.status).send(registerStatus.results);
+        } else
+            res.status(statusCode.badRequest).send(checkData.results);
+    }
 });
 app.post("/private/commonCoachManager/registerSportsmanManual", async function (req, res) {
-    let user =req.body[0];
-    let ans = await userVaildationService.checkDataBeforeRegister(user,"sportsman");
-        if (ans.isPassed) {
-            ans.users = common_function.getArrayFromJson(ans.users);
-            ans = await coach_user_module.registerSportsman([ans.users]);
-            res.status(ans.status).send(ans.results);
-        } else
-            res.status(statusCode.badRequest).send(ans.results);
+    let user = req.body[0];
+    let ans = await userVaildationService.checkDataBeforeRegister(user, "sportsman");
+    if (ans.isPassed) {
+        ans.users = common_function.getArrayFromJson(ans.users);
+        ans = await coach_user_module.registerSportsman([ans.users]);
+        res.status(ans.status).send(ans.results);
+    } else
+        res.status(statusCode.badRequest).send(ans.results);
 
 });
 app.post("/private/manager/registerCoachManual", async function (req, res) {
     let user = req.body[0];
-    let ans = userVaildationService.checkDataBeforeRegister(user,"coach");
+    let ans = userVaildationService.checkDataBeforeRegister(user, "coach");
     if (ans.isPassed) {
         ans.users = common_function.getArrayFromJson(ans.users);
         ans = await manger_user_module.registerCoaches([ans.users]);
@@ -202,7 +203,7 @@ app.post("/private/manager/registerCoachExcel", async function (req, res) {
     if (usersToRegister.length == 0)
         res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
     else {
-        let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister,"coach");
+        let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister, "coach");
         if (checkData.isPassed) {
             let registerStatus = await manger_user_module.registerCoaches(checkData.users);
             res.status(registerStatus.status).send(registerStatus.results);
@@ -213,7 +214,7 @@ app.post("/private/manager/registerCoachExcel", async function (req, res) {
 app.post("/private/manager/registerJudgeManual", async function (req, res) {
     let ans;
     let user = req.body[0];
-    ans = userVaildationService.checkDataBeforeRegister(user,"judge");
+    ans = userVaildationService.checkDataBeforeRegister(user, "judge");
     if (ans.isPassed) {
         ans.users = common_function.getArrayFromJson(ans.users);
         ans = await manager_judge_module.registerNewJudge([ans.users]);
@@ -221,7 +222,6 @@ app.post("/private/manager/registerJudgeManual", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.errors)
 });
-
 
 
 app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
@@ -296,8 +296,8 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
     req.query.competitionOperator = '!=';
     let unRegisteredJudges = await manager_judge_module.getJudges(req.query);
     res.status(Math.max(registeredJudges.status, unRegisteredJudges.status)).send({
-        registeredJudges : registeredJudges.results,
-        unRegisteredJudges : unRegisteredJudges.results
+        registeredJudges: registeredJudges.results,
+        unRegisteredJudges: unRegisteredJudges.results
     })
 });
 //----------------------------------------------------------------------------------------------------------------------
@@ -306,6 +306,7 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
 //----------------------------------------------excel download----------------------------------------------------------
 
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
+    res.downloadExcel = util.promisify(res.download);
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
@@ -324,11 +325,13 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
 
     let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results, coaches.results);
 
-    res.download(excelFile);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 
 });
 app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
+    res.downloadExcel = util.promisify(res.download);
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
@@ -336,7 +339,9 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterCoach(clubs.results);
-        res.download(excelFile);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
+
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -349,7 +354,9 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterNewJudge();
-        res.download(excelFile);
+        res.downloadExcel = util.promisify(res.download);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -362,7 +369,9 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         coaches = await common_couches_module.getCoaches();
         let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
-        res.download(excelFile);
+        res.downloadExcel = util.promisify(res.download);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -381,7 +390,9 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     let categoryData = await common_sportsman_module.getCategories();
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 });
 app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
@@ -398,7 +409,9 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
     data = data.results;
     let excelFile = await excelCreation.createExcelCompetitionState(data, req.params.date);
 
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 
 });
@@ -417,7 +430,9 @@ app.get('/downloadSportsmanList/:token', async (req, res) => {
 
     data = data.results.sportsmen;
     let excelFile = await excelCreation.createSportsmenExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 app.get('/downloadCoachList/:token', async (req, res) => {
     let token = req.params.token;
@@ -432,7 +447,9 @@ app.get('/downloadCoachList/:token', async (req, res) => {
 
     data = data.results;
     let excelFile = await excelCreation.createCoachExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 app.get('/downloadJudgeList/:token', async (req, res) => {
     let token = req.params.token;
@@ -447,7 +464,9 @@ app.get('/downloadJudgeList/:token', async (req, res) => {
 
     data = data.results;
     let excelFile = await excelCreation.createJudgeExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -617,7 +636,7 @@ app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
         canEditSportsmanProfile = true;
     }
     if (canEditSportsmanProfile) {
-        let ans = userVaildationService.validateUserDetails(user,"sportsman");
+        let ans = userVaildationService.validateUserDetails(user, "sportsman");
         if (ans.canUpdate) {
             ans = await sportsman_user_module.updateSportsmanProfile(common_function.getArrayFromJson(ans.data));
             res.status(ans.status).send(ans.results)
@@ -640,7 +659,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
     let ans;
     let user = req.body
     if (id == user.id || access === Constants.userType.MANAGER) {
-        ans = userVaildationService.validateUserDetails(user,"coach")
+        ans = userVaildationService.validateUserDetails(user, "coach")
         if (ans.canUpdate) {
             ans = await coach_user_module.updateCoachProfile(common_function.getArrayFromJson(ans.data));
             res.status(ans.status).send(ans.results)
@@ -654,7 +673,7 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
 app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
     let ans;
     let user = req.body;
-    ans = userVaildationService.validateUserDetails(user,"judge");
+    ans = userVaildationService.validateUserDetails(user, "judge");
     if (ans.canUpdate) {
         ans = await common_judge_module.updateRefereeProfile(common_function.getArrayFromJson(ans.data));
         res.status(ans.status).send(ans.results);
@@ -671,52 +690,88 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
     let form = new formidable.IncomingForm();
     form.parse(req, async function (err, fields, files) {
         let id = req.params.id;
-        let picName =id + '_pic.jpeg';
+        let picName = id + '_pic.jpeg';
         let userType = req.params.userType;
         let old_path = files.file.path;
         let new_path = __dirname + '/resources/profilePics/' + picName;
-        fs.rename(old_path, new_path, function (err) {});
+        fs.rename(old_path, new_path, function (err) {
+        });
         let path = undefined
-        await googleDrive.uploadUserPicture(authGoogleDrive,id,new_path,picName,userType).then((res)=>{
-            fs.unlink(new_path,function (err) {if (err) console.log(err)})
-            path = Constants.googleDrivePath.profilePicPath +res
-        }).catch((err)=>{console.log(err)});
+        await googleDrive.uploadUserPicture(authGoogleDrive, id, new_path, picName, userType).then((res) => {
+            fs.unlink(new_path, function (err) {
+                if (err) console.log(err)
+            })
+            path = Constants.googleDrivePath.profilePicPath + res
+        }).catch((err) => {
+            console.log(err)
+        });
         let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
     });
 
 });
-app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (req, res) {
+
+app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
-    let fileName =Date.now().toString()+".pdf";
+    let fileName = Date.now().toString() + ".pdf";
     let new_path = __dirname + '/resources/' + fileName;
-    let path ;
+    let path, ans;
     let id = req.params.id;
-    let userType = req.params.userType;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
-        await fs.rename(old_path, new_path, function (err){})
-    await googleDrive.uploadSportsmanMedicalScan(authGoogleDrive,id,new_path,fileName,userType).then(async (res)=>{
-        fs.unlinkSync(new_path)
-        path = Constants.googleDrivePath.medicalInsurancePath +res +"/preview";
-        }).catch((err)=>{console.log(err)});
-        let ans = await coach_sportsman_module.updateMedicalScanDB(path, id, userType);
+        await fs.rename(old_path, new_path, function (err) {
+        })
+        switch (req.params.fileType) {
+            case 'medicalScan' :
+                await googleDrive.uploadSportsmanFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
+                    fs.unlinkSync(new_path)
+                    path = Constants.googleDrivePath.medicalInsurancePath + res + "/preview";
+                }).catch((err) => {
+                    console.log(err)
+                });
+                ans = await coach_sportsman_module.updateMedicalScanDB(path, id);
+                break;
+            case 'healthInsurance' :
+                await googleDrive.uploadSportsmanFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.insurance).then(async (res) => {
+                    fs.unlinkSync(new_path)
+                    path = Constants.googleDrivePath.medicalInsurancePath + res + "/preview";
+                }).catch((err) => {
+                    console.log(err)
+                });
+                ans = await coach_sportsman_module.updateHealthInsuranceDB(path, id);
+                break;
+        }
         console.log(ans)
         res.status(200).send("ok")
     });
 });
-app.get("/downloadSportsmanMedicalScan/:token/:filePath/:sportsmanId",async function (req,res){
-    let fileId = req.params.filePath;
+
+app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async function (req, res) {
+    let fileId = req.params.fileId;
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
-    access = decoded.access
-    //Todo:: check for premisions
-    if(access == 1)
-        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,req.params.sportsmanId,'medicalScan.pdf')
-            .then(async (result)=>{
-                res.download(result.path)
-                //todo : remove the file from the homedir
-            })
+    access = decoded.access;
+    console.log(req.params.fileType)
+    if (access == Constants.userType.MANAGER|| access==Constants.userType.COACH || decoded.id==req.params.sportsmanId)
+        switch (req.params.fileType) {
+            case 'medicalScan' :
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'medicalScan.pdf')
+                    .then(async (result) => {
+                        res.downloadMedicalScan = util.promisify(res.download);
+                        await res.downloadMedicalScan(result.path);
+                        fs.unlink(result.path,function (err) {})
+                    });
+                break;
+            case 'healthInsurance':
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'healthInsurance.pdf')
+                    .then(async (result) => {
+                        res.downloadHelathInsurance = util.promisify(res.download);
+                        await res.downloadHelathInsurance(result.path);
+                        fs.unlink(result.path,function (err) {})
+                    });
+                break;
+        }
+
     else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });

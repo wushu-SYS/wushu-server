@@ -188,6 +188,26 @@ async function updateMedicalScanDB(path, id){
         });
     return ans;
 }
+async function updateHealthInsuranceDB(path, id){
+    let sql = `INSERT INTO sportman_files (id, insurance) VALUES (@id,@insurance)`;
+    if(await checkIfNeedUpdate(id))
+        sql =`UPDATE sportman_files SET insurance = @insurance Where id= @id`;
+    let ans = new Object();
+    await dbUtils.sql(sql)
+        .parameter('id', tediousTYPES.Int, id)
+        .parameter('insurance', tediousTYPES.NVarChar, path)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = "upload"
+
+        }).fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 
 async function checkIfNeedUpdate(id){
     let sql = `SELECT * FROM sportman_files WHERE id = @id`
@@ -208,4 +228,5 @@ async function checkIfNeedUpdate(id){
 module.exports.getSportsmen = getSportsmen;
 module.exports.getSportsmenCount = getSportsmenCount;
 module.exports.updateMedicalScanDB = updateMedicalScanDB;
+module.exports.updateHealthInsuranceDB = updateHealthInsuranceDB;
 
