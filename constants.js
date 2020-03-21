@@ -181,7 +181,8 @@ let statusCode = {
 };
 let googleDriveFolderNames = {
     medical :'medical scan',
-    insurance :'Insurance'
+    insurance :'Insurance',
+    criminalRecord : 'criminal record'
 
 };
 let googleDrivePath = {
@@ -189,6 +190,11 @@ let googleDrivePath = {
     medicalInsurancePath :"https://drive.google.com/file/d/"
 }
 
+let googleDriveRootFoldersName ={
+    sportsman :'ספורטאים' ,
+    coach : 'מאמנים',
+    judge : 'שופטים'
+}
 
 module.exports = {
     statusCode: statusCode,
@@ -213,5 +219,6 @@ module.exports = {
     colRegisterJudgeExcel: colRegisterJudgeExcel,
     databaseUserTableName:databaseUserTableName,
     googleDriveFolderNames:googleDriveFolderNames,
-    googleDrivePath:googleDrivePath
+    googleDrivePath:googleDrivePath,
+    googleDriveRootFoldersName :googleDriveRootFoldersName
 };
