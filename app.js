@@ -302,7 +302,9 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
 });
 //----------------------------------------------------------------------------------------------------------------------
 
+//TODO:: REOMVE CREATED EXCEL FILE FROM HOMEDIR
 //----------------------------------------------excel download----------------------------------------------------------
+
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
@@ -698,22 +700,20 @@ app.post("/private/uploadSportsmanMedicalScan/:id/:userType", async function (re
         res.status(200).send("ok")
     });
 });
-app.get("/downloadSportsmanMedicalScan/:token/:filePath",async function (req,res){
+app.get("/downloadSportsmanMedicalScan/:token/:filePath/:sportsmanId",async function (req,res){
     let fileId = req.params.filePath;
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
-    access = decoded.access;
+    access = decoded.access
+    //Todo:: check for premisions
     if(access == 1)
-        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,decoded.id)
-            .then((result)=>{
-                res.export(result)
+        await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive,fileId,__dirname,req.params.sportsmanId,'medicalScan.pdf')
+            .then(async (result)=>{
+                res.download(result.path)
+                //todo : remove the file from the homedir
             })
-            .catch((err)=>{console.log(err)})
     else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
-
-    // //Todo:: wait until file as been created and then download
-    // res.download(__dirname+'/resources/0medicalScan.pdf')
 });
 
 //----------------------------------------------------------------------------------------------------------------------

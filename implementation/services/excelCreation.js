@@ -1,5 +1,5 @@
 let excel = require('excel4node');
-let path = './resources/files/';
+let path = './resources/';
 let fileName;
 const util = require('util');
 let option = {
