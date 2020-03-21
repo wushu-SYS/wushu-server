@@ -747,8 +747,7 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
     console.log(req.params.fileType)
-    //Todo:: check for premisions
-    if (access == 1)
+    if (access == Constants.userType.MANAGER|| access==Constants.userType.COACH || decoded.id==req.params.sportsmanId)
         switch (req.params.fileType) {
             case 'medicalScan' :
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'medicalScan.pdf')
