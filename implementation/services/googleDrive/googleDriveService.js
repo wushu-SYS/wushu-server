@@ -12,6 +12,10 @@ const isStream = require('is-stream')
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = __dirname+'/token.json';
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -284,7 +288,15 @@ async function setPermission(auth,fileId,rule){
         });
 }
 
-
+/**
+ * upload medical scan for sportaman
+ * @param auth - authentication for google drive
+ * @param id - sportsman id
+ * @param file_path - new file path
+ * @param fileName - new file name
+ * @param userType - using for creating directory tree (firthe first time)
+ * @returns new file id
+ */
 async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
     let parentsFolder = await findFolderByName(auth,id,[]);
     let folderId = parentsFolder.folderID;
@@ -302,6 +314,14 @@ async function uploadSportsmanMedicalScan(auth,id,file_path,fileName,userType){
     return fileId;
 }
 
+/**
+ * upload medical scan to google drive
+ * @param auth - authentication to google drive
+ * @param medicalScanFolderId - the id of the destination folder in google drive
+ * @param file_path - internal file path
+ * @param fileName - new file name
+ * @returns file id of the created file
+ */
 async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,fileName){
     let fileId = undefined;
     const drive = google.drive({version: 'v3', auth});
@@ -325,21 +345,39 @@ async function uploadGoogleDriveMedicalScan(auth,medicalScanFolderId,file_path,f
 
 }
 
-async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id){
+/**
+ * download file from google drive
+ * @param auth - authentication to google drive
+ * @param fileId - the requested file id
+ * @param homeDir - the internal location of the file
+ * @param id - user id
+ * @returns the requested file
+ */
+async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id,fileType){
     const drive = google.drive({version: 'v3', auth});
-    var dest = fs.createWriteStream(homeDir+'/resources/'+id+'medicalScan.pdf');
-    await drive.files.get({
-        fileId: fileId,
-        alt: 'media'
-    })
-        .on('end', function () {
-            console.log('Done');
-        })
-        .on('error', function (err) {
-            console.log('Error during download', err);
-        })
-        .pipe(dest);
+    var dest = fs.createWriteStream(homeDir+'/resources/'+id+'-'+fileType);
+    let ans = new Object()
+     await drive.files.get(
+         {fileId, alt: 'media'},
+         {responseType: 'stream'}
+     ).then(async (res) => {
+        ans = await res.data
+             .on('end', () => {
+                 console.log('Done downloading file.');
+                 return ans
+
+             })
+             .on('error', err => {
+                 console.error('Error downloading file.');
+             })
+             .pipe(dest);
+     });
+    await timeout(3500);
+    return ans;
 }
+
+
+
 
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
