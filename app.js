@@ -4,12 +4,11 @@ let express = require('express');
 let app = express();
 let bodyParser = require("body-parser");
 let cors = require('cors');
-let path = require('path');
 jwt = require("jsonwebtoken");
 validator = require('validator');
 let formidable = require('formidable');
 let fs = require("fs");
-const {google} = require('googleapis');
+const util = require('util');
 
 secret = "wushuSecret";
 let schedule = require('node-schedule');
@@ -307,6 +306,7 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
 //----------------------------------------------excel download----------------------------------------------------------
 
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
+    res.downloadExcel = util.promisify(res.download);
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
@@ -325,11 +325,13 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
 
     let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results, coaches.results);
 
-    res.download(excelFile);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 
 });
 app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
+    res.downloadExcel = util.promisify(res.download);
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
@@ -337,7 +339,9 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterCoach(clubs.results);
-        res.download(excelFile);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
+
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -350,7 +354,9 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterNewJudge();
-        res.download(excelFile);
+        res.downloadExcel = util.promisify(res.download);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -363,7 +369,9 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
     if (access === Constants.userType.MANAGER) {
         coaches = await common_couches_module.getCoaches();
         let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
-        res.download(excelFile);
+        res.downloadExcel = util.promisify(res.download);
+        await res.downloadExcel(excelFile);
+        fs.unlink(excelFile,function (err) {})
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -382,7 +390,9 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
     let categoryData = await common_sportsman_module.getCategories();
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 });
 app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
@@ -399,7 +409,9 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
     data = data.results;
     let excelFile = await excelCreation.createExcelCompetitionState(data, req.params.date);
 
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 
 
 });
@@ -418,7 +430,9 @@ app.get('/downloadSportsmanList/:token', async (req, res) => {
 
     data = data.results.sportsmen;
     let excelFile = await excelCreation.createSportsmenExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 app.get('/downloadCoachList/:token', async (req, res) => {
     let token = req.params.token;
@@ -433,7 +447,9 @@ app.get('/downloadCoachList/:token', async (req, res) => {
 
     data = data.results;
     let excelFile = await excelCreation.createCoachExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 app.get('/downloadJudgeList/:token', async (req, res) => {
     let token = req.params.token;
@@ -448,7 +464,9 @@ app.get('/downloadJudgeList/:token', async (req, res) => {
 
     data = data.results;
     let excelFile = await excelCreation.createJudgeExcel(data);
-    res.download(excelFile);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
 });
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -735,15 +753,17 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
             case 'medicalScan' :
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'medicalScan.pdf')
                     .then(async (result) => {
-                        res.download(result.path);
-                        //todo : remove the file from the homedir
+                        res.downloadMedicalScan = util.promisify(res.download);
+                        await res.downloadMedicalScan(result.path);
+                        fs.unlink(result.path,function (err) {})
                     });
                 break;
             case 'healthInsurance':
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'healthInsurance.pdf')
                     .then(async (result) => {
-                        res.download(result.path);
-                        //todo : remove the file from the homedir
+                        res.downloadHelathInsurance = util.promisify(res.download);
+                        await res.downloadHelathInsurance(result.path);
+                        fs.unlink(result.path,function (err) {})
                     });
                 break;
         }
