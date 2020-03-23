@@ -802,6 +802,29 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
     });
 });
 
+app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (req, res) {
+    let fileId = req.params.fileId;
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    console.log(req.params.fileType)
+    if (access == Constants.userType.MANAGER|| decoded.id==req.params.judgeId)
+        switch (req.params.fileType) {
+            case 'criminalRecord' :
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.judgeId, 'criminalRecord.pdf')
+                    .then(async (result) => {
+                        res.downloadMedicalScan = util.promisify(res.download);
+                        await res.downloadMedicalScan(result.path);
+                        fs.unlink(result.path,function (err) {})
+                    });
+                break;
+        }
+
+    else
+        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+});
+
+
 //----------------------------------------------------------------------------------------------------------------------
 
 
