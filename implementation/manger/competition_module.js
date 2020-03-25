@@ -426,12 +426,13 @@ async function registerJudgeToCompetition(insertJudge, deleteJudge, compId){
 }
 async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, compId) {
     if (judgeDetails != undefined)
-        return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge)
-                     SELECT * FROM (select @compId as idCompetition, @id as idJudge) AS tmp
+        return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge,isMaster)
+                     SELECT * FROM (select @compId as idCompetition, @id as idJudge ,@isMaster as isMaster) AS tmp
                      WHERE NOT EXISTS (
                      SELECT idCompetition, idJudge FROM competition_judge WHERE idCompetition = @compId and idJudge = @id)`)
             .parameter('compId', tediousTYPES.Int, compId)
             .parameter('id', tediousTYPES.Int, judgeDetails.id)
+            .parameter('isMaster', tediousTYPES.Int, judgeDetails.isMaster)
             .execute()
             .then(async function (testResult) {
                 if (i + 1 < insertJudge.length) {
