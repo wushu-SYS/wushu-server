@@ -2,6 +2,9 @@ DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
 let express = require('express');
 let app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
 let bodyParser = require("body-parser");
 let cors = require('cors');
 jwt = require("jsonwebtoken");
@@ -222,8 +225,6 @@ app.post("/private/manager/registerJudgeManual", async function (req, res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.errors)
 });
-
-
 app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
     let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
@@ -549,6 +550,11 @@ app.post("/private/commonCoachManager/getReferees", async function (req, res) {
     res.status(ans.status).send(ans.results);
 });
 
+app.post("/private/getCompetitionToJudge",async function (req,res) {
+    let ans = await manager_judge_module.getCompetitionsToJudgeById(req.judgeId);
+    res.status(ans.status).send(ans.results);
+
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -828,10 +834,23 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
 //----------------------------------------------------------------------------------------------------------------------
 
 
+let numClient = 0;
+
+io.on('connection', (client) => {
+    client.on('login', function(data) {
+        console.log("Client connected with Id = " + data.loginId )
+        numClient ++;
+    });
+    client.on('enterComp',function (data) {
+        client.join(data.roomId)
+    })
+//client id need to be saved in array when login in to compitions
+});
 //start the server
-app.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
     console.log("port 3000");
     console.log("wu-shu project");
     console.log("----------------------------------");
+
 });

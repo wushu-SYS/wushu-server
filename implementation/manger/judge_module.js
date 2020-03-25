@@ -195,9 +195,28 @@ async function checkIfNeedUpdate(id){
     return result
 }
 
+async function getCompetitionsToJudgeById(judgeId){
+    let ans = new Object();
+    let query = `select * from events join events_competition ec on events.idEvent = ec.idEvent join competition_judge on ec.idCompetition = competition_judge.idCompetition where idJudge=@judgeId`
+    await dbUtils.sql(query)
+        .parameter('judgeId', tediousTYPES.Int, judgeId)
+        .execute()
+        .then(result => {
+            ans.results =result
+            ans.status = Constants.statusCode.ok;
+        })
+        .fail((error) => {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = error;
+        });
+    return ans
+}
+
+
 module.exports.getJudges = getJudges;
 module.exports.registerNewJudge = registerNewJudge;
 module.exports.cleanCoachAsJudgeExcelData=cleanCoachAsJudgeExcelData;
 module.exports.registerCoachAsJudge=registerCoachAsJudge;
 module.exports.deleteJudge = deleteJudge;
 module.exports.updateCriminalRecordDB=updateCriminalRecordDB;
+module.exports.getCompetitionsToJudgeById=getCompetitionsToJudgeById;

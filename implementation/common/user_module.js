@@ -34,7 +34,11 @@ async function getUserDetails(userData) {
         case 3:
             result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
             break;
+        case 4:
+            result = await dbUtils.sql(`select firstname, lastname from user_Judge where id= '${userData.dbResults.id}'`).execute();
+            break;
     }
+    console.log(result[0])
     return result[0]
 
 }
