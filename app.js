@@ -551,7 +551,7 @@ app.post("/private/commonCoachManager/getReferees", async function (req, res) {
 });
 
 app.post("/private/getCompetitionToJudge",async function (req,res) {
-    let ans = await manager_judge_module.getCompetitionsToJudgeById(req.judgeId);
+    let ans = await manager_judge_module.getCompetitionsToJudgeById(id);
     res.status(ans.status).send(ans.results);
 
 });
