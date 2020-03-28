@@ -432,7 +432,7 @@ async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, c
                      SELECT idCompetition, idJudge FROM competition_judge WHERE idCompetition = @compId and idJudge = @id)`)
             .parameter('compId', tediousTYPES.Int, compId)
             .parameter('id', tediousTYPES.Int, judgeDetails.id)
-            .parameter('isMaster', tediousTYPES.Int, judgeDetails.isMaster)
+            .parameter('isMaster', tediousTYPES.Int, judgeDetails.isMaster ? judgeDetails.isMaster : 0)
             .execute()
             .then(async function (testResult) {
                 if (i + 1 < insertJudge.length) {

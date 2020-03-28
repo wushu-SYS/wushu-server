@@ -1,19 +1,19 @@
 const pass = require("../coach/user_module")
 
 function initQueryGetJudges(queryData) {
-    let query = 'select * from user_Coach';
+    let query = 'select * from user_Judge';
 
     if (queryData){
         if (queryData.competitionOperator === '=='){
             query += ' join competition_judge' +
-                ' on user_Coach.id = competition_judge.idJudge' +
+                ' on user_Judge.id = competition_judge.idJudge' +
                 ' where competition_judge.idCompetition = @compId';
         }
         else if (queryData.competitionOperator === '!='){
             query += ' except' +
-                ' select user_Coach.* from user_Coach' +
+                ' select user_Judge.* from user_Judge' +
                 ' join competition_judge' +
-                ' on user_Coach.id = competition_judge.idJudge' +
+                ' on user_Judge.id = competition_judge.idJudge' +
                 ' where competition_judge.idCompetition = @compId';
         }
     }
