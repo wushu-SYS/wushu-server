@@ -111,9 +111,10 @@ let sportsManFields = {
 
 
 let competitionStatus = {
-    close: 'סגור',
-    open: 'פתוח',
-    regclose: 'רישום סגור'
+    close: 'תחרות סגורה',
+    open: ' תחרות פתוחה',
+    regClose: 'רישום סגור',
+    inProgressComp: 'תחרות בתהליך'
 };
 
 let userError = {

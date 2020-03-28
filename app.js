@@ -72,6 +72,11 @@ let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
 
+let automaticOpenCompetitionToJudge =schedule.rescheduleJob({minute : 30},function () {
+    manger_competition_module.autoOpenCompetitionToJudge()
+
+})
+
 //----------------------------------------------------------------------------------------------------------------------
 
 //----------------------------------------app uses----------------------------------------------------------------------
