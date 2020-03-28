@@ -1,4 +1,4 @@
-const sysfunc = require("../commonFunc")
+const constants = require("/constants")
 
 function validateCompetitionDetails(eventDetails) {
     let ans = new Object();
@@ -374,7 +374,21 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
 
 function autoCloseRegCompetition() {
     console.log('Start auto closed Register to Competition');
-    dbUtils.sql(`UPDATE events_competition SET status='${Constants.competitionStatus.regclose}' WHERE closeRegDate<=Convert(Date,CURRENT_TIMESTAMP) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP) and status='${Constants.competitionStatus.open}';`)
+    dbUtils.sql(`UPDATE events_competition SET status='${constants.competitionStatus.regClose}' WHERE closeRegDate<=convert(time, (convert(time,cast(convert(datetimeoffset, GETDATE(), 121) AT TIME ZONE 'Israel Standard Time' as datetime))) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP) and status='${constants.competitionStatus.open}';`)
+        .execute()
+        .then(function (results) {
+            console.log("Finished auto closed register to competitions")
+        }).fail(function (err) {
+        console.log(err)
+    });
+}
+
+function autoOpenCompetitionToJudge() {
+    console.log('Start auto closed Register to Competition');
+    dbUtils.sql(`update events_competition set status = ${constants.competitionStatus.inProgressComp}
+                 where events_competition.idEvent IN (SELECT events_competition.idEvent from events_competition
+                 join events on events_competition.idEvent = events.idEvent
+                 where (events.date = convert(Date, current_timestamp))and events.startHour <=convert(time, (convert(time,cast(convert(datetimeoffset, GETDATE(), 121) AT TIME ZONE 'Israel Standard Time' as datetime)))))`)
         .execute()
         .then(function (results) {
             console.log("Finished auto closed register to competitions")
@@ -470,3 +484,4 @@ module.exports.getIdEvent = getIdEvent;
 module.exports.validateDataBeforeAddCategory = validateDataBeforeAddCategory;
 module.exports.validateCompetitionDetails = validateCompetitionDetails;
 module.exports.registerJudgeToCompetition = registerJudgeToCompetition;
+module.exports.autoOpenCompetitionToJudge = autoOpenCompetitionToJudge;
