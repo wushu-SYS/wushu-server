@@ -141,7 +141,6 @@ async function createGoogleDriveTreeFolder(auth,name,userType){
  */
 async function createGoogleDriveFolder(auth,name,parent){
     let newFolderId = undefined;
-    console.log(parent)
     let parentArr = [];
     if (parent!=undefined)
         parentArr.push(parent)
@@ -152,7 +151,6 @@ async function createGoogleDriveFolder(auth,name,parent){
         parents : parentArr
 
     };
-    console.log(parentArr)
     await drive.files.create({
         resource: fileMetadata,
         fields: 'name,id',

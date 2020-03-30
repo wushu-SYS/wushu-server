@@ -2,8 +2,8 @@ DButilsAzure = require('./dBUtils');
 Constants = require('./constants');
 let express = require('express');
 let app = express();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+let server = require('http').createServer(app);
+io = require('socket.io')(server);
 
 let bodyParser = require("body-parser");
 let cors = require('cors');
@@ -49,6 +49,9 @@ const manger_sportclub_module = require("./implementation/manger/sportClub_modul
 
 const judge_user_module = require("./implementation/judge/user_module");
 const sportsman_user_module = require("./implementation/sportsman/user_module");
+
+const competition_module = require("./implementation/competition/competition");
+const socket_service = require("././SocketService")
 
 common_function = require("./implementation/commonFunc");
 const excelCreation = require("./implementation/services/excelCreation");
@@ -485,7 +488,6 @@ app.post("/private/commonCoachManager/getCoachProfile", async function (req, res
         ans = await common_couches_module.getCoachProfileById(req.body.id);
     else
         ans = await common_couches_module.getCoachProfileById(id);
-    console.log(ans.results)
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/commonCoachManager/getCoaches", async function (req, res) {
@@ -762,7 +764,6 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    console.log(req.params.fileType)
     if (access == Constants.userType.MANAGER|| access==Constants.userType.COACH || decoded.id==req.params.sportsmanId)
         switch (req.params.fileType) {
             case 'medicalScan' :
@@ -808,7 +809,6 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
                 ans = await manager_judge_module.updateCriminalRecordDB(path, id);
                 break;
         }
-        console.log(ans)
         res.status(200).send("ok")
     });
 });
@@ -818,7 +818,6 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    console.log(req.params.fileType)
     if (access == Constants.userType.MANAGER|| decoded.id==req.params.judgeId)
         switch (req.params.fileType) {
             case 'criminalRecord' :
@@ -839,18 +838,7 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
 //----------------------------------------------------------------------------------------------------------------------
 
 
-let numClient = 0;
 
-io.on('connection', (client) => {
-    client.on('login', function(data) {
-        console.log("Client connected with Id = " + data.loginId )
-        numClient ++;
-    });
-    client.on('enterComp',function (data) {
-        client.join(data.roomId)
-    })
-//client id need to be saved in array when login in to compitions
-});
 //start the server
 server.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
