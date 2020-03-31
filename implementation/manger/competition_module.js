@@ -158,14 +158,14 @@ function getAllSportsman(req, res) {
 
 async function getRegistrationState(compId) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, isDeleted, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, isDeleted, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub, indx
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
                     left join category as c
                     on competition_sportsman.category = c.id
                     where competition_sportsman.idCompetition = @compId
-                    order by age, firstname`)
+                    order by indx`)
         .parameter('compId', tediousTYPES.Int, compId)
         .execute()
         .then((results) => {
@@ -181,12 +181,12 @@ async function getRegistrationState(compId) {
 
 function sortUsers(users) {
     let resultJson = [];
-    users.sort(
-        function (obj1, obj2) {
-            let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
-            let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
-            return x - y;
-        });
+    // users.sort(
+    //     function (obj1, obj2) {
+    //         let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
+    //         let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
+    //         return x - y;
+    //     });
     let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
         let currUser = users.find(u => u.category === id);
         return {
