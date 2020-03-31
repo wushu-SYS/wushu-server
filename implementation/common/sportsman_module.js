@@ -57,7 +57,6 @@ async function sportsmanProfile(id) {
         .then(function (results) {
             ans.status = Constants.statusCode.ok;
             ans.results = results[0]
-            console.log(results[0])
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
