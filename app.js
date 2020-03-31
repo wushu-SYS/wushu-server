@@ -130,11 +130,12 @@ app.use("/private/allUsers", (req, res, next) => {
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
 app.use("/private/commonCoachManager", (req, res, next) => {
-    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH)
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH ||access==Constants.userType.JUDGE)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
+
 
 
 //----------------------------------------------------------------------------------------------------------------------

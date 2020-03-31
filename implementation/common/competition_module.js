@@ -1,3 +1,5 @@
+let manger_compModule = require('../manger/competition_module');
+
 async function getDetails(compId) {
     let ans = new Object();
     await dbUtils.sql(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
@@ -70,6 +72,13 @@ async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanD
 }
 
 
+async function reRangeCompetitionSportsman(compId) {
+    let sportsmanList = (await manger_compModule.getRegistrationState(compId)).results;
+
+    console.log(sportsmanList)
+
+}
+
 async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, updateSportsman, compId) {
     let ans = new Object()
     let trans;
@@ -79,11 +88,12 @@ async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, 
             await Promise.all(insertSportsman && insertSportsman[0] ? await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0], 0, compId) : '',
                 await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId),
                     await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[0], 0, compId)
-                    .then((result) => {
+                    .then(async (result) => {
                         //sendEmail(users);
                         ans.status = Constants.statusCode.ok;
                         ans.results = Constants.msg.registerSuccess;
                         trans.commitTransaction();
+                        await reRangeCompetitionSportsman(compId)
                     })
                     .catch((err) => {
                         console.log(err)
@@ -341,3 +351,4 @@ function cheackExcelData(data, categoryData) {
     module.exports.fixCategoryExcelData = fixCategoryExcelData;
     module.exports.getDetail = getDetails;
     module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
+    module.exports.reRangeCompetitionSportsman = reRangeCompetitionSportsman;
