@@ -15,17 +15,18 @@ async function getRegisteredJudgeForCompetition(compId) {
     return ans;
 }
 
-
 async function delJudgeFromCompetition(trans, judges, judgeId, i, compId) {
-    return trans.sql(`delete from competition_judge where idJudge= @idJudge and idCompetition =@compId`)
-        .parameter('compId', tediousTYPES.Int, compId)
-        .parameter('idJudge', tediousTYPES.Int,judgeId)
-        .execute()
-        .then(async function (testResult) {
-            if (i + 1 < judges.length)
-                await delJudgeFromCompetition(trans, judges, judges[i + 1], (i + 1))
-            return testResult
-        })
+    if (judgeId != undefined)
+        return trans.sql(`delete from competition_judge where idJudge = @idJudge and idCompetition = @compId`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('idJudge', tediousTYPES.Int, judgeId)
+            .execute()
+            .then(async function (testResult) {
+                if (i < judges.length)
+                    await delJudgeFromCompetition(trans, judges, judges[i + 1], (i + 1), compId)
+                return testResult
+            })
+    return
 }
 
 async function deleteJudgesFromCompetition(compId, judges) {
@@ -34,25 +35,25 @@ async function deleteJudgesFromCompetition(compId, judges) {
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(await delJudgeFromCompetition(trans, judges, judges[0], 0, compId)
-                .then((result) => {
+            await delJudgeFromCompetition(trans, judges, judges[0], 0, compId)
+                .then(async (result) => {
                     ans.status = constants.statusCode.ok;
                     ans.results = constants.msg.competitionUpdate;
-                    trans.commitTransaction();
+                    await trans.commitTransaction();
                 })
                 .catch((err) => {
+                    console.log(err)
                     ans.status = constants.statusCode.badRequest;
                     ans.results = err;
-                    console.log(err);
                     trans.rollbackTransaction();
-                }))
+                })
         })
         .fail(function (err) {
+            console.log(err)
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            console.log(err)
             trans.rollbackTransaction();
-        });
+        })
 
     return ans
 }
