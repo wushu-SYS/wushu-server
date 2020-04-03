@@ -36,7 +36,6 @@ async function deleteJudgesFromCompetition(compId, judges) {
             trans = newTransaction;
             await Promise.all(await delJudgeFromCompetition(trans, judges, judges[0], 0, compId)
                 .then((result) => {
-                    //sendEmail(users);
                     ans.status = constants.statusCode.ok;
                     ans.results = constants.msg.competitionUpdate;
                     trans.commitTransaction();
@@ -44,7 +43,7 @@ async function deleteJudgesFromCompetition(compId, judges) {
                 .catch((err) => {
                     ans.status = constants.statusCode.badRequest;
                     ans.results = err;
-                    console.log(err)
+                    console.log(err);
                     trans.rollbackTransaction();
                 }))
         })
@@ -52,9 +51,8 @@ async function deleteJudgesFromCompetition(compId, judges) {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
             console.log(err)
-
             trans.rollbackTransaction();
-        })
+        });
 
     return ans
 }
