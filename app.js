@@ -575,6 +575,10 @@ app.post("/private/judge/getRegisteredJudgeCompetition",async function (req,res)
     let ans = await master_judge_module.getRegisteredJudgeForCompetition(req.body.compId);
     res.status(ans.status).send(ans.results)
 })
+app.post("/private/judge/deleteJudgesFromCompetition",async function (req,res){
+    let ans = await master_judge_module.deleteJudgesFromCompetition(req.body.compId,req.body.judgeIds);
+    res.status(ans.status).send(ans.results)
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 
