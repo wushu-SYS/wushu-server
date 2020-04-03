@@ -53,7 +53,7 @@ async function deleteSportsmanFromCompetitionDB(trans, insertSportsman, sportsma
 }
 
 async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanDetails, i, compId) {
-    if(sportsmanDetails != undefined)
+    if (sportsmanDetails != undefined)
         return trans.sql(`update competition_sportsman
                       set category = @category, isDeleted = @isDeleted, indx = @indx
                       where idSportsman = @idSportsman and idCompetition = @idCompetition and category = @oldCategory`)
@@ -74,9 +74,106 @@ async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanD
 
 
 async function reRangeCompetitionSportsman(compId) {
-    let sportsmanList = (await manger_compModule.getRegistrationState(compId)).results;
+    let sportsmanList = await getNewOldSportsmanRegisteredComp(compId)
+    let sportsmanNew = sportsmanList.newSportsman;
+    let sportsmanOld = sportsmanList.oldSportsman;
+    sportsmanNew.forEach((sportsman)=>{
+        let newInd =sportsmanNew.lastIndexOf(sportsman.category==sportsmanOld.category)
+        if(newInd!=-1)
+            sportsmanOld.splice(newInd+1,0,sportsman);
+        else
+            sportsmanOld.push(sportsman)
+    })
 
-    console.log(sportsmanList)
+    let indx =0
+    for (let i = 0 ; i <sportsmanOld.length;i++){
+        sportsmanOld[i].indx =indx;
+        indx++;
+    }
+    await startUpdateIndexRegistrationTrans(compId,sportsmanOld)
+
+}
+async function startUpdateIndexRegistrationTrans(compId,sportsman){
+
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await  updateIndexSportsmanRegistration(trans,sportsman,sportsman[0],0,compId)
+                    .then(async (result) => {
+                        ans.status = Constants.statusCode.ok;
+                        ans.results = Constants.msg.competitionUpdate;
+                        trans.commitTransaction();
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        ans.status = Constants.statusCode.badRequest;
+                        ans.results = err;
+                        trans.rollbackTransaction();
+                    }))
+        })
+        .fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+
+    return ans
+
+}
+async function updateIndexSportsmanRegistration(trans, sportsman, sportsmanDetails, i, compId){
+    if (sportsmanDetails != undefined)
+        return trans.sql(`update competition_sportsman set indx=@indx where idCompetition=@compId and idSportsman=@idSportsman and category=@category;`)
+            .parameter('compId', tediousTYPES.Int, compId)
+            .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails.idSportsman)
+            .parameter('category', tediousTYPES.Int, sportsmanDetails.category)
+            .parameter('indx', tediousTYPES.Int, sportsmanDetails.indx)
+            .execute()
+            .then(async function (testResult) {
+                if (i + 1 < sportsman.length)
+                    await updateIndexSportsmanRegistration(trans, sportsman, sportsman[i + 1], i + 1, compId)
+                return testResult
+            });
+    return;
+}
+
+async function getNewSportsmanRegistrationComp(compId) {
+    let res =new Object();
+    await dbUtils.sql(`select idSportsman,category, indx from competition_sportsman where idCompetition =@compId and indx=-1`)
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then((results) => {
+            res = results
+        })
+        .fail((err) => {
+            console.log(err)
+        });
+    return res
+
+}
+async function getOldSportsmanRegistrationComp(compId) {
+    let res =new Object();
+    await dbUtils.sql(`select idSportsman,category, indx from competition_sportsman where idCompetition =@compId and indx!=-1 order by indx `)
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then((results) => {
+            res = results
+        })
+        .fail((err) => {
+            console.log(err)
+        });
+    return res
+}
+
+
+async function getNewOldSportsmanRegisteredComp (compId){
+    let ans = new Object()
+    ans.newSportsman = await getNewSportsmanRegistrationComp(compId);
+    ans.oldSportsman = await getOldSportsmanRegistrationComp(compId);
+
+    return ans
 
 }
 
@@ -88,12 +185,12 @@ async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, 
             trans = newTransaction;
             await Promise.all(insertSportsman && insertSportsman[0] ? await insertSportsmanToCompetitonDB(trans, insertSportsman, insertSportsman[0], 0, compId) : '',
                 await deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId),
-                    await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[0], 0, compId)
+                await updateSportsmanInCompetitionDB(trans, updateSportsman, updateSportsman[0], 0, compId)
                     .then(async (result) => {
                         //sendEmail(users);
                         ans.status = Constants.statusCode.ok;
                         ans.results = Constants.msg.registerSuccess;
-                        trans.commitTransaction();
+                        await trans.commitTransaction();
                         await reRangeCompetitionSportsman(compId)
                     })
                     .catch((err) => {
@@ -318,38 +415,38 @@ function cheackExcelData(data, categoryData) {
             }
         }
     }
-            if (ans.results.length > 0)
-                ans.pass = false;
-            else
-                ans.pass = true;
-            return ans
+    if (ans.results.length > 0)
+        ans.pass = false;
+    else
+        ans.pass = true;
+    return ans
 }
 
 
-    function getIdFromCategroyString(line) {
-        line = line.split(" ")[line.split(" ").length - 1];
-        line = line.substring(0, line.length - 1);
-        return parseInt(line)
-    }
+function getIdFromCategroyString(line) {
+    line = line.split(" ")[line.split(" ").length - 1];
+    line = line.substring(0, line.length - 1);
+    return parseInt(line)
+}
 
-    function fixCategoryForCheck(data) {
-        let categoryMap = new Map();
-        for (let i = 0; i < data.length; i++)
-            categoryMap.set(data[i].id, {
-                minAge: data[i].minAge,
-                maxAge: data[i].maxAge ? data[i].maxAge : 100,
-                sex: data[i].sex
-            });
+function fixCategoryForCheck(data) {
+    let categoryMap = new Map();
+    for (let i = 0; i < data.length; i++)
+        categoryMap.set(data[i].id, {
+            minAge: data[i].minAge,
+            maxAge: data[i].maxAge ? data[i].maxAge : 100,
+            sex: data[i].sex
+        });
 
-        return categoryMap;
+    return categoryMap;
 
-    }
+}
 
-    module.exports.cheackExcelData = cheackExcelData;
-    module.exports.getIdsForDelete = getIdsForDelete;
-    module.exports.excelDelSportsmenDB = excelDelSportsmenDB;
-    module.exports.regExcelSportsmenCompDB = regExcelSportsmenCompDB;
-    module.exports.fixCategoryExcelData = fixCategoryExcelData;
-    module.exports.getDetail = getDetails;
-    module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
-    module.exports.reRangeCompetitionSportsman = reRangeCompetitionSportsman;
+module.exports.cheackExcelData = cheackExcelData;
+module.exports.getIdsForDelete = getIdsForDelete;
+module.exports.excelDelSportsmenDB = excelDelSportsmenDB;
+module.exports.regExcelSportsmenCompDB = regExcelSportsmenCompDB;
+module.exports.fixCategoryExcelData = fixCategoryExcelData;
+module.exports.getDetail = getDetails;
+module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
+module.exports.reRangeCompetitionSportsman = reRangeCompetitionSportsman;
