@@ -49,6 +49,7 @@ const manger_sportclub_module = require("./implementation/manger/sportClub_modul
 
 const judge_user_module = require("./implementation/judge/user_module");
 const sportsman_user_module = require("./implementation/sportsman/user_module");
+const master_judge_module = require("./implementation/judge/masterJudge");
 
 const competition_module = require("./implementation/competition/competition");
 const socket_service = require("././SocketService")
@@ -117,6 +118,14 @@ app.use("/private/sportsman", (req, res, next) => {
 });
 app.use("/private/coach", (req, res, next) => {
     if (access === Constants.userType.COACH)
+        next();
+    else
+        res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
+
+
+});
+app.use("/private/judge", (req, res, next) => {
+    if (access === Constants.userType.JUDGE)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
@@ -557,12 +566,15 @@ app.post("/private/commonCoachManager/getReferees", async function (req, res) {
     let ans = await common_judge_module.getReferees();
     res.status(ans.status).send(ans.results);
 });
-
 app.post("/private/getCompetitionToJudge",async function (req,res) {
     let ans = await manager_judge_module.getCompetitionsToJudgeById(id);
     res.status(ans.status).send(ans.results);
 
 });
+app.post("/private/judge/getRegisteredJudgeCompetition",async function (req,res){
+    let ans = await master_judge_module.getRegisteredJudgeForCompetition(req.compId);
+    res.status(ans.status).send(ans.results)
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 
