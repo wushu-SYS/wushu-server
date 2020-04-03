@@ -572,7 +572,7 @@ app.post("/private/getCompetitionToJudge",async function (req,res) {
 
 });
 app.post("/private/judge/getRegisteredJudgeCompetition",async function (req,res){
-    let ans = await master_judge_module.getRegisteredJudgeForCompetition(req.compId);
+    let ans = await master_judge_module.getRegisteredJudgeForCompetition(req.body.compId);
     res.status(ans.status).send(ans.results)
 })
 
