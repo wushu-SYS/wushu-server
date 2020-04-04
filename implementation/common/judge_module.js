@@ -31,7 +31,7 @@ async function getReferees() {
 
 async function getRefereeProfileById(id) {
     let ans = new Object();
-    await dbUtils.sql(`Select * from user_Judge join judge_files on user_Judge.id = judge_files.id where user_Judge.id = @idJudge`)
+    await dbUtils.sql(`Select user_Judge.*, criminalRecord from user_Judge left join judge_files on user_Judge.id = judge_files.id where user_Judge.id = @idJudge`)
         .parameter('idJudge', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {

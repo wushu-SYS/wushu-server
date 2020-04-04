@@ -492,14 +492,6 @@ app.get('/downloadJudgeList/:token', async (req, res) => {
 
 
 //--------------------------------------------Get details---------------------------------------------------------------
-app.post("/private/commonCoachManager/getCoachProfile", async function (req, res) {
-    let ans;
-    if (req.body.id !== undefined)
-        ans = await common_couches_module.getCoachProfileById(req.body.id);
-    else
-        ans = await common_couches_module.getCoachProfileById(id);
-    res.status(ans.status).send(ans.results)
-});
 app.post("/private/commonCoachManager/getCoaches", async function (req, res) {
     if (access !== Constants.userType.SPORTSMAN) {
         let ans = await common_couches_module.getCoaches();
@@ -584,6 +576,14 @@ app.post("/private/judge/deleteJudgesFromCompetition",async function (req,res){
 
 
 //------------------------------------------------Profile---------------------------------------------------------------
+app.post("/private/commonCoachManager/getCoachProfile", async function (req, res) {
+    let ans;
+    if (req.body.id !== undefined)
+        ans = await common_couches_module.getCoachProfileById(req.body.id);
+    else
+        ans = await common_couches_module.getCoachProfileById(id);
+    res.status(ans.status).send(ans.results)
+});
 app.post("/private/allUsers/sportsmanProfile", async function (req, res) {
     if (req.body.id !== undefined && access === Constants.userType.SPORTSMAN && id !== req.body.id)
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
