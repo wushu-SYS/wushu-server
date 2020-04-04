@@ -1,8 +1,13 @@
+const masterJudge_module = require("./implementation/judge/masterJudge");
+let connectedUsers =[];
 let startedCompetition = [];
 let nextSportsmanInCompetition=[] ;
+
+
 io.on('connection', (client) => {
     client.on('login', function (data) {
         console.log(`[LOG]-user with id ${data.userId} connected to the server , client id = ${client.id} `)
+        connectedUsers.push({userId :data.userId ,clientId: client.id});
     });
 
     client.on('judgeEnterToCompetition', function (data) {
@@ -10,11 +15,19 @@ io.on('connection', (client) => {
         client.join(`comp ${data.idComp}`)
     });
 
-    client.on('judgeMasterEnterToCompetition', function (data) {
+    client.on('judgeMasterEnterToCompetition',async function (data) {
         console.log(`[LOG]-judge master with client id ${client.id} start to competition ${data.idComp}`);
-        client.to(`comp ${data.idComp}`).emit('masterStartCompetition', {idComp: data.idComp})
-        startedCompetition.push(data.idComp)
-    })
+        let judges = (await masterJudge_module.getRegisteredJudgeForCompetition(data.idComp)).results;
+        startedCompetition.push({idComp: data.idComp, judges: judges});
+        judges.forEach((judge)=>{
+
+            let user = (connectedUsers.find((user)=>user.userId==judge.idJudge))
+            if(user !=undefined)
+                io.to(user.clientId).emit('updateCompetitionState', {idComp: data.idComp})
+        })
+        //client.to(`comp ${data.idComp}`).emit('masterStartCompetition', {idComp: data.idComp})
+
+    });
 
     client.on('isCompetitionStart', function (data) {
         console.log(`[LOG]-judge with client id ${client.id} ask if comp ${data.idComp} start `)
