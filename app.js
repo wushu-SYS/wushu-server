@@ -72,14 +72,23 @@ let statusCode = {
 
 
 //---------------------------------------server schedule Jobs-----------------------------------------------------------
+//TODO :ASK TZVI for time of schedule at the end of the project
+
 let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
-
-let automaticOpenCompetitionToJudge =schedule.rescheduleJob({minute : 30},function () {
+let automaticOpenCompetitionToJudge =schedule.scheduleJob({minute : 30},function () {
     manger_competition_module.autoOpenCompetitionToJudge()
 
 })
+
+let autoReminderForUploadCriminalRecord =schedule.scheduleJob({dayOfWeek: 0},function () {
+    manager_judge_module.autoReminderForUploadCriminalRecord()
+        .then(()=>console.log("[Log] -autoReminderForUploadCriminalRecord succeed")).catch((error => console.log(error)))
+
+})
+
+
 
 //----------------------------------------------------------------------------------------------------------------------
 

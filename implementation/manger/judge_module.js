@@ -1,5 +1,5 @@
 const pass = require("../coach/user_module")
-
+const functions_com =require("../../implementation/commonFunc")
 function initQueryGetJudges(queryData) {
     let query = 'select * from user_Judge';
 
@@ -212,6 +212,30 @@ async function getCompetitionsToJudgeById(judgeId){
     return ans
 }
 
+async function autoReminderForUploadCriminalRecord(){
+    let judges=await getJudgesForReminder();
+    judges.forEach((judge)=>{
+        console.log(`[Log] - auto reminder for judge id ${judge.id} to upload criminal record by mail`)
+        let msg = 'שלום,'+'\n'+'נא העלה רישום פלילי למערכת'+'\n'+'\n'+'תודה,'+'\n'+'מערכת או-שו'
+        functions_com.sendEmail(judge.email,msg,'מערכת אושו -תזכורת')
+    })
+
+}
+async function getJudgesForReminder(){
+    let ans = new Object();
+    await dbUtils.sql(`select user_Judge.id,email from user_Judge where user_Judge.id not in(select id from judge_files )`)
+        .execute()
+        .then(function (results) {
+            ans = results
+        }).fail(function (err) {
+            console.log(err)
+            ans = err;
+        });
+    return ans;
+}
+
+
+
 
 module.exports.getJudges = getJudges;
 module.exports.registerNewJudge = registerNewJudge;
@@ -220,3 +244,4 @@ module.exports.registerCoachAsJudge=registerCoachAsJudge;
 module.exports.deleteJudge = deleteJudge;
 module.exports.updateCriminalRecordDB=updateCriminalRecordDB;
 module.exports.getCompetitionsToJudgeById=getCompetitionsToJudgeById;
+module.exports.autoReminderForUploadCriminalRecord=autoReminderForUploadCriminalRecord;
