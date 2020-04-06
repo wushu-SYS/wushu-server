@@ -96,7 +96,20 @@ let sportType = {
     משולב : 203
 
 };
-
+let sportsmanUpdateArrayVal={
+    idSportsman: 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    email: 4,
+    birthDate: 5,
+    address: 6,
+    sex: 7,
+    oldId :8,
+    sportStyle: 9,
+    isTaullo: 10,
+    isSanda: 11
+}
 let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "Email", "IdCoach", "Sex", "SportStyle", "SportClub"];
 let sportsManFields = {
     idErr: "ת.ז. הינו שדה חובה",
@@ -230,5 +243,6 @@ module.exports = {
     googleDriveFolderNames:googleDriveFolderNames,
     googleDrivePath:googleDrivePath,
     googleDriveRootFoldersName :googleDriveRootFoldersName,
-    sportStyle: sportStyle
+    sportStyle: sportStyle,
+    sportsmanUpdateArrayVal:sportsmanUpdateArrayVal
 };

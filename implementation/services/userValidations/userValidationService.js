@@ -43,8 +43,9 @@ function sportsmanManualValidations(user, isUpdate) {
     pushErrorsToList(errList, userValidation.sportsman.emailVal(user.email));
     pushErrorsToList(errList, userValidation.sportsman.setBirthDate(user.birthDate));
     pushErrorsToList(errList, userValidation.sportsman.sexVal(user.sex));
+    pushErrorsToList(errList, userValidation.sportsman.sportStyleVal(user.sportStyle));
+
     if (!isUpdate) {
-        pushErrorsToList(errList, userValidation.sportsman.sportStyleVal(user.sportStyle));
         pushErrorsToList(errList, userValidation.sportsman.sportClubVal(user.sportClub));
         pushErrorsToList(errList, userValidation.sportsman.idCoachVal(user.idCoach));
     }
