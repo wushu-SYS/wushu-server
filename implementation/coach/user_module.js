@@ -2,6 +2,8 @@ const common_func = require("../commonFunc");
 const constants = require("../../constants")
 
 
+
+
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
     return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex,photo)
                                     VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex ,@photo)`)
@@ -14,7 +16,6 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.email])
         .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.sportClub])
         .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sex])
-        .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sportStyle])
         .parameter('photo', tediousTYPES.NVarChar, constants.defaultProfilePic)
         .execute()
         .then(async function (testResult) {
@@ -92,10 +93,11 @@ async function insertCoachDB(trans, users, sportsmanDetails, i) {
 }
 
 async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
-    return trans.sql(`INSERT INTO sportsman_sportStyle (id, sportStyle)
-                    Values (@idSportsman,@sportStyle)`)
+    return trans.sql(`INSERT INTO sportsman_sportStyle (id, taullo,sanda)
+                    Values (@idSportsman,@taullo ,@sanda)`)
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.idSportsman])
-        .parameter('sportStyle', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sportStyle])
+        .parameter('taullo', tediousTYPES.Bit, sportsmanDetails[constants.colRegisterSportsmanExcel.isTaullo])
+        .parameter('sanda', tediousTYPES.Bit, sportsmanDetails[constants.colRegisterSportsmanExcel.isSanda])
         .execute()
         .then(async function (testResults) {
             if (i + 1 < users.length)

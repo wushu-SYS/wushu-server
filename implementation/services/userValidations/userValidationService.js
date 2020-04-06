@@ -129,6 +129,8 @@ function checkExcelDataBeforeRegister(users, userType) {
             case "sportsman":
                 user[constants.colRegisterSportsmanExcel.sportClub] = getClubId(user[constants.colRegisterSportsmanExcel.sportClub]);
                 user[constants.colRegisterSportsmanExcel.idCoach] = getCoachId(user[constants.colRegisterSportsmanExcel.idCoach]);
+                user.push(common_func.setIsTaullo(user[constants.colRegisterSportsmanExcel.sportStyle]));
+                user.push(common_func.setIsSanda(user[constants.colRegisterSportsmanExcel.sportStyle]));
                 userError.errors = sportsManExcelValidations(user);
                 break;
             case "coach":
@@ -163,6 +165,8 @@ function checkDataBeforeRegister(user, userType) {
     switch (userType) {
         case "sportsman":
             user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
+            user.taullo = common_func.setIsTaullo(user.sportStyle)
+            user.sanda = common_func.setIsSanda(user.sportStyle)
             userError = new Object();
             userError.errors = sportsmanManualValidations(user, false);
             break;
@@ -172,8 +176,8 @@ function checkDataBeforeRegister(user, userType) {
             userError.errors = coachManualValidation(user, false);
             break;
         case "judge":
-            userError =new Object();
-            userError.errors = judgeManualValidation(user,false);
+            userError = new Object();
+            userError.errors = judgeManualValidation(user, false);
             break;
     }
 
@@ -203,16 +207,16 @@ function getCoachId(line) {
 
 }
 
-function validateUserDetails(user,userType) {
+function validateUserDetails(user, userType) {
     let userError;
-    switch (userType){
+    switch (userType) {
         case "sportsman":
             user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
-            userError = sportsmanManualValidations(user,true);
+            userError = sportsmanManualValidations(user, true);
             break;
         case "coach" :
             user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
-            userError = coachManualValidation(user,true);
+            userError = coachManualValidation(user, true);
             break;
         case "judge":
             userError = judgeManualValidation(user);
@@ -221,7 +225,7 @@ function validateUserDetails(user,userType) {
     }
     let ans = new Object();
     ans.canUpdate = (userError.length == 0);
-    ans.data =user;
+    ans.data = user;
     return ans
 }
 

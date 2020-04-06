@@ -1,3 +1,5 @@
+const common_func = require('../commonFunc');
+
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
     let sex = queryData.sex;
@@ -16,7 +18,8 @@ function buildConditions_forGetSportsmen(queryData, id) {
         conditions.push("(firstname like Concat('%', @value, '%') or lastname like Concat('%', @value, '%'))");
     }
     if (sportStyle !== '' && sportStyle !== undefined) {
-        conditions.push("sportStyle like @sportStyle");
+        conditions.push("taullo = @isTaullo");
+        conditions.push("sanda = @isSanda");
     }
     if (club !== '' && club !== undefined) {
         conditions.push("sportclub like @club");
@@ -44,7 +47,7 @@ function buildOrderBy_forGetSportsmen(queryData) {
 
 async function sportsmanProfile(id) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as firstname, user_Sportsman.lastname as lastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, sportStyle,sportman_files.medicalscan as medicalScan,sportman_files.insurance as insurance
+    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as firstname, user_Sportsman.lastname as lastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, taullo, sanda,sportman_files.medicalscan as medicalScan,sportman_files.insurance as insurance
                                     from user_Sportsman
                                     join sportsman_sportStyle on user_Sportsman.id = sportsman_sportStyle.id
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
@@ -55,6 +58,7 @@ async function sportsmanProfile(id) {
         .parameter('id', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
+            results[0].sportStyle = common_func.convertToSportStyle(results[0].taullo, results[0].sanda);
             ans.status = Constants.statusCode.ok;
             ans.results = results[0]
         }).fail(function (err) {

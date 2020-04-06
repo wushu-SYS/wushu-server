@@ -1,3 +1,5 @@
+const constants = require('../constants')
+
 function getArrayFromJsonArray(data) {
     var res = [];
     data.forEach(function (row) {
@@ -42,6 +44,36 @@ function getAgeRange(category){
         return category.minAge + "-" + category.maxAge;
 }
 
+function setIsTaullo(sportStyle) {
+    switch (sportStyle) {
+        case constants.sportStyle.taullo :
+            return 1;
+        case constants.sportStyle.sanda :
+            return 0;
+        case constants.sportStyle.both :
+            return 1;
+    }
+}
+
+function setIsSanda(sportStyle) {
+    switch (sportStyle) {
+        case constants.sportStyle.taullo :
+            return 0;
+        case constants.sportStyle.sanda :
+            return 1;
+        case constants.sportStyle.both :
+            return 1;
+    }
+}
+
+function convertToSportStyle(isTaullo, isSanda){
+    if(isTaullo && !isSanda)
+        return constants.sportStyle.taullo;
+    else if(!isTaullo && isSanda)
+        return constants.sportStyle.sanda;
+    else if(isTaullo && isSanda)
+        return constants.sportStyle.both;
+}
 
 
 
@@ -50,3 +82,6 @@ module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
+module.exports.setIsTaullo = setIsTaullo;
+module.exports.setIsSanda = setIsSanda;
+module.exports.convertToSportStyle = convertToSportStyle;

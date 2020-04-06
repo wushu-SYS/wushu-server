@@ -70,21 +70,12 @@ async function createExcelRegisterSportsman(clubList, coachList) {
     worksheet.addDataValidation({
         type: 'list',
         allowBlank: false,
-        prompt: 'בחר מועדון',
+        prompt: 'בחר מאמן',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'I2:I100',
+        sqref: 'K2:K100',
         formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
         style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז מאמן',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'K2:K100',
-        formulas: [9, 9],
-
     });
     worksheet.addDataValidation({
         type: 'textLength',
@@ -131,7 +122,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'J2:J100',
-        formulas: ['טאולו,סנדא'],
+        formulas: ['טאולו,סנדא,משולב'],
         style: style,
     });
     worksheet.addDataValidation({

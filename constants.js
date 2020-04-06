@@ -62,7 +62,9 @@ let colRegisterSportsmanExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
-    numCell: 11
+    isTaullo: 11,
+    isSanda: 12,
+
 
 }
 
@@ -91,6 +93,7 @@ let sexEnumCompetition = {
 let sportType = {
     טאולו: 201,
     סנדא: 202,
+    משולב : 203
 
 };
 
@@ -196,6 +199,11 @@ let googleDriveRootFoldersName ={
     coach : 'מאמנים',
     judge : 'שופטים'
 }
+let sportStyle={
+    taullo :'טאולו',
+    sanda: 'סנדא',
+    both : 'משולב'
+}
 
 module.exports = {
     statusCode: statusCode,
@@ -221,5 +229,6 @@ module.exports = {
     databaseUserTableName:databaseUserTableName,
     googleDriveFolderNames:googleDriveFolderNames,
     googleDrivePath:googleDrivePath,
-    googleDriveRootFoldersName :googleDriveRootFoldersName
+    googleDriveRootFoldersName :googleDriveRootFoldersName,
+    sportStyle: sportStyle
 };
