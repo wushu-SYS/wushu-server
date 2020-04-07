@@ -53,9 +53,9 @@ async function addSportClub(data){
 
 async function updateSportClubDetails(sportClubDetails){
     let ans = new Object();
-    await dbUtils.sql(`update sportclub set name=@name,address =@address,contactname =@contactname ,phone=@phone amutaId=@amutaId,agudaId =@agudaId
-                       ergonId=@ergonId where id = @id `)
-        .parameter('name', tediousTYPES.NVarChar, sportClubDetails.clubName)
+    await dbUtils.sql(`update sportclub set name=@name,address =@address,contactname =@contactname ,phone=@phone ,amutaId= @amutaId ,agudaId =@agudaId
+                    ,ergonId=@ergonId where id = @id `)
+        .parameter('name', tediousTYPES.NVarChar, sportClubDetails.name)
         .parameter('phone', tediousTYPES.NVarChar, sportClubDetails.phone)
         .parameter('address', tediousTYPES.NVarChar, sportClubDetails.address)
         .parameter('contactname', tediousTYPES.NVarChar, sportClubDetails.contactname)
