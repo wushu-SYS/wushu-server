@@ -1,5 +1,7 @@
 const common_func = require('../commonFunc');
 
+let numCompQuery = "(SELECT COUNT(*) FROM competition_sportsman WHERE competition_sportsman.idSportsman = user_Sportsman.id)";
+
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
     let sex = queryData.sex;
@@ -39,10 +41,19 @@ function buildConditions_forGetSportsmen(queryData, id) {
 
 function buildOrderBy_forGetSportsmen(queryData) {
     let sort = queryData.sort;
+    let numCompSort = queryData.numCompSort;
+    let orderBy = [];
+    if(numCompSort !== '' && numCompSort !== undefined) {
+        if (numCompSort === 'desc')
+            orderBy.push(`${numCompQuery} desc`);
+        else
+            orderBy.push(`${numCompQuery}`);
+    }
     if (sort !== '' && sort !== undefined && sort === 'desc')
-        return ' order by firstname desc';
+        orderBy.push('firstname desc');
     else
-        return ' order by firstname';
+        orderBy.push('firstname');
+    return ' order by ' + orderBy.join(', ');
 }
 
 async function sportsmanProfile(id) {
@@ -86,3 +97,4 @@ module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen
 module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
 module.exports.sportsmanProfile = sportsmanProfile;
 module.exports.getCategories = getCategories;
+module.exports.numCompQuery = numCompQuery;
