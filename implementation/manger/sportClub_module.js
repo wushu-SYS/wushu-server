@@ -1,4 +1,5 @@
 const checkUserData = require("../services/commonExcelDataCheck");
+const constants = require("../../constants")
 
 /**
  * validate club's data
@@ -50,5 +51,29 @@ async function addSportClub(data){
     return ans;
 }
 
+async function updateSportClubDetails(sportClubDetails){
+    let ans = new Object();
+    await dbUtils.sql(`update sportclub set name=@name,address =@address,contactname =@contactname ,phone=@phone amutaId=@amutaId,agudaId =@agudaId
+                       ergonId=@ergonId where id = @id `)
+        .parameter('name', tediousTYPES.NVarChar, sportClubDetails.clubName)
+        .parameter('phone', tediousTYPES.NVarChar, sportClubDetails.phone)
+        .parameter('address', tediousTYPES.NVarChar, sportClubDetails.address)
+        .parameter('contactname', tediousTYPES.NVarChar, sportClubDetails.contactname)
+        .parameter('amutaId', tediousTYPES.Int, sportClubDetails.amutaId ? sportClubDetails.amutaId : 999999999)
+        .parameter('agudaId', tediousTYPES.Int, sportClubDetails.agudaId)
+        .parameter('ergonId', tediousTYPES.Int, sportClubDetails.ergonId)
+        .parameter('id', tediousTYPES.Int, sportClubDetails.id)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.clubAdded;
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 module.exports.validateSportClubDetails = validateSportClubDetails;
 module.exports.addSportClub = addSportClub;
+module.exports.updateSportClubDetails = updateSportClubDetails;
+
