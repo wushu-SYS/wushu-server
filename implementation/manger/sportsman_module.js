@@ -3,11 +3,13 @@ const common_func = require('../commonFunc');
 
 function initQuery(queryData) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData);
+    let mainOrderBy = common_sportsman_module.buildOrderBy_forGetSportsmen_forRowNumber(queryData);
     let orderBy = common_sportsman_module.buildOrderBy_forGetSportsmen(queryData);
-    let query = buildQuery_forGetSportsman(queryData, orderBy);
+    let query = buildQuery_forGetSportsman(queryData, mainOrderBy);
     query.query += conditions.conditionStatement;
     query.queryCount += conditions.conditionStatement;
     query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + (conditions.limits ? conditions.limits : '');
+    query.query += orderBy;
     return query;
 }
 
@@ -21,6 +23,7 @@ async function getSportsmen(queryData) {
     queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData);
+    console.log(query);
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
