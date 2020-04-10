@@ -110,7 +110,7 @@ let sportsmanUpdateArrayVal={
     isTaullo: 10,
     isSanda: 11
 }
-let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "Email", "IdCoach", "Sex", "SportStyle", "SportClub"];
+let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "IdCoach", "Sex", "SportStyle", "SportClub"];
 let sportsManFields = {
     idErr: "ת.ז. הינו שדה חובה",
     firstNameErr: "שם פרטי הינו שדה חובה",
@@ -130,7 +130,7 @@ let competitionStatus = {
     close: 'תחרות סגורה',
     open: ' תחרות פתוחה',
     regClose: 'רישום סגור',
-    inProgressComp: 'תחרות בתהליך'
+    inProgressComp: 'תחרות בתהליך',
 };
 
 let userError = {

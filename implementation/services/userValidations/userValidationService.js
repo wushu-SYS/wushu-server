@@ -38,9 +38,9 @@ function sportsmanManualValidations(user, isUpdate) {
     pushErrorsToList(errList, userValidation.sportsman.idVal(user.id));
     pushErrorsToList(errList, userValidation.sportsman.firstNameVal(user.firstName));
     pushErrorsToList(errList, userValidation.sportsman.lastNameVal(user.lastName));
-    pushErrorsToList(errList, userValidation.sportsman.phoneVal(user.phone));
-    pushErrorsToList(errList, userValidation.sportsman.addressVal(user.address));
-    pushErrorsToList(errList, userValidation.sportsman.emailVal(user.email));
+    pushErrorsToList(errList, userValidation.sportsman.phoneVal(user.phone,constants.userType.sportsman));
+    pushErrorsToList(errList, userValidation.sportsman.addressVal(user.address,constants.userType.sportsman));
+    pushErrorsToList(errList, userValidation.sportsman.emailVal(user.email,constants.userType.sportsman));
     pushErrorsToList(errList, userValidation.sportsman.setBirthDate(user.birthDate));
     pushErrorsToList(errList, userValidation.sportsman.sexVal(user.sex));
     pushErrorsToList(errList, userValidation.sportsman.sportStyleVal(user.sportStyle));
@@ -62,8 +62,8 @@ function judgeManualValidation(user) {
     pushErrorsToList(errList, userValidation.judge.idVal(user.id));
     pushErrorsToList(errList, userValidation.judge.firstNameVal(user.firstName));
     pushErrorsToList(errList, userValidation.judge.lastNameVal(user.lastName));
-    pushErrorsToList(errList, userValidation.judge.emailVal(user.email));
-    pushErrorsToList(errList, userValidation.judge.phoneVal(user.phone));
+    pushErrorsToList(errList, userValidation.judge.emailVal(user.email,constants.userType.judge));
+    pushErrorsToList(errList, userValidation.judge.phoneVal(user.phone,constants.userType.judge));
     return errList
 
 }
@@ -79,9 +79,9 @@ function coachManualValidation(user, isUpdate) {
     pushErrorsToList(errList, userValidation.coach.idVal(user.id));
     pushErrorsToList(errList, userValidation.coach.firstNameVal(user.firstName));
     pushErrorsToList(errList, userValidation.coach.lastNameVal(user.lastName));
-    pushErrorsToList(errList, userValidation.coach.emailVal(user.email));
-    pushErrorsToList(errList, userValidation.coach.phoneVal(user.phone));
-    pushErrorsToList(errList, userValidation.coach.addressVal(user.address));
+    pushErrorsToList(errList, userValidation.coach.emailVal(user.email,constants.userType.coach));
+    pushErrorsToList(errList, userValidation.coach.phoneVal(user.phone,constants.userType.coach));
+    pushErrorsToList(errList, userValidation.coach.addressVal(user.address,constants.userType.coach));
 
     if (!isUpdate) {
         pushErrorsToList(errList, userValidation.coach.sportClubVal(user.sportClub));

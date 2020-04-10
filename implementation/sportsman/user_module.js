@@ -2,19 +2,21 @@ const common_func = require("../commonFunc")
 const userValidation = require("../services/userValidations/userValidationService")
 const constants =require("../../constants")
 
-async function sendMail(req) {
-    var subject = 'עדכון פרטי משתמש'
-    var textMsg = "שלום " + req.body.firstname + "\n" +
-        "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
-        "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-        + "שם פרטי: " + req.body.firstname + "\n"
-        + "שם משפחה: " + req.body.lastname + "\n"
-        + "כתובת מגורים: " + req.body.address + "\n"
-        + "פאלפון: " + req.body.phone + "\n"
-        + "תאריך לידה: " + req.body.birthdate + "\n"
-        + "תעודת זהות: " + req.body.id + "\n"
-        + "בברכה, מערכת או-שו"
-    await common_func.sendEmail(req.body.email, subject, textMsg)
+async function sendMail(sportsmanDetails) {
+    if(sportsmanDetails[constants.sportsmanUpdateArrayVal.email]) {
+        var subject = 'עדכון פרטי משתמש'
+        var textMsg = "שלום " +sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n" +
+            "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+            + "שם פרטי: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n"
+            + "שם משפחה: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.lastName] + "\n"
+            + "כתובת מגורים: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.address] + "\n"
+            + "פאלפון: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.phone] + "\n"
+            + "תאריך לידה: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.birthDate] + "\n"
+            + "תעודת זהות: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.idSportsman] + "\n"
+            + "בברכה, מערכת או-שו"
+        await common_func.sendEmail(sportsmanDetails[constants.sportsmanUpdateArrayVal.email], subject, textMsg)
+    }
 }
 
 
@@ -61,6 +63,7 @@ async function updateSportsmanProfile(sportsManDetails) {
 
         })
         .then(function (results) {
+            //sendMail(sportsManDetails)
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.updateUserDetails;
             trans.commitTransaction();

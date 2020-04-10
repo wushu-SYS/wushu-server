@@ -50,7 +50,8 @@ async function updateRefereeProfile(user) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`UPDATE user_Judge SET id = @id, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email where id =@oldId;`).parameter('id', tediousTYPES.Int, user[0])
+            return await trans.sql(`UPDATE user_Judge SET id = @id, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email where id =@oldId;`)
+                .parameter('id', tediousTYPES.Int, user[0])
                 .parameter('firstName', tediousTYPES.NVarChar, user[1])
                 .parameter('lastName', tediousTYPES.NVarChar, user[2])
                 .parameter('phone', tediousTYPES.NVarChar, user[3])
@@ -70,6 +71,7 @@ async function updateRefereeProfile(user) {
             }
         })
         .then(function (results) {
+            //sendJudgeUpdateEmail(user)
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.updateUserDetails;
             trans.commitTransaction();
@@ -80,7 +82,20 @@ async function updateRefereeProfile(user) {
         });
     return ans;
 }
-
+async function sendJudgeUpdateEmail(user){
+    if(user[4]) {
+        var subject = 'עדכון פרטי משתמש'
+        var textMsg = "שלום " +user[1] + "\n" +
+            "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+            + "שם פרטי: " + user[1] + "\n"
+            + "שם משפחה: " + user[2] + "\n"
+            + "פאלפון: " + user[3] + "\n"
+            + "תעודת זהות: " + user[0] + "\n"
+            + "בברכה, מערכת או-שו"
+        await common_func.sendEmail(coachDetails[0], subject, textMsg)
+    }
+}
 
 module.exports.getReferees = getReferees;
 module.exports.getJudgesToRegister = getJudgesToRegister;

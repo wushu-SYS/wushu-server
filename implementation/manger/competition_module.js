@@ -374,7 +374,11 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
 
 function autoCloseRegCompetition() {
     console.log('Start auto closed Register to Competition');
-    dbUtils.sql(`UPDATE events_competition SET status='${constants.competitionStatus.regClose}' WHERE closeRegDate<=convert(time, (convert(time,cast(convert(datetimeoffset, GETDATE(), 121) AT TIME ZONE 'Israel Standard Time' as datetime))) and closeRegTime<=Convert(TIME,CURRENT_TIMESTAMP) and status='${constants.competitionStatus.open}';`)
+    dbUtils.sql(`UPDATE events_competition
+                SET status='${constants.competitionStatus.close}'
+                WHERE closeRegDate <= cast(convert(datetimeoffset, GETDATE(), 121) AT TIME ZONE 'Israel Standard Time' as datetime)
+                 and closeRegTime <= Convert(TIME, CURRENT_TIMESTAMP)
+                 and status = '${constants.competitionStatus.open}';`)
         .execute()
         .then(function (results) {
             console.log("Finished auto closed register to competitions")
@@ -385,7 +389,7 @@ function autoCloseRegCompetition() {
 
 function autoOpenCompetitionToJudge() {
     console.log('Start auto closed Register to Competition');
-    dbUtils.sql(`update events_competition set status = ${constants.competitionStatus.inProgressComp}
+    dbUtils.sql(`update events_competition set status = '${constants.competitionStatus.inProgressComp}'
                  where events_competition.idEvent IN (SELECT events_competition.idEvent from events_competition
                  join events on events_competition.idEvent = events.idEvent
                  where (events.date = convert(Date, current_timestamp))and events.startHour <=convert(time, (convert(time,cast(convert(datetimeoffset, GETDATE(), 121) AT TIME ZONE 'Israel Standard Time' as datetime)))))`)
@@ -410,7 +414,7 @@ async function getIdEvent(idComp) {
     return res;
 }
 
-async function registerJudgeToCompetition(insertJudge, deleteJudge, compId){
+async function registerJudgeToCompetition(insertJudge, deleteJudge, compId) {
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
@@ -438,6 +442,7 @@ async function registerJudgeToCompetition(insertJudge, deleteJudge, compId){
         })
     return ans
 }
+
 async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, compId) {
     if (judgeDetails != undefined)
         return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge,isMaster)
@@ -456,6 +461,7 @@ async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, c
             });
     return;
 }
+
 async function deleteJudgeFromCompetitionDB(trans, deleteJudge, judgeDetails, i, compId) {
     if (judgeDetails != undefined)
         return trans.sql(`DELETE FROM competition_judge WHERE idCompetition=@compId and idJudge = @id;`)

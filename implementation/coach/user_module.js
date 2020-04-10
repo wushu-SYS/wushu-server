@@ -141,6 +141,7 @@ async function updateCoachProfile(coachDetails) {
             }
         })
         .then(function (results) {
+            //sendUpdateEmail(coachDetails)
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.updateUserDetails;
             trans.commitTransaction();
@@ -155,23 +156,42 @@ async function updateCoachProfile(coachDetails) {
 async function sendEmail(users) {
     var subject = 'רישום משתמש חדש wuhsu'
     users.forEach((user) => {
-        var textMsg = "שלום " + user[constants.colRegisterSportsmanExcel.firstName] + "\n" +
-            "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
-            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-            + "שם פרטי: " + user[constants.colRegisterSportsmanExcel.firstName] + "\n"
-            + "שם משפחה: " + user[constants.colRegisterSportsmanExcel.lastName] + "\n"
-            + "כתובת מגורים: " + user[constants.colRegisterSportsmanExcel.address] + "\n"
-            + "פאלפון: " + user[constants.colRegisterSportsmanExcel.phone] + "\n"
-            + "תאריך לידהי: " + user[constants.colRegisterSportsmanExcel.birthDate] + "\n"
-            + "תעודת זהות: " + user[constants.colRegisterSportsmanExcel.idSportsman] + "\n"
-            + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
-            + "בברכה, " + "\n" +
-            "מערכת או-שו"
-        common_func.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
+        if (user[constants.colRegisterSportsmanExcel.email]) {
+            var textMsg = "שלום " + user[constants.colRegisterSportsmanExcel.firstName] + "\n" +
+                "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
+                "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+                + "שם פרטי: " + user[constants.colRegisterSportsmanExcel.firstName] + "\n"
+                + "שם משפחה: " + user[constants.colRegisterSportsmanExcel.lastName] + "\n"
+                + "כתובת מגורים: " + user[constants.colRegisterSportsmanExcel.address] + "\n"
+                + "פאלפון: " + user[constants.colRegisterSportsmanExcel.phone] + "\n"
+                + "תאריך לידהי: " + user[constants.colRegisterSportsmanExcel.birthDate] + "\n"
+                + "תעודת זהות: " + user[constants.colRegisterSportsmanExcel.idSportsman] + "\n"
+                + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
+                + "בברכה, " + "\n" +
+                "מערכת או-שו"
+            common_func.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
+        }
     })
-
-
 }
+
+
+async function sendUpdateEmail(coachDetails) {
+        if(coachDetails[4]) {
+            var subject = 'עדכון פרטי משתמש'
+            var textMsg = "שלום " +coachDetails[1] + "\n" +
+                "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+                "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+                + "שם פרטי: " + coachDetails[1] + "\n"
+                + "שם משפחה: " + coachDetails[2] + "\n"
+                + "כתובת מגורים: " + coachDetails[6] + "\n"
+                + "פאלפון: " + coachDetails[3] + "\n"
+                + "תאריך לידה: " + coachDetails[5] + "\n"
+                + "תעודת זהות: " + coachDetails[0] + "\n"
+                + "בברכה, מערכת או-שו"
+            await common_func.sendEmail(coachDetails[0], subject, textMsg)
+        }
+    }
+
 
 module.exports.registerSportsman = registerSportsman;
 module.exports.updateCoachProfile = updateCoachProfile;

@@ -3,11 +3,11 @@
  */
 const constants = require("../../../constants")
 
-function checkId(id) {
+function checkId(id, userType) {
     if (id != null) {
         if (!(validator.isInt(id.toString()) && id.toString().length == 9))
             return constants.userError.idErr
-    } else if (constants.sportsManMandatoryFields.includes("Id"))
+    } else
         return constants.sportsManFields.idErr
 }
 
@@ -15,7 +15,7 @@ function checkFirstName(firstName) {
     if (firstName != null) {
         if (!(validator.matches(firstName.toString(), constants.constRegex.regexHeb) && firstName.toString().length > 0))
             return constants.userError.firstNameHebErr
-    } else if (constants.sportsManMandatoryFields.includes("FirstName"))
+    } else
         return constants.sportsManFields.firstNameErr
 }
 
@@ -23,32 +23,46 @@ function checkLastName(lastName) {
     if (lastName != null) {
         if (!(validator.matches(lastName.toString(), constants.constRegex.regexHeb) && lastName.toString().length > 0))
             return constants.userError.lastNameHebErr
-    } else if (constants.sportsManMandatoryFields.includes("LastName"))
+    } else
         return constants.sportsManFields.lastNameErr
 }
 
-function checkAddress(address) {
+function checkAddress(address, userType) {
     if (address != null) {
         if (!(validator.matches(address.toString(), constants.constRegex.regexHebrewAndNumbers) && address.toString().length > 0))
             return constants.userError.addressErr
-    } else if (constants.sportsManMandatoryFields.includes("Address"))
-        return constants.sportsManFields.addressErr
+    } else switch (userType) {
+        case constants.userType.sportsman :
+            if (constants.sportsManMandatoryFields.includes("Address"))
+                return constants.sportsManFields.addressErr
+        default:
+            return constants.sportsManFields.addressErr
+    }
 }
 
-function checkPhone(phone) {
+function checkPhone(phone, userType) {
     if (phone != null) {
         if (!(validator.isInt(phone.toString()) && phone.toString().length === 10))
             return constants.userError.phoneErr
-    } else if (constants.sportsManMandatoryFields.includes("Phone"))
-        return constants.sportsManFields.phoneErr
+    } else switch (userType) {
+        case constants.userType.sportsman :
+            if (constants.sportsManMandatoryFields.includes("Phone"))
+                return constants.sportsManFields.phoneErr
+        default:
+            return constants.sportsManFields.phoneErr
+    }
 }
 
-function checkEmail(email) {
+function checkEmail(email, userType) {
     if (email != null) {
         if (!validator.isEmail(email.toString()))
             return constants.userError.emailErr;
-    } else if (constants.sportsManMandatoryFields.includes("Email" )) {
-        return constants.sportsManFields.emailErr
+    } else switch (userType) {
+        case constants.userType.sportsman :
+            if (constants.sportsManMandatoryFields.includes("Email"))
+                return constants.sportsManFields.emailErr
+        default:
+            return constants.sportsManFields.emailErr
     }
 }
 
@@ -86,7 +100,7 @@ function checkSportClub(sportClub) {
 }
 
 function checkDate(birthDate) {
-    if (birthDate==null)
+    if (birthDate == null)
         if (constants.sportsManMandatoryFields.includes("BirthDate"))
             return constants.sportsManFields.birthDateErr
 }

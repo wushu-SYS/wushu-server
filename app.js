@@ -81,13 +81,12 @@ let automaticOpenCompetitionToJudge =schedule.scheduleJob({minute : 30},function
     manger_competition_module.autoOpenCompetitionToJudge()
 
 })
-
-/*let autoReminderForUploadCriminalRecord =schedule.scheduleJob({dayOfWeek: 0},function () {
+let autoReminderForUploadCriminalRecord =schedule.scheduleJob({dayOfWeek: 0},function () {
     manager_judge_module.autoReminderForUploadCriminalRecord()
         .then(()=>console.log("[Log] -autoReminderForUploadCriminalRecord succeed")).catch((error => console.log(error)))
 
 })
-*/
+
 
 
 //----------------------------------------------------------------------------------------------------------------------
