@@ -307,6 +307,7 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
 //---------------------------------------------Competition registration-------------------------------------------------
 app.post("/private/commonCoachManager/competitionSportsmen", async function (req, res) {
     let ans = await common_competition_module.registerSportsmenToCompetition(req.body.insertSportsman, req.body.deleteSportsman, req.body.updateSportsman, req.body.compId);
+
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/competitionJudge", async function (req, res) {
@@ -624,7 +625,6 @@ app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (r
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
-
 //TODO: DELETE COACH FROM ALL TABLE -> BY ORDER . use sql cascade to delete coach. and check that there is no sportsman that connected to the coach.
 app.post("/private/manager/deleteCoachProfile", async function (req, res) {
 
@@ -632,7 +632,6 @@ app.post("/private/manager/deleteCoachProfile", async function (req, res) {
     res.status(ans.status).send(ans.results)
 
 });
-
 app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
     let ans = await manager_judge_module.deleteJudge(req.body.userID);
     res.status(ans.status).send(ans.results)
@@ -718,6 +717,15 @@ app.post("/private/commonCoachManager/updateRefereeProfile", async function (req
         res.status(ans.status).send(ans.results);
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+});
+app.post("/private/manager/updateClubDetails",async function (req,res) {
+    let sportsClubDetails=req.body
+    let ans = manger_sportclub_module.validateSportClubDetails(sportsClubDetails)
+    if(ans.isPassed){
+        ans = await manger_sportclub_module.updateSportClubDetails(sportsClubDetails);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(Constants.statusCode.badRequest).send(ans.results)
 });
 //----------------------------------------------------------------------------------------------------------------------
 
