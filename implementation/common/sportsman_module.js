@@ -1,6 +1,13 @@
 const common_func = require('../commonFunc');
 
-let numCompQuery = "(SELECT COUNT(*) FROM competition_sportsman WHERE competition_sportsman.idSportsman = user_Sportsman.id)";
+let numCompQuery = "(SELECT COUNT(*)\n" +
+    "              FROM competition_sportsman\n" +
+    "             join events_competition\n" +
+    "             on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
+    "             join events\n" +
+    "             on events_competition.idEvent = events.idEvent\n" +
+    "              WHERE competition_sportsman.idSportsman = user_Sportsman.id\n" +
+    "                 and date >= datefromparts(YEAR(GETDATE()), 9, 1))";
 
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
@@ -39,21 +46,24 @@ function buildConditions_forGetSportsmen(queryData, id) {
     return {conditionStatement, limits};
 }
 
-function buildOrderBy_forGetSportsmen(queryData) {
+function buildOrderBy_forGetSportsmen_forRowNumber(queryData) {
     let sort = queryData.sort;
+    if (sort !== '' && sort !== undefined && sort === 'desc')
+        return ' order by firstname desc';
+    else
+        return ' order by firstname';
+}
+function buildOrderBy_forGetSportsmen(queryData) {
     let numCompSort = queryData.numCompSort;
+    console.log(numCompSort)
     let orderBy = [];
     if(numCompSort !== '' && numCompSort !== undefined) {
         if (numCompSort === 'desc')
-            orderBy.push(`${numCompQuery} desc`);
+            orderBy.push(`competitionCount desc`);
         else
-            orderBy.push(`${numCompQuery}`);
+            orderBy.push(`competitionCount`);
     }
-    if (sort !== '' && sort !== undefined && sort === 'desc')
-        orderBy.push('firstname desc');
-    else
-        orderBy.push('firstname');
-    return ' order by ' + orderBy.join(', ');
+    return orderBy.length > 0 ? ' order by ' + orderBy.join(', ') : '';
 }
 
 async function sportsmanProfile(id) {
@@ -98,3 +108,4 @@ module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
 module.exports.sportsmanProfile = sportsmanProfile;
 module.exports.getCategories = getCategories;
 module.exports.numCompQuery = numCompQuery;
+module.exports.buildOrderBy_forGetSportsmen_forRowNumber = buildOrderBy_forGetSportsmen_forRowNumber;
