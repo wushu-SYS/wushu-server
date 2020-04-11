@@ -73,7 +73,7 @@ io.on('connection', (client) =>{
         connectedUsers.set(data.userId ,client.id);
         console.log(`[LOG]-judge with id ${data.userId} give grade to sportsman  `)
         let masterJudge =(startedCompetition.get(data.idComp)).masterJudge
-        io.to(connectedUsers.get(masterJudge)).emit('judgeGiveGrade',{userId : data.userId});
+        io.to(connectedUsers.get(masterJudge)).emit('judgeGiveGrade',{userId : data.userId , grade : data.grade});
 
     })
 
