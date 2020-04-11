@@ -25,11 +25,10 @@ io.on('connection', (client) =>{
         startedCompetition.set(data.idComp,{judges: judges,masterJudge :data.userId});
         judges.forEach((judge)=>{
             let clientId = connectedUsers.get(data.userId)
-            if(clientId !=undefined)
-                io.to(clientId).emit('updateCompetitionState', {idComp: data.idComp})
+            if(clientId !=undefined) {
+                console.log(`[LOG]-judge master with client id ${client.id} send to judge ${clientId} that comp ${data.idComp} started`)
+            }
         })
-        //client.to(`comp ${data.idComp}`).emit('masterStartCompetition', {idComp: data.idComp})
-
     });
 
     client.on('isCompetitionStart', function (data) {
