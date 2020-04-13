@@ -74,7 +74,7 @@ let statusCode = {
 //---------------------------------------server schedule Jobs-----------------------------------------------------------
 //TODO :ASK TZVI for time of schedule at the end of the project
 
-let automaticCloseCompetition = schedule.scheduleJob({hour: 2}, function () {
+let automaticCloseCompetition = schedule.scheduleJob({minute: 600}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
 let automaticOpenCompetitionToJudge =schedule.scheduleJob({minute : 30},function () {
