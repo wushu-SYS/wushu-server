@@ -133,7 +133,7 @@ app.use("/private/coach", (req, res, next) => {
 
 });
 app.use("/private/judge", (req, res, next) => {
-    if (access === Constants.userType.JUDGE)
+    if (access === Constants.userType.JUDGE||access===Constants.userType.MANAGER)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
@@ -495,6 +495,27 @@ app.get('/downloadJudgeList/:token', async (req, res) => {
     await res.downloadExcel(excelFile);
     fs.unlink(excelFile,function (err) {})
 });
+app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp',async function (req,res) {
+    let token = req.params.token;
+    let idComp = req.params.idComp
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+
+    if (access !== Constants.userType.MANAGER)
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    let sportsman = await manger_competition_module.getRegistrationState(idComp);
+    let judges = await master_judge_module.getRegisteredJudgeForCompetition(idComp);
+
+    sportsman =sportsman.results;
+    judges=judges.results;
+
+    let excelFile = await excelCreation.createCompetitionUploadGrade(sportsman,judges,idComp);
+    res.downloadExcel = util.promisify(res.download);
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile,function (err) {})
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -578,6 +599,12 @@ app.post("/private/judge/getRegisteredJudgeCompetition",async function (req,res)
 app.post("/private/judge/deleteJudgesFromCompetition",async function (req,res){
     let ans = await master_judge_module.deleteJudgesFromCompetition(req.body.compId,req.body.judgeIds);
     res.status(ans.status).send(ans.results)
+})
+app.post("/private/commonCoachManager/competitionResults",async function (req,res) {
+    let idComp = req.body.idComp
+    let ans = await common_competition_module.getCompetitionResultById(idComp);
+    res.status(ans.status).send(ans.results)
+
 })
 
 //----------------------------------------------------------------------------------------------------------------------

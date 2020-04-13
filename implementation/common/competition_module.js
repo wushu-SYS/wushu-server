@@ -443,6 +443,24 @@ function fixCategoryForCheck(data) {
 
 }
 
+async function getCompetitionResultById(idComp){
+    let res =new Object();
+    await dbUtils.sql(`select idSportsman,category, indx from competition_sportsman where idCompetition =@compId and indx=-1`)
+        .parameter('compId', tediousTYPES.Int, compId)
+        .execute()
+        .then((results) => {
+            res.results = results;
+            res.status=constants.statusCode.ok
+        })
+        .fail((err) => {
+            console.log(err);
+            res.results =err;
+            res.status =constants.statusCode.badRequest
+        });
+    return res
+
+}
+
 
 module.exports.cheackExcelData = cheackExcelData;
 module.exports.getIdsForDelete = getIdsForDelete;
@@ -452,3 +470,4 @@ module.exports.fixCategoryExcelData = fixCategoryExcelData;
 module.exports.getDetail = getDetails;
 module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition;
 module.exports.reRangeCompetitionSportsman = reRangeCompetitionSportsman;
+module.exports.getCompetitionResultById = getCompetitionResultById;
