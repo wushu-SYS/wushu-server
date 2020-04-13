@@ -77,5 +77,14 @@ io.on('connection', (client) =>{
 
     })
 
-
+    client.on("masterJudgeSaveGrade",function (data) {
+        connectedUsers.set(data.userId, client.id);
+        console.log(`[LOG]-master judge with id ${data.userId} give final grade to sportsman ${data.idSportsman} `)
+        let judges = startedCompetition.get(data.idComp).judges
+        judges.forEach((judge) => {
+            let clientId = connectedUsers.get(judge.idJudge)
+            if (clientId != undefined)
+                io.to(clientId).emit('masterJudgeSendFinalGrade', {idSportsman:data.idSportsman,grade: data.grade,idCategory :data.idCategory})
+        })
+    })
 });
