@@ -313,7 +313,6 @@ app.post("/private/manager/competitionJudge", async function (req, res) {
     let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId);
     res.status(ans.status).send(ans.results)
 });
-
 app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
     let ans = await manger_competition_module.getRegistrationState(req.body.compId);
     res.status(ans.status).send(ans.results)
@@ -726,6 +725,7 @@ app.post("/private/manager/updateClubDetails",async function (req,res) {
     } else
         res.status(Constants.statusCode.badRequest).send(ans.results)
 });
+
 //----------------------------------------------------------------------------------------------------------------------
 
 
@@ -756,7 +756,6 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
     });
 
 });
-
 app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName = Date.now().toString() + ".pdf";
@@ -791,7 +790,6 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
         res.status(200).send("ok")
     });
 });
-
 app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async function (req, res) {
     let fileId = req.params.fileId;
     let token = req.params.token;
@@ -820,7 +818,6 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
     else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
-
 app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName = Date.now().toString() + ".pdf";
@@ -845,7 +842,6 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
         res.status(200).send("ok")
     });
 });
-
 app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (req, res) {
     let fileId = req.params.fileId;
     let token = req.params.token;
@@ -869,6 +865,20 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
 
 
 //----------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------judging competition------------------------------------------------------
+app.post("/private/judge/updateSportsmanCompetitionGrade", async function (req, res) {
+    let details = req.body
+    let ans = await master_judge_module.insertJudgeGradeForSportsman(details);
+    res.status(ans.status).send(ans.results)
+
+
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
