@@ -120,8 +120,8 @@ async function insertSportsmanFinalGrade(trans,finalGrade,details) {
 }
 async function manualCloseCompetition(idComp){
     let ans = new Object();
-    await dbUtils.sql(`update events_competition set status = '@status' where idCompetition =@idComp `)
-        .parameter('idComp', tediousTYPES.Int, compId)
+    await dbUtils.sql(`update events_competition set status = @status where idCompetition =@idComp `)
+        .parameter('idComp', tediousTYPES.Int, idComp)
         .parameter('status',tediousTYPES.NVarChar, constants.competitionStatus.close)
         .execute()
         .then(function (results) {
