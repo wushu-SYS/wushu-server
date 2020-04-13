@@ -872,9 +872,14 @@ app.post("/private/judge/updateSportsmanCompetitionGrade", async function (req, 
     let ans = await master_judge_module.insertJudgeGradeForSportsman(details);
     res.status(ans.status).send(ans.results)
 
-
 });
 
+app.post("/private/judge/manualCloseCompetition", async function (req, res) {
+    let idComp = req.body.idComp
+    let ans = await master_judge_module.manualCloseCompetition(idComp);
+    res.status(ans.status).send(ans.results)
+
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 

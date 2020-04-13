@@ -118,8 +118,22 @@ async function insertSportsmanFinalGrade(trans,finalGrade,details) {
             return testResult
         })
 }
-
+async function manualCloseCompetition(idComp){
+    let ans = new Object();
+    await dbUtils.sql(`update events_competition set status = '@status' where idCompetition =@idComp `)
+        .parameter('idComp', tediousTYPES.Int, compId)
+        .parameter('status',tediousTYPES.NVarChar, constants.competitionStatus.close)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 
 module.exports.getRegisteredJudgeForCompetition = getRegisteredJudgeForCompetition
 module.exports.deleteJudgesFromCompetition = deleteJudgesFromCompetition
 module.exports.insertJudgeGradeForSportsman = insertJudgeGradeForSportsman
+module.exports.manualCloseCompetition = manualCloseCompetition
