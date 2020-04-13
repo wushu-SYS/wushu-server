@@ -2,7 +2,7 @@ let constants = require("../../constants");
 
 async function getRegisteredJudgeForCompetition(compId) {
     let ans = new Object();
-    await dbUtils.sql(`select  idJudge,firstname,lastname from competition_judge join user_Judge on competition_judge.idJudge = user_Judge.id where idCompetition = @compId and isMaster= 0;`)
+    await dbUtils.sql(`select  idJudge,firstname,lastname ,isMaster from competition_judge join user_Judge on competition_judge.idJudge = user_Judge.id where idCompetition = @compId;`)
         .parameter('compId', tediousTYPES.Int, compId)
         .execute()
         .then(function (results) {
