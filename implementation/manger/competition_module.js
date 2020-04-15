@@ -1,3 +1,4 @@
+const commonFunc = require("../commonFunc")
 const constants = require("../../constants")
 
 function validateCompetitionDetails(eventDetails) {
@@ -170,46 +171,13 @@ async function getRegistrationState(compId) {
         .execute()
         .then((results) => {
             ans.status = Constants.statusCode.ok;
-            ans.results = sortUsers(results)
+            ans.results = commonFunc.sortUsers(results)
         })
         .fail((err) => {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
         })
     return ans;
-}
-
-function sortUsers(users) {
-    let resultJson = [];
-    // users.sort(
-    //     function (obj1, obj2) {
-    //         let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
-    //         let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
-    //         return x - y;
-    //     });
-    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
-        let currUser = users.find(u => u.category === id);
-        return {
-            id: id,
-            name: currUser.categoryName,
-            minAge: currUser.minAge,
-            maxAge: currUser.maxAge,
-            sex: currUser.categorySex
-        };
-    });
-    let i = 0;
-    usedCategories.forEach(category => {
-        let categoryUsers = {
-            category: category,
-            users: []
-        };
-        while (i < users.length && category.id === users[i].category) {
-            categoryUsers.users.push(users[i]);
-            i++;
-        }
-        resultJson.push(categoryUsers);
-    });
-    return resultJson;
 }
 
 async function setCategoryRegistration(categoryForSportsman, compId) {
