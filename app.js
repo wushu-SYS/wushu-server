@@ -57,7 +57,7 @@ const socket_service = require("././SocketService")
 common_function = require("./implementation/commonFunc");
 const excelCreation = require("./implementation/services/excelCreation");
 const userVaildationService = require("./implementation/services/userValidations/userValidationService");
-
+const competitionValidationService =require("./implementation/services/competitionValidations/competitionValidationService");
 
 let statusCode = {
     ok: 200,
@@ -900,13 +900,25 @@ app.post("/private/judge/updateSportsmanCompetitionGrade", async function (req, 
     res.status(ans.status).send(ans.results)
 
 });
-
 app.post("/private/judge/manualCloseCompetition", async function (req, res) {
     let idComp = req.body.idComp
     let ans = await master_judge_module.manualCloseCompetition(idComp);
     res.status(ans.status).send(ans.results)
 
 });
+app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,res) {
+    let sportsmanGrade = req.body;
+    if (sportsmanGrade.length == 0)
+        res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
+    else {
+        let checkData = competitionValidationService.checkExcelCompetitionsGrade(sportsmanGrade,Constants.sportStyle.taullo);
+        if (checkData.isPassed) {
+            let registerStatus = await master_judge_module.updateTaulloCompetitionGrade(checkData.users);
+            res.status(registerStatus.status).send(registerStatus.results);
+        } else
+            res.status(statusCode.badRequest).send(checkData.results);
+    }
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 
