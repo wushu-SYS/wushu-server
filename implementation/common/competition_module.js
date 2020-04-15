@@ -1,5 +1,7 @@
 let manger_compModule = require('../manger/competition_module');
 const constants = require("../../constants")
+const commonFunc = require("../commonFunc")
+
 async function getDetails(compId) {
     let ans = new Object();
     await dbUtils.sql(`select events_competition.idCompetition,events_competition.description,events_competition.sportStyle ,events_competition.status ,events_competition.closeRegDate, events_competition.closeRegTime, events.date ,events.location, events.startHour, events.city from events_competition
@@ -443,17 +445,28 @@ function fixCategoryForCheck(data) {
 
 }
 
-async function getCompetitionResultById(idComp){
+async function getCompetitionResultById(compId){
     let res =new Object();
-    await dbUtils.sql(`select idSportsman,category, indx from competition_sportsman where idCompetition =@compId and indx=-1`)
+    await dbUtils.sql(`Select user_Sportsman.id, firstname, lastname, category, c.name as categoryName, c.minAge as minAge, c.maxAge as maxAge, c.sex as categorySex, user_Sportsman.sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub, indx, isnull(grade, 0) as finalGrade
+                    from user_Sportsman
+                    join competition_sportsman
+                    on user_Sportsman.id = competition_sportsman.idSportsman
+                    left join category as c
+                    on competition_sportsman.category = c.id
+                    left join competition_results
+                    on competition_results.compID = competition_sportsman.idCompetition and competition_results.sportmanID = competition_sportsman.idSportsman and competition_results.categoryID = competition_sportsman.category
+                    where competition_sportsman.idCompetition = @compId
+                    order by indx`)
         .parameter('compId', tediousTYPES.Int, compId)
         .execute()
         .then((results) => {
-            res.results = results;
             res.status=constants.statusCode.ok
+            let sorted = commonFunc.sortUsers(results);
+            sorted.forEach(categorySportsman => categorySportsman.users.sort((s1, s2) => s2.finalGrade - s1.finalGrade));
+            console.log(sorted[2].users);
+            res.results = sorted;
         })
         .fail((err) => {
-            console.log(err);
             res.results =err;
             res.status =constants.statusCode.badRequest
         });

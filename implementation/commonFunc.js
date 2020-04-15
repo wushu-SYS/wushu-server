@@ -75,7 +75,38 @@ function convertToSportStyle(isTaullo, isSanda){
         return constants.sportStyle.both;
 }
 
-
+function sortUsers(users) {
+    let resultJson = [];
+    // users.sort(
+    //     function (obj1, obj2) {
+    //         let x = obj1.category ? obj1.category : Number.NEGATIVE_INFINITY;
+    //         let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
+    //         return x - y;
+    //     });
+    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
+        let currUser = users.find(u => u.category === id);
+        return {
+            id: id,
+            name: currUser.categoryName,
+            minAge: currUser.minAge,
+            maxAge: currUser.maxAge,
+            sex: currUser.categorySex
+        };
+    });
+    let i = 0;
+    usedCategories.forEach(category => {
+        let categoryUsers = {
+            category: category,
+            users: []
+        };
+        while (i < users.length && category.id === users[i].category) {
+            categoryUsers.users.push(users[i]);
+            i++;
+        }
+        resultJson.push(categoryUsers);
+    });
+    return resultJson;
+}
 
 module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
@@ -85,3 +116,4 @@ module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;
 module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
+module.exports.sortUsers = sortUsers;
