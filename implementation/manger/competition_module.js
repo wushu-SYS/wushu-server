@@ -6,17 +6,17 @@ function validateCompetitionDetails(eventDetails) {
     ans.isPassed = true;
     let err = [];
     //description
-    if (!validator.matches(eventDetails.description, Constants.hebRegex))
-        err.push(Constants.errorMsg.hebErr)
+    if (!validator.matches(eventDetails.description, constants.hebRegex))
+        err.push(constants.errorMsg.hebErr)
     //location
-    if (!validator.matches(eventDetails.location, Constants.regexHebrewAndNumbers))
-        err.push(Constants.errorMsg.hebErr)
+    if (!validator.matches(eventDetails.location, constants.regexHebrewAndNumbers))
+        err.push(constants.errorMsg.hebErr)
     //branch
-    if (!(eventDetails.sportStyle in Constants.sportType))
-        err.push(Constants.errorMsg.sportTypeErr)
+    if (!(eventDetails.sportStyle in constants.sportType))
+        err.push(constants.errorMsg.sportTypeErr)
     //city
-    if (!validator.matches(eventDetails.city, Constants.hebRegex))
-        err.push(Constants.errorMsg.hebErr)
+    if (!validator.matches(eventDetails.city, constants.hebRegex))
+        err.push(constants.errorMsg.hebErr)
 
     if (err.length != 0)
         ans.isPassed = false;
@@ -34,7 +34,7 @@ async function addCompetition(competitionDetails) {
                                      output inserted.idEvent
                                     VALUES (@location,@eventType,@eventDate,@startHour,@city);`)
                 .parameter('location', tediousTYPES.NVarChar, competitionDetails.location)
-                .parameter('eventType', tediousTYPES.NVarChar, Constants.eventType.competition)
+                .parameter('eventType', tediousTYPES.NVarChar, constants.eventType.competition)
                 .parameter('eventDate', tediousTYPES.NVarChar, competitionDetails.eventDate)
                 .parameter('startHour', tediousTYPES.NVarChar, competitionDetails.startHour)
                 .parameter('city', tediousTYPES.NVarChar, competitionDetails.city)
@@ -47,18 +47,18 @@ async function addCompetition(competitionDetails) {
                 .parameter('description', tediousTYPES.NVarChar, competitionDetails.description)
                 .parameter('closeDate', tediousTYPES.NVarChar, competitionDetails.closeDate)
                 .parameter('closeTime', tediousTYPES.NVarChar, competitionDetails.closeTime)
-                .parameter('status', tediousTYPES.NVarChar, Constants.competitionStatus.open)
+                .parameter('status', tediousTYPES.NVarChar, constants.competitionStatus.open)
                 .parameter('idEvent', tediousTYPES.Int, Result[0].idEvent)
                 .returnRowCount()
                 .execute();
         })
         .then(async function (testResult) {
-            ans.status = Constants.statusCode.ok;
-            ans.results = Constants.msg.eventAdded;
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.eventAdded;
             trans.commitTransaction();
         })
         .fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
             trans.rollbackTransaction();
         })
@@ -91,11 +91,11 @@ async function getCompetitions(queryData) {
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans;
@@ -112,11 +112,11 @@ async function getCompetitionsCount(queryData) {
         .parameter('Value2', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '')
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results[0]
         })
         .fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -170,11 +170,11 @@ async function getRegistrationState(compId) {
         .parameter('compId', tediousTYPES.Int, compId)
         .execute()
         .then((results) => {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = commonFunc.sortUsers(results)
         })
         .fail((err) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         })
     return ans;
@@ -382,14 +382,14 @@ async function getIdEvent(idComp) {
     return res;
 }
 
-async function registerJudgeToCompetition(insertJudge, deleteJudge, compId) {
+async function registerJudgeToCompetition(insertJudge, deleteJudge, compId,masterJudge) {
     let ans = new Object()
     let trans;
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
             await Promise.all(insertJudge && insertJudge[0] ? await insertJudgeToCompetitionDB(trans, insertJudge, insertJudge[0], 0, compId) : '',
-                await deleteJudgeFromCompetitionDB(trans, deleteJudge, deleteJudge[0], 0, compId)
+                await deleteJudgeFromCompetitionDB(trans, deleteJudge, deleteJudge[0], 0, compId),await updateMasterToCompetition(trans,compId,masterJudge)
                     .then((result) => {
                         ans.status = Constants.statusCode.ok;
                         ans.results = Constants.msg.registerSuccess;
@@ -411,15 +411,30 @@ async function registerJudgeToCompetition(insertJudge, deleteJudge, compId) {
     return ans
 }
 
+async function updateMasterToCompetition(trans, compId,idJudge) {
+    if (idJudge) {
+        return trans.sql(`update competition_judge set isMaster = 0 where idCompetition = @idComp and idJudge != @idJudge ;
+                          update competition_judge set isMaster = 1 where idCompetition =@idComp and idJudge = @idJudge`)
+            .parameter('idComp', tediousTYPES.Int, compId)
+            .parameter('idJudge', tediousTYPES.Int, idJudge)
+            .execute()
+            .then(async function (testResult) {
+                return testResult
+            });
+    }
+    return;
+}
+
+
+
 async function insertJudgeToCompetitionDB(trans, insertJudge, judgeDetails, i, compId) {
     if (judgeDetails != undefined)
-        return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge,isMaster)
-                     SELECT * FROM (select @compId as idCompetition, @id as idJudge ,@isMaster as isMaster) AS tmp
+        return trans.sql(`INSERT INTO competition_judge (idCompetition, idJudge)
+                     SELECT * FROM (select @compId as idCompetition, @id as idJudge) AS tmp
                      WHERE NOT EXISTS (
                      SELECT idCompetition, idJudge FROM competition_judge WHERE idCompetition = @compId and idJudge = @id)`)
             .parameter('compId', tediousTYPES.Int, compId)
             .parameter('id', tediousTYPES.Int, judgeDetails.id)
-            .parameter('isMaster', tediousTYPES.Int, judgeDetails.isMaster ? judgeDetails.isMaster : 0)
             .execute()
             .then(async function (testResult) {
                 if (i + 1 < insertJudge.length) {

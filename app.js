@@ -310,7 +310,7 @@ app.post("/private/commonCoachManager/competitionSportsmen", async function (req
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/competitionJudge", async function (req, res) {
-    let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId);
+    let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId,req.body.masterJudge);
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
