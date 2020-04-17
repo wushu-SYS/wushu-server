@@ -5,9 +5,10 @@ const common_func = require("../../commonFunc");
 
 
 
-function taulloCompGradeExcelValidations(user) {
+function taulloCompGradeExcelValidations(user,numOfJudge) {
     let errList = [];
-    pushErrorsToList(errList, userValidation.sportsman.idVal(user[constants.colRegisterSportsmanExcel.idSportsman]));
+    pushErrorsToList(errList, competition_validations.taullo.checkNumOfJudgesGrade(user.length,numOfJudge));
+
 
     return errList
 }
@@ -18,7 +19,7 @@ function pushErrorsToList(errList, err) {
 }
 
 function
-checkExcelCompetitionsGrade(data,compType){
+checkExcelCompetitionsGrade(data,compType,numOfJudge){
     let errorUsers = [];
     let res = {};
     res.isPassed = true;
@@ -27,8 +28,8 @@ checkExcelCompetitionsGrade(data,compType){
         let userError = new Object();
         line++;
         switch (compType) {
-            case constants.sportsmanUpdateArrayVal.taullo :
-                userError.errors = taulloCompGradeExcelValidations(user);
+            case constants.sportStyle.taullo :
+                userError.errors = taulloCompGradeExcelValidations(user,numOfJudge);
                 break;
             case constants.sportStyle.sanda:
                 break;

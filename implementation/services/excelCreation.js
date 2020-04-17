@@ -513,28 +513,8 @@ async function createCompetitionUploadGrade(sportsman,judges,idComp){
     worksheet.cell(1, 4).string('קטגוריה').style(style).style(({font: {bold: true}}));
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
     setWidthListCell(worksheet, [4], 30);
-
-    let i = 5;let j=0;
-    while(j<judges.length) {
-        let char =String.fromCharCode(64+i);
-        worksheet.cell(1, i).string(setIdJudge(judges[j])).style(style).style(({font: {bold: true}}));
-        lockListValueCell(worksheet, [char], 1)
-        setWidthListCell(worksheet, [i], 30);
-        j++
-        i++
-    }
-    let char =String.fromCharCode(64+i);
-    worksheet.cell(1, i).string('ציון סופי').style(style).style(({font: {bold: true}}));
-    lockListValueCell(worksheet, [char], 1);
-    worksheet.row(1).freeze(); // Freezes the top four rows
-    i++;
-    while(64+i!=90){
-        let char =String.fromCharCode(64+i);
-        lockListCell(worksheet, [`${char}1:${char}100`]);
-        i++;
-    }
-
-    i=0;
+    let i=0;let j=0
+    let numOfRows=0
     while (i < sportsman.length) {
         j=0;
         let  users =sportsman[i].users
@@ -549,14 +529,49 @@ async function createCompetitionUploadGrade(sportsman,judges,idComp){
         }
         i++;
     }
+    numOfRows= row;
+
+    i = 5; j=0;
+    while(j<judges.length) {
+        let char =String.fromCharCode(64+i);
+        worksheet.cell(1, i).string(setIdJudge(judges[j])).style(style).style(({font: {bold: true}}));
+        lockListValueCell(worksheet, [char], 1)
+        setWidthListCell(worksheet, [i], 30);
+        let sqref = char+'2:'+char+numOfRows
+        worksheet.addDataValidation({
+            type: 'decimal',
+            operator: 'between',
+            allowBlank: false,
+            error: 'אנא הכנס ציון תקין',
+            sqref: sqref,
+            formulas: [1, 10],
+
+        });
+        j++
+        i++
+    }
+
+    let char =String.fromCharCode(64+i);
+    worksheet.cell(1, i).string('ציון סופי').style(style).style(({font: {bold: true}}));
+    lockListValueCell(worksheet, [char], 1);
+    worksheet.row(1).freeze(); // Freezes the top four rows
+    i++;
+    while(64+i!=90){
+        let char =String.fromCharCode(64+i);
+        lockListCell(worksheet, [`${char}1:${char}100`]);
+        i++;
+    }
+
+
     i=5;
     j=0;
-    while(j<judges.length) {
+    while(j<judges.length+1) {
         let char =String.fromCharCode(64+i);
         lockListCell(worksheet, [`${char}${row}:${char}${row}100`]);
         j++;
         i++;
     }
+
     lockListCell(worksheet, [`A${row}:A100`,`B${row}:B100`,`C${row}:C100`,`D${row}:D100`]);
     fileName =  'הזנת ציון לתחרות טאלו' +" " + idComp +".xlsx"
     return writeExcel(workbook, (path + fileName));
@@ -633,7 +648,7 @@ function setIdJudge(judge){
     return res;
 }
 function setJudgeCategory(details){
-    return details.categoryName  +" " + common_func.getAgeRange(details)
+    return details.categoryName  +" " + common_func.getAgeRange(details) + " " +"(id = "+details.category+")"
 }
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;

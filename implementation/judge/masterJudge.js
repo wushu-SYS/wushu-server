@@ -59,7 +59,7 @@ async function deleteJudgesFromCompetition(compId, judges) {
 }
 
 
-async function insertJudgeGradeForSportsman (details){
+async function insertJudgeGradeForSportsman(details) {
     let judges = details.judges
     let finalGrade = details.avgGrade
 
@@ -68,8 +68,8 @@ async function insertJudgeGradeForSportsman (details){
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all( await insertSportsmanGrade(trans, judges, judges[0], 0,details),
-                await insertSportsmanFinalGrade(trans,finalGrade,details)
+            await Promise.all(await insertSportsmanGrade(trans, judges, judges[0], 0, details),
+                await insertSportsmanFinalGrade(trans, finalGrade, details)
                     .then((result) => {
                         ans.status = constants.statusCode.ok;
                         ans.results = constants.msg.competitionUpdate;
@@ -92,22 +92,30 @@ async function insertJudgeGradeForSportsman (details){
 
 }
 
-async function insertSportsmanGrade(trans,judges,judgeDetails,i,details){
-            return await trans.sql(`insert into competition_Judgment (sportsmanId, compId, categoryID, judgeId, grade) values (@sportsmanId , @compId,@categoryId,@judgeId,@grade)`)
-                .parameter('sportsmanId', tediousTYPES.Int, details.idSportsman)
-                .parameter('compId', tediousTYPES.Int, details.idComp)
-                .parameter('categoryId', tediousTYPES.Int, details.idCategory)
-                .parameter('judgeId', tediousTYPES.Int, judgeDetails.idJudge)
-                .parameter('grade', tediousTYPES.Float, judgeDetails.grade )
-                .execute()
-                .then(async function (testResult) {
-                    if (i + 1 < judges.length)
-                        await insertSportsmanGrade(trans, judges, judges[ i+  1], i + 1,details)
-                    return testResult
+async function insertSportsmanGrade(trans, judges, judgeDetails, i, details) {
+    return await trans.sql(`insert into competition_Judgment (sportsmanId, compId, categoryID, judgeId, grade) values (@sportsmanId , @compId,@categoryId,@judgeId,@grade)`)
+        .parameter('sportsmanId', tediousTYPES.Int, details.idSportsman)
+        .parameter('compId', tediousTYPES.Int, details.idComp)
+        .parameter('categoryId', tediousTYPES.Int, details.idCategory)
+        .parameter('judgeId', tediousTYPES.Int, judgeDetails.idJudge)
+        .parameter('grade', tediousTYPES.Float, judgeDetails.grade)
+        .execute()
+        .then(async function (testResult) {
+            if (i + 1 < judges.length)
+                await insertSportsmanGrade(trans, judges, judges[i + 1], i + 1, details)
+            return testResult
+        })
+}
+async function insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrade, i){
+    return await insertSportsmanGrade(trans, sportsmanGrade.judges, sportsmanGrade.judges[0], 0, sportsmanGrade)
+        .then(async function (res) {
+            if(i+1 < sportsmanGrades.length)
+                await insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrades[i+1], i+1)
+            return res;
         })
 }
 
-async function insertSportsmanFinalGrade(trans,finalGrade,details) {
+async function insertSportsmanFinalGrade(trans, finalGrade, details) {
     return await trans.sql(`insert into competition_results (sportmanID, compID, categoryID, grade) VALUES  (@sportsmanId , @compId,@categoryId,@grade)`)
         .parameter('sportsmanId', tediousTYPES.Int, details.idSportsman)
         .parameter('compId', tediousTYPES.Int, details.idComp)
@@ -118,11 +126,20 @@ async function insertSportsmanFinalGrade(trans,finalGrade,details) {
             return testResult
         })
 }
-async function manualCloseCompetition(idComp){
+async function insertSportsmanFinalGrades(trans, sportsmanGrades, i=0){
+    return await insertSportsmanFinalGrade(trans, sportsmanGrades[i].avgGrade, sportsmanGrades[i])
+        .then(async function (res) {
+            if(i+1 < sportsmanGrades.length)
+                await insertSportsmanFinalGrades(trans, sportsmanGrades,i+1)
+            return res;
+        })
+}
+
+async function manualCloseCompetition(idComp) {
     let ans = new Object();
     await dbUtils.sql(`update events_competition set status = @status where idCompetition =@idComp `)
         .parameter('idComp', tediousTYPES.Int, idComp)
-        .parameter('status',tediousTYPES.NVarChar, constants.competitionStatus.close)
+        .parameter('status', tediousTYPES.NVarChar, constants.competitionStatus.close)
         .execute()
         .then(function (results) {
             ans.status = constants.statusCode.ok;
@@ -133,7 +150,72 @@ async function manualCloseCompetition(idComp){
     return ans;
 }
 
+
+async function uploadTaulloCompetitionGrade(users, idComp, judges, numOfJudge) {
+    let userGradeArray = getDataUploadTaulloCompetitionGrades(users, idComp, judges, numOfJudge)
+
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await insertSportsmanGrades(trans, userGradeArray, userGradeArray[0], 0),
+                await insertSportsmanFinalGrades(trans, userGradeArray)
+                    .then((result) => {
+                        ans.status = constants.statusCode.ok;
+                        ans.results = constants.msg.competitionUpdate;
+                        trans.commitTransaction();
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        ans.status = constants.statusCode.badRequest;
+                        ans.results = err;
+                        trans.rollbackTransaction();
+                    }))
+        })
+        .fail(function (err) {
+            console.log(err)
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans
+
+
+    console.log("ss")
+
+}
+
+function getDataUploadTaulloCompetitionGrades(users, idComp, judges, numOfJudge) {
+    let userGradeArray = []
+    users.forEach((user) => {
+        let idCategory = extractCategoryIdFromExcelCompetitionGrade(user[constants.colUploadExcelTaulloCompetitionGrade.category])
+        let judgesGrade = []
+        for (let i = 0; i < numOfJudge; i++)
+            judgesGrade.push({
+                idJudge: judges[i].idJudge,
+                grade: parseFloat(user[constants.colUploadExcelTaulloCompetitionGrade.firstJudge + i])
+            })
+        userGradeArray.push({
+            idComp: idComp,
+            idSportsman: user[constants.colUploadExcelTaulloCompetitionGrade.idSportsman],
+            idCategory: idCategory,
+            judges: judgesGrade,
+            avgGrade: user[user.length - 1]
+        })
+    })
+    return userGradeArray;
+}
+
+function extractCategoryIdFromExcelCompetitionGrade(line) {
+    line = line.split('=')
+    let idCategory = line[line.length - 1].substring(1, line[line.length - 1].length - 1)
+    return idCategory
+}
+
 module.exports.getRegisteredJudgeForCompetition = getRegisteredJudgeForCompetition
 module.exports.deleteJudgesFromCompetition = deleteJudgesFromCompetition
 module.exports.insertJudgeGradeForSportsman = insertJudgeGradeForSportsman
 module.exports.manualCloseCompetition = manualCloseCompetition
+module.exports.uploadTaulloCompetitionGrade = uploadTaulloCompetitionGrade
+

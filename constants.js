@@ -11,14 +11,12 @@ let eventType = {
     competition: 'תחרות',
     event: 'אירוע'
 };
-
 let databaseUserTableName = {
     manager : "user_Manger",
     coach :"user_Coach",
     sportsman : "user_Sportsman",
     judge : "user_Judge"
 }
-
 let constRegex = {
     regexHeb: new RegExp("^[\u0590-\u05FF ,.'-]+$"),
     regexHebrewAndNumbers: new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$"),
@@ -218,6 +216,16 @@ let sportStyle={
     both : 'משולב'
 }
 
+let numFieldsTaulloExcelUploadGrade = 5 //include avg grade without num of judge
+let excelCompUploadGradeErrMsg ={
+    fieldsMissing : 'אנא מלא את כל התאים , ציון של כל שופט לכל ספורטאי וציון ממוצע',
+    gradeErr : 'אנא הכנס ציון תקין'
+}
+let colUploadExcelTaulloCompetitionGrade ={
+    category :3,
+    idSportsman :0,
+    firstJudge :4
+}
 module.exports = {
     statusCode: statusCode,
     sportsManMandatoryFields: sportsManMandatoryFields,
@@ -244,5 +252,8 @@ module.exports = {
     googleDrivePath:googleDrivePath,
     googleDriveRootFoldersName :googleDriveRootFoldersName,
     sportStyle: sportStyle,
-    sportsmanUpdateArrayVal:sportsmanUpdateArrayVal
+    sportsmanUpdateArrayVal:sportsmanUpdateArrayVal,
+    numFieldsTaulloExcelUploadGrade:numFieldsTaulloExcelUploadGrade,
+    excelCompUploadGradeErrMsg:excelCompUploadGradeErrMsg,
+    colUploadExcelTaulloCompetitionGrade:colUploadExcelTaulloCompetitionGrade,
 };

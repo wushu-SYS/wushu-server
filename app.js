@@ -902,18 +902,22 @@ app.post("/private/judge/updateSportsmanCompetitionGrade", async function (req, 
 });
 app.post("/private/judge/manualCloseCompetition", async function (req, res) {
     let idComp = req.body.idComp
-    let ans = await master_judge_module.manualCloseCompetition(idComp);
+    let ans =  await master_judge_module.manualCloseCompetition(idComp);
     res.status(ans.status).send(ans.results)
 
 });
 app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,res) {
-    let sportsmanGrade = req.body;
+    let sportsmanGrade = req.body.sportsman;
+    let idComp = req.body.idComp
     if (sportsmanGrade.length == 0)
         res.status(statusCode.badRequest).send({line: 0, errors: [Constants.errorMsg.emptyExcel]});
     else {
-        let checkData = competitionValidationService.checkExcelCompetitionsGrade(sportsmanGrade,Constants.sportStyle.taullo);
+        let judges = await master_judge_module.getRegisteredJudgeForCompetition(idComp)
+        judges = judges.results
+        let numOfJudges = judges.length
+        let checkData = competitionValidationService.checkExcelCompetitionsGrade(sportsmanGrade,Constants.sportStyle.taullo,numOfJudges);
         if (checkData.isPassed) {
-            let registerStatus = await master_judge_module.updateTaulloCompetitionGrade(checkData.users);
+            let registerStatus = await master_judge_module.uploadTaulloCompetitionGrade(checkData.users,idComp,judges,numOfJudges);
             res.status(registerStatus.status).send(registerStatus.results);
         } else
             res.status(statusCode.badRequest).send(checkData.results);
