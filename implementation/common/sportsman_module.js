@@ -1,3 +1,14 @@
+const common_func = require('../commonFunc');
+
+let numCompQuery = "(SELECT COUNT(*)\n" +
+    "              FROM competition_sportsman\n" +
+    "             join events_competition\n" +
+    "             on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
+    "             join events\n" +
+    "             on events_competition.idEvent = events.idEvent\n" +
+    "              WHERE competition_sportsman.idSportsman = user_Sportsman.id\n" +
+    "                 and date >= datefromparts(YEAR(GETDATE()), 9, 1))";
+
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
     let sex = queryData.sex;
@@ -16,7 +27,8 @@ function buildConditions_forGetSportsmen(queryData, id) {
         conditions.push("(firstname like Concat('%', @value, '%') or lastname like Concat('%', @value, '%'))");
     }
     if (sportStyle !== '' && sportStyle !== undefined) {
-        conditions.push("sportStyle like @sportStyle");
+        conditions.push("taullo = @isTaullo");
+        conditions.push("sanda = @isSanda");
     }
     if (club !== '' && club !== undefined) {
         conditions.push("sportclub like @club");
@@ -34,17 +46,29 @@ function buildConditions_forGetSportsmen(queryData, id) {
     return {conditionStatement, limits};
 }
 
-function buildOrderBy_forGetSportsmen(queryData) {
+function buildOrderBy_forGetSportsmen_forRowNumber(queryData) {
     let sort = queryData.sort;
     if (sort !== '' && sort !== undefined && sort === 'desc')
         return ' order by firstname desc';
     else
         return ' order by firstname';
 }
+function buildOrderBy_forGetSportsmen(queryData) {
+    let numCompSort = queryData.numCompSort;
+    console.log(numCompSort)
+    let orderBy = [];
+    if(numCompSort !== '' && numCompSort !== undefined) {
+        if (numCompSort === 'desc')
+            orderBy.push(`competitionCount desc`);
+        else
+            orderBy.push(`competitionCount`);
+    }
+    return orderBy.length > 0 ? ' order by ' + orderBy.join(', ') : '';
+}
 
 async function sportsmanProfile(id) {
     let ans = new Object();
-    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as firstname, user_Sportsman.lastname as lastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, sportStyle,sportman_files.medicalscan as medicalScan,sportman_files.insurance as insurance
+    await dbUtils.sql(`Select user_Sportsman.id, user_Sportsman.firstname as firstname, user_Sportsman.lastname as lastname, user_Sportsman.photo, user_Sportsman.phone, user_Sportsman.email, user_Sportsman.phone, user_Sportsman.birthdate, user_Sportsman.address, sex, user_Coach.firstname as cfirstname, user_Coach.lastname clastname, name as club, taullo, sanda,sportman_files.medicalscan as medicalScan,sportman_files.insurance as insurance
                                     from user_Sportsman
                                     join sportsman_sportStyle on user_Sportsman.id = sportsman_sportStyle.id
                                     join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman
@@ -55,9 +79,9 @@ async function sportsmanProfile(id) {
         .parameter('id', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
+            results[0].sportStyle = common_func.convertToSportStyle(results[0].taullo, results[0].sanda);
             ans.status = Constants.statusCode.ok;
             ans.results = results[0]
-            console.log(results[0])
         }).fail(function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err
@@ -83,3 +107,5 @@ module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen
 module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
 module.exports.sportsmanProfile = sportsmanProfile;
 module.exports.getCategories = getCategories;
+module.exports.numCompQuery = numCompQuery;
+module.exports.buildOrderBy_forGetSportsmen_forRowNumber = buildOrderBy_forGetSportsmen_forRowNumber;

@@ -11,14 +11,12 @@ let eventType = {
     competition: 'תחרות',
     event: 'אירוע'
 };
-
 let databaseUserTableName = {
     manager : "user_Manger",
     coach :"user_Coach",
     sportsman : "user_Sportsman",
     judge : "user_Judge"
 }
-
 let constRegex = {
     regexHeb: new RegExp("^[\u0590-\u05FF ,.'-]+$"),
     regexHebrewAndNumbers: new RegExp("^[\u0590-\u05FF\0-9 ,.'-]+$"),
@@ -62,7 +60,9 @@ let colRegisterSportsmanExcel = {
     sex: 8,
     sportStyle: 9,
     idCoach: 10,
-    numCell: 11
+    isTaullo: 11,
+    isSanda: 12,
+
 
 }
 
@@ -91,10 +91,24 @@ let sexEnumCompetition = {
 let sportType = {
     טאולו: 201,
     סנדא: 202,
+    משולב : 203
 
 };
-
-let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "Email", "IdCoach", "Sex", "SportStyle", "SportClub"];
+let sportsmanUpdateArrayVal={
+    idSportsman: 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    email: 4,
+    birthDate: 5,
+    address: 6,
+    sex: 7,
+    oldId :8,
+    sportStyle: 9,
+    isTaullo: 10,
+    isSanda: 11
+}
+let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "IdCoach", "Sex", "SportStyle", "SportClub"];
 let sportsManFields = {
     idErr: "ת.ז. הינו שדה חובה",
     firstNameErr: "שם פרטי הינו שדה חובה",
@@ -111,9 +125,10 @@ let sportsManFields = {
 
 
 let competitionStatus = {
-    close: 'סגור',
-    open: 'פתוח',
-    regclose: 'רישום סגור'
+    close: 'תחרות סגורה',
+    open: ' תחרות פתוחה',
+    regClose: 'רישום סגור',
+    inProgressComp: 'תחרות בתהליך',
 };
 
 let userError = {
@@ -195,7 +210,22 @@ let googleDriveRootFoldersName ={
     coach : 'מאמנים',
     judge : 'שופטים'
 }
+let sportStyle={
+    taullo :'טאולו',
+    sanda: 'סנדא',
+    both : 'משולב'
+}
 
+let numFieldsTaulloExcelUploadGrade = 5 //include avg grade without num of judge
+let excelCompUploadGradeErrMsg ={
+    fieldsMissing : 'אנא מלא את כל התאים , ציון של כל שופט לכל ספורטאי וציון ממוצע',
+    gradeErr : 'אנא הכנס ציון תקין'
+}
+let colUploadExcelTaulloCompetitionGrade ={
+    category :3,
+    idSportsman :0,
+    firstJudge :4
+}
 module.exports = {
     statusCode: statusCode,
     sportsManMandatoryFields: sportsManMandatoryFields,
@@ -220,5 +250,10 @@ module.exports = {
     databaseUserTableName:databaseUserTableName,
     googleDriveFolderNames:googleDriveFolderNames,
     googleDrivePath:googleDrivePath,
-    googleDriveRootFoldersName :googleDriveRootFoldersName
+    googleDriveRootFoldersName :googleDriveRootFoldersName,
+    sportStyle: sportStyle,
+    sportsmanUpdateArrayVal:sportsmanUpdateArrayVal,
+    numFieldsTaulloExcelUploadGrade:numFieldsTaulloExcelUploadGrade,
+    excelCompUploadGradeErrMsg:excelCompUploadGradeErrMsg,
+    colUploadExcelTaulloCompetitionGrade:colUploadExcelTaulloCompetitionGrade,
 };

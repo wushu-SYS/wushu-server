@@ -1,3 +1,4 @@
+const common_func = require("../commonFunc")
 let excel = require('excel4node');
 let path = './resources/';
 let fileName;
@@ -70,21 +71,12 @@ async function createExcelRegisterSportsman(clubList, coachList) {
     worksheet.addDataValidation({
         type: 'list',
         allowBlank: false,
-        prompt: 'בחר מועדון',
+        prompt: 'בחר מאמן',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'I2:I100',
+        sqref: 'K2:K100',
         formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
         style: style,
-    });
-    worksheet.addDataValidation({
-        type: 'textLength',
-        allowBlank: false,
-        prompt: 'הכנס ת.ז מאמן',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
-        sqref: 'K2:K100',
-        formulas: [9, 9],
-
     });
     worksheet.addDataValidation({
         type: 'textLength',
@@ -131,7 +123,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'J2:J100',
-        formulas: ['טאולו,סנדא'],
+        formulas: ['טאולו,סנדא,משולב'],
         style: style,
     });
     worksheet.addDataValidation({
@@ -258,7 +250,6 @@ async function createExcelRegisterNewJudge() {
 }
 async function createExcelCoachAsJudge(coachList) {
     let {workbook, worksheet} = createWorkBook();
-    console.log(coachList)
 
     worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
@@ -440,7 +431,6 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 
 }
-
 async function createSportsmenExcel(sportsmen) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -466,7 +456,6 @@ async function createSportsmenExcel(sportsmen) {
     fileName = 'ייצוא ספורטאיים' + '.xlsx';
     return writeExcel(workbook, (path + fileName));
 }
-
 async function createCoachExcel(coaches) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -514,10 +503,78 @@ async function createJudgeExcel(judges) {
     return writeExcel(workbook, (path + fileName));
 }
 
-function setDateFormat(date) {
-    let initial = date.split("-");
-    return ([initial[2], initial[1], initial[0]].join('-'));
+async function createCompetitionUploadGrade(sportsman,judges,idComp){
+    let {workbook, worksheet} = createWorkBook();
+    let row = 2;
 
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('קטגוריה').style(style).style(({font: {bold: true}}));
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
+    setWidthListCell(worksheet, [4], 30);
+    let i=0;let j=0
+    let numOfRows=0
+    while (i < sportsman.length) {
+        j=0;
+        let  users =sportsman[i].users
+        while(j<users.length) {
+            worksheet.cell(row, 1).number(users[j].id).style(style);
+            worksheet.cell(row, 2).string(users[j].firstname).style(style);
+            worksheet.cell(row, 3).string(users[j].lastname).style(style);
+            worksheet.cell(row, 4).string(setJudgeCategory(users[j])).style(style);
+            lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], row);
+            j++
+            row++;
+        }
+        i++;
+    }
+    numOfRows= row;
+
+    i = 5; j=0;
+    while(j<judges.length) {
+        let char =String.fromCharCode(64+i);
+        worksheet.cell(1, i).string(setIdJudge(judges[j])).style(style).style(({font: {bold: true}}));
+        lockListValueCell(worksheet, [char], 1)
+        setWidthListCell(worksheet, [i], 30);
+        let sqref = char+'2:'+char+numOfRows
+        worksheet.addDataValidation({
+            type: 'decimal',
+            operator: 'between',
+            allowBlank: false,
+            error: 'אנא הכנס ציון תקין',
+            sqref: sqref,
+            formulas: [1, 10],
+
+        });
+        j++
+        i++
+    }
+
+    let char =String.fromCharCode(64+i);
+    worksheet.cell(1, i).string('ציון סופי').style(style).style(({font: {bold: true}}));
+    lockListValueCell(worksheet, [char], 1);
+    worksheet.row(1).freeze(); // Freezes the top four rows
+    i++;
+    while(64+i!=90){
+        let char =String.fromCharCode(64+i);
+        lockListCell(worksheet, [`${char}1:${char}100`]);
+        i++;
+    }
+
+
+    i=5;
+    j=0;
+    while(j<judges.length+1) {
+        let char =String.fromCharCode(64+i);
+        lockListCell(worksheet, [`${char}${row}:${char}${row}100`]);
+        j++;
+        i++;
+    }
+
+    lockListCell(worksheet, [`A${row}:A100`,`B${row}:B100`,`C${row}:C100`,`D${row}:D100`]);
+    fileName =  'הזנת ציון לתחרות טאלו' +" " + idComp +".xlsx"
+    return writeExcel(workbook, (path + fileName));
 }
 
 async function writeExcel(workbook, loc) {
@@ -529,20 +586,7 @@ async function writeExcel(workbook, loc) {
     }
 }
 
-function setAgeCategory(category) {
-    if (category.maxAge == null)
-        return category.minAge != 0 ? category.minAge + '+' : '';
-    else
-        return category.minAge + '-' + category.maxAge;
-};
 
-function setIdCategory(category) {
-    return '(קוד: ' + category.id + ')';
-}
-
-function setIdCoach(id) {
-    return '(ת.ז: ' + id.id + ')';
-}
 
 const lockCell = (worksheet, range) => {
     worksheet.addDataValidation({
@@ -581,6 +625,31 @@ const setWidthListCell = (worksheet, list, width) => {
     })
 }
 
+function setAgeCategory(category) {
+    if (category.maxAge == null)
+        return category.minAge != 0 ? category.minAge + '+' : '';
+    else
+        return category.minAge + '-' + category.maxAge;
+};
+function setIdCategory(category) {
+    return '(קוד: ' + category.id + ')';
+}
+function setIdCoach(id) {
+    return '(ת.ז: ' + id.id + ')';
+}
+function setDateFormat(date) {
+    let initial = date.split("-");
+    return ([initial[2], initial[1], initial[0]].join('-'));
+
+}
+function setIdJudge(judge){
+    let res = judge.firstname +" " +judge.lastname +" "+ "(ת.ז " + judge.idJudge +")"
+
+    return res;
+}
+function setJudgeCategory(details){
+    return details.categoryName  +" " + common_func.getAgeRange(details) + " " +"(id = "+details.category+")"
+}
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
 module.exports.createExcelRegisterSportsman = createExcelRegisterSportsman;
@@ -591,3 +660,4 @@ module.exports.createExcelRegisterNewJudge = createExcelRegisterNewJudge;
 module.exports.createSportsmenExcel = createSportsmenExcel;
 module.exports.createCoachExcel = createCoachExcel;
 module.exports.createJudgeExcel = createJudgeExcel;
+module.exports.createCompetitionUploadGrade = createCompetitionUploadGrade;

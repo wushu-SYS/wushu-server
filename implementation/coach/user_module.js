@@ -2,6 +2,8 @@ const common_func = require("../commonFunc");
 const constants = require("../../constants")
 
 
+
+
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
     return trans.sql(` INSERT INTO user_Sportsman (id, firstname, lastname, phone, email, birthdate, address, sportclub, sex,photo)
                                     VALUES (@idSportsman, @firstName, @lastName, @phone, @email, @birthDate, @address, @sportClub, @sex ,@photo)`)
@@ -14,7 +16,6 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
         .parameter('email', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.email])
         .parameter('sportClub', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.sportClub])
         .parameter('sex', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sex])
-        .parameter('sportType', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sportStyle])
         .parameter('photo', tediousTYPES.NVarChar, constants.defaultProfilePic)
         .execute()
         .then(async function (testResult) {
@@ -92,10 +93,11 @@ async function insertCoachDB(trans, users, sportsmanDetails, i) {
 }
 
 async function insertSportStyleDB(trans, users, sportsmanDetails, i) {
-    return trans.sql(`INSERT INTO sportsman_sportStyle (id, sportStyle)
-                    Values (@idSportsman,@sportStyle)`)
+    return trans.sql(`INSERT INTO sportsman_sportStyle (id, taullo,sanda)
+                    Values (@idSportsman,@taullo ,@sanda)`)
         .parameter('idSportsman', tediousTYPES.Int, sportsmanDetails[constants.colRegisterSportsmanExcel.idSportsman])
-        .parameter('sportStyle', tediousTYPES.NVarChar, sportsmanDetails[constants.colRegisterSportsmanExcel.sportStyle])
+        .parameter('taullo', tediousTYPES.Bit, sportsmanDetails[constants.colRegisterSportsmanExcel.isTaullo])
+        .parameter('sanda', tediousTYPES.Bit, sportsmanDetails[constants.colRegisterSportsmanExcel.isSanda])
         .execute()
         .then(async function (testResults) {
             if (i + 1 < users.length)
@@ -139,6 +141,7 @@ async function updateCoachProfile(coachDetails) {
             }
         })
         .then(function (results) {
+            //sendUpdateEmail(coachDetails)
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.updateUserDetails;
             trans.commitTransaction();
@@ -153,23 +156,42 @@ async function updateCoachProfile(coachDetails) {
 async function sendEmail(users) {
     var subject = 'רישום משתמש חדש wuhsu'
     users.forEach((user) => {
-        var textMsg = "שלום " + user[constants.colRegisterSportsmanExcel.firstName] + "\n" +
-            "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
-            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-            + "שם פרטי: " + user[constants.colRegisterSportsmanExcel.firstName] + "\n"
-            + "שם משפחה: " + user[constants.colRegisterSportsmanExcel.lastName] + "\n"
-            + "כתובת מגורים: " + user[constants.colRegisterSportsmanExcel.address] + "\n"
-            + "פאלפון: " + user[constants.colRegisterSportsmanExcel.phone] + "\n"
-            + "תאריך לידהי: " + user[constants.colRegisterSportsmanExcel.birthDate] + "\n"
-            + "תעודת זהות: " + user[constants.colRegisterSportsmanExcel.idSportsman] + "\n"
-            + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
-            + "בברכה, " + "\n" +
-            "מערכת או-שו"
-        common_func.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
+        if (user[constants.colRegisterSportsmanExcel.email]) {
+            var textMsg = "שלום " + user[constants.colRegisterSportsmanExcel.firstName] + "\n" +
+                "הינך רשום למערכת של התאחדות האו-שו" + "\n" +
+                "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+                + "שם פרטי: " + user[constants.colRegisterSportsmanExcel.firstName] + "\n"
+                + "שם משפחה: " + user[constants.colRegisterSportsmanExcel.lastName] + "\n"
+                + "כתובת מגורים: " + user[constants.colRegisterSportsmanExcel.address] + "\n"
+                + "פאלפון: " + user[constants.colRegisterSportsmanExcel.phone] + "\n"
+                + "תאריך לידהי: " + user[constants.colRegisterSportsmanExcel.birthDate] + "\n"
+                + "תעודת זהות: " + user[constants.colRegisterSportsmanExcel.idSportsman] + "\n"
+                + " שם המשתמש והסיסמא הראשונית שלך הינם תעודת הזהות שלך" + "\n\n\n"
+                + "בברכה, " + "\n" +
+                "מערכת או-שו"
+            common_func.sendEmail(user[constants.colRegisterSportsmanExcel.email], textMsg, subject)
+        }
     })
-
-
 }
+
+
+async function sendUpdateEmail(coachDetails) {
+        if(coachDetails[4]) {
+            var subject = 'עדכון פרטי משתמש'
+            var textMsg = "שלום " +coachDetails[1] + "\n" +
+                "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+                "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+                + "שם פרטי: " + coachDetails[1] + "\n"
+                + "שם משפחה: " + coachDetails[2] + "\n"
+                + "כתובת מגורים: " + coachDetails[6] + "\n"
+                + "פאלפון: " + coachDetails[3] + "\n"
+                + "תאריך לידה: " + coachDetails[5] + "\n"
+                + "תעודת זהות: " + coachDetails[0] + "\n"
+                + "בברכה, מערכת או-שו"
+            await common_func.sendEmail(coachDetails[0], subject, textMsg)
+        }
+    }
+
 
 module.exports.registerSportsman = registerSportsman;
 module.exports.updateCoachProfile = updateCoachProfile;

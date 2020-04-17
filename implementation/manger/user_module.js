@@ -30,7 +30,7 @@ async function registerCoaches(users) {
             trans = newTransaction;
             await Promise.all(await insertNewCoachDB(trans, users, users[0], 0), await coach_user_module.insertPasswordDB(trans, users, users[0], 0, Constants.userType.COACH)
                 .then((result) => {
-                    //sendEmail(users);
+                    sendEmail(users);
                     ans.status = Constants.statusCode.ok;
                     ans.results = Constants.msg.registerSuccess;
                     trans.commitTransaction();

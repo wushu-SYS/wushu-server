@@ -1,4 +1,5 @@
 const common_sportsman_module = require('../common/sportsman_module');
+const common_func = require('../commonFunc');
 
 function initQuery(queryData, id) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData, id);
@@ -18,11 +19,14 @@ function initQuery(queryData, id) {
  */
 async function getSportsmen(queryData, idCoach) {
     let ans = new Object();
+    queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
+    queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData, idCoach);
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
+        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
         .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
@@ -30,6 +34,7 @@ async function getSportsmen(queryData, idCoach) {
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
         .execute()
         .then(result => {
+            result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
             ans.results = {
                 sportsmen: result
             };
@@ -50,12 +55,15 @@ async function getSportsmen(queryData, idCoach) {
  */
 async function getSportsmenCount(queryData, idCoach) {
     let ans = new Object();
+    queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
+    queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData, idCoach);
 
     await dbUtils.sql(query.queryCount)
         .parameter('idCoach', tediousTYPES.Int, idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
+        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
         .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
@@ -74,7 +82,7 @@ async function getSportsmenCount(queryData, idCoach) {
 function buildQuery_forGetSportsman(queryData, orderBy) {
     let query = new Object();
     query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, 
-                    (SELECT COUNT(*) FROM competition_sportsman WHERE competition_sportsman.idSportsman = user_Sportsman.id) AS competitionCount, `;
+                    ${common_sportsman_module.numCompQuery}  AS competitionCount, `;
     if (queryData.sportStyle !== undefined) {
         query.query += `user_Sportsman.id,firstname,lastname,photo
                     from user_Sportsman
