@@ -10,7 +10,9 @@ io.on('connection', (client) => {
         console.log(`[LOG]-user with id ${data.userId} connected to the server , client id = ${client.id} `)
         connectedUsers.set(parseInt(data.userId), client.id);
     });
-
+    client.on('disconnect', function(data) {
+        connectedUsers.delete(data.userId)
+    });
     client.on('judgeEnterToCompetition', function (data) {
         console.log(`[LOG]-judge with client id ${client.id} enter to judge comp ${data.idComp} `);
         connectedUsers.set(parseInt(data.userId), client.id);
