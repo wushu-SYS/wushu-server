@@ -1,4 +1,5 @@
 const common_func = require('../commonFunc');
+const constants = require("../../constants")
 
 let numCompQuery = "(SELECT COUNT(*)\n" +
     "              FROM competition_sportsman\n" +
@@ -80,10 +81,10 @@ async function sportsmanProfile(id) {
         .execute()
         .then(function (results) {
             results[0].sportStyle = common_func.convertToSportStyle(results[0].taullo, results[0].sanda);
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results[0]
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -94,14 +95,30 @@ async function getCategories() {
     await dbUtils.sql(`Select * from category order by sex, minAge`)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
 }
+async function getSportsmanRank(sportsmanId) {
+    let ans = new Object();
+    await dbUtils.sql(`select avg(grade) as rank from competition_results where sportmanID = @sportsmanId`)
+        .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
+
 
 module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen;
 module.exports.buildOrderBy_forGetSportsmen = buildOrderBy_forGetSportsmen;
@@ -109,3 +126,4 @@ module.exports.sportsmanProfile = sportsmanProfile;
 module.exports.getCategories = getCategories;
 module.exports.numCompQuery = numCompQuery;
 module.exports.buildOrderBy_forGetSportsmen_forRowNumber = buildOrderBy_forGetSportsmen_forRowNumber;
+module.exports.getSportsmanRank = getSportsmanRank;

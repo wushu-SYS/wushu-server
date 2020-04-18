@@ -639,6 +639,12 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
         ans = await common_judge_module.getRefereeProfileById(id);
     res.status(ans.status).send(ans.results)
 });
+app.post("/private/commonCoachManager/sportsmanRank",async function (req,res) {
+    if (req.body.id !== undefined) {
+        let ans = await common_sportsman_module.getSportsmanRank(req.body.id);
+        res.status(ans.status).send(ans.results)
+    }
+})
 //----------------------------------------------------------------------------------------------------------------------
 
 //TODO: when implementing delete don't forget to delete also from user_passwords table (you need 2 delete queries -> look at the implementation for the sportsmans)
