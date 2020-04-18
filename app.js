@@ -51,7 +51,6 @@ const judge_user_module = require("./implementation/judge/user_module");
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 const master_judge_module = require("./implementation/judge/masterJudge");
 
-const competition_module = require("./implementation/competition/competition");
 const socket_service = require("././SocketService")
 
 common_function = require("./implementation/commonFunc");
@@ -932,7 +931,7 @@ app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,
 app.post("/private/manager/updateCompetitionGrades",async function (req,res) {
     let sportsman = req.body.grades
     let idComp= req.body.idComp
-    let ans = await competition_module.updateCompetitionGrades(sportsman,idComp)
+    let ans = await manger_competition_module.updateCompetitionGrades(sportsman,idComp)
     res.status(ans.status).send(ans.results)
 
 })
