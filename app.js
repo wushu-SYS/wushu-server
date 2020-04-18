@@ -929,6 +929,13 @@ app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,
             res.status(statusCode.badRequest).send(checkData.results);
     }
 })
+app.post("/private/manager/updateCompetitionGrades",async function (req,res) {
+    let sportsman = req.body.grades
+    let idComp= req.body.idComp
+    let ans = await competition_module.updateCompetitionGrades(sportsman,idComp)
+    res.status(ans.status).send(ans.results)
+
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -1,25 +1,45 @@
 const constants = require("../../constants")
 tediousTYPES = require('tedious').TYPES;
 
-async function updateCompetitionResultGrade(details) {
-   let ans = new Object();
-    await dbUtils.sql(`INSERT INTO competition_results (sportsmanID,compID,categoryID,grade)
-                                    VALUES (@sportsmanID, @compID, @categoryID, @grade)`)
-        .parameter('idCoach', tediousTYPES.Int, details.sportsmanID)
-        .parameter('firstName',  tediousTYPES.Int, details.compID)
-        .parameter('lastName',  tediousTYPES.Int, details.categoryID)
-        .parameter('phone',  tediousTYPES.Float, details.grade)
-        .execute()
-        .then(result => {
-            ans.results = {
-                sportsmen: result
-            };
-            ans.status = constants.statusCode.ok;
+async function updateCompetitionGrades(sportsman,compId) {
+    let ans = new Object()
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await updateSportsmanCompetitionGrade(trans, sportsman, sportsman[0], 0,compId)
+                .then((result) => {
+                    //sendEmail(users);
+                    ans.status = constants.statusCode.ok;
+                    ans.results = constants.msg.competitionUpdate;
+                    trans.commitTransaction();
+                })
+                .catch((err) => {
+                    ans.status = constants.statusCode.badRequest;
+                    ans.results = err;
+                    trans.rollbackTransaction();
+                }))
         })
-        .fail((error) => {
+        .fail(function (err) {
             ans.status = constants.statusCode.badRequest;
-            ans.results = error;
+            ans.results = err;
+            trans.rollbackTransaction();
         });
+
     return ans
 }
+async function updateSportsmanCompetitionGrade(trans,sportsman,sportsmanDetails,i,compId){
+    return trans.sql(`update competition_results set grade =@grade where compID =@compId and sportmanID=@sportsmanId and categoryID = @categoryId`)
+        .parameter('grade', tediousTYPES.Int, sportsmanDetails.sportsmanId)
+        .parameter('compId',  tediousTYPES.Int, compId)
+        .parameter('sportsmanId',  tediousTYPES.Int, sportsmanDetails.categoryId)
+        .parameter('categoryId',  tediousTYPES.Float, sportsmanDetails.grade)
+        .execute()
+        .then(async function (testResult) {
+            if (i + 1 < sportsman.length)
+                await updateSportsmanCompetitionGrade(trans, sportsman, sportsman[i + 1], i + 1,compId)
+            return testResult
+        })
+}
 
+module.exports.updateCompetitionGrades=updateCompetitionGrades
