@@ -2,6 +2,7 @@ const masterJudge_module = require("./implementation/judge/masterJudge");
 let connectedUsers = new Map();
 let startedCompetition = new Map();
 let nextSportsmanInCompetition = [];
+let competitionFinalsGrade = new Map()
 
 
 io.on('connection', (client) => {
@@ -10,7 +11,7 @@ io.on('connection', (client) => {
         console.log(`[LOG]-user with id ${data.userId} connected to the server , client id = ${client.id} `)
         connectedUsers.set(parseInt(data.userId), client.id);
     });
-    client.on('disconnect', function(data) {
+    client.on('disconnect', function (data) {
         connectedUsers.delete(data.userId)
     });
     client.on('judgeEnterToCompetition', function (data) {
@@ -24,6 +25,7 @@ io.on('connection', (client) => {
         connectedUsers.set(parseInt(data.userId), client.id);
         let judges = (await masterJudge_module.getRegisteredJudgeForCompetition(data.idComp)).results;
         startedCompetition.set(data.idComp, {judges: judges, masterJudge: data.userId});
+        competitionFinalsGrade.set(data.idComp, [])
         judges.forEach((judge) => {
             let clientId = connectedUsers.get(parseInt(data.userId))
             if (clientId != undefined) {
@@ -74,9 +76,24 @@ io.on('connection', (client) => {
         connectedUsers.set(parseInt(data.userId), client.id);
         console.log(`[LOG]-judge with id ${data.userId} give grade to sportsman  `)
         let masterJudge = (startedCompetition.get(data.idComp)).masterJudge
-        io.to(connectedUsers.get(parseInt(masterJudge))).emit('judgeGiveGrade', {userId: data.userId, grade: data.grade});
+        io.to(connectedUsers.get(parseInt(masterJudge))).emit('judgeGiveGrade', {
+            userId: data.userId,
+            grade: data.grade
+        });
 
     })
 
+    client.on("masterJudgeSaveGrade", function (data) {
+        connectedUsers.set(parseInt(data.userId), client.id);
+        let sportsmanGrades = competitionFinalsGrade.get(data.idComp)
+        sportsmanGrades.push(data.sportsman)
+        competitionFinalsGrade.set(data.idComp, sportsmanGrades)
+    })
 
+    client.on("competitionFinalsGrades",function (data) {
+        connectedUsers.set(parseInt(data.userId), client.id);
+        let sportsmanGrades = competitionFinalsGrade.get(data.idComp)
+        io.to(connectedUsers.get(parseInt(data.userId))).emit('competitionFinalsGradesResults', sportsmanGrades)
+
+        })
 });

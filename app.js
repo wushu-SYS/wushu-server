@@ -163,6 +163,7 @@ app.options('*', cors());
 
 //--------------------------------------------Login---------------------------------------------------------------------
 app.post("/login", async (req, res) => {
+    console.log("someone log in to the system")
     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
     if (!ans.isPassed)
         res.status(statusCode.unauthorized).send(ans.err);
