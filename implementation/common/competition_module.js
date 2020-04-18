@@ -463,7 +463,6 @@ async function getCompetitionResultById(compId){
             res.status=constants.statusCode.ok
             let sorted = commonFunc.sortUsers(results);
             sorted.forEach(categorySportsman => categorySportsman.users.sort((s1, s2) => s2.finalGrade - s1.finalGrade));
-            console.log(sorted[2].users);
             res.results = sorted;
         })
         .fail((err) => {
