@@ -96,4 +96,12 @@ io.on('connection', (client) => {
         io.to(connectedUsers.get(parseInt(data.userId))).emit('competitionFinalsGradesResults', sportsmanGrades)
 
         })
+
+    client.on('judgeMasterCloseCompetition', async function (data) {
+        console.log(`[LOG]-judge master with client id ${client.id} close competition ${data.idComp}`);
+        connectedUsers.set(parseInt(data.userId), client.id);
+        startedCompetition.delete(data.idComp)
+        competitionFinalsGrade.delete(data.idComp)
+    });
+
 });
