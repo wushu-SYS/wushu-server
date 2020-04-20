@@ -1,5 +1,6 @@
 const common_func = require("../commonFunc")
 const coach_user_module = require("../coach/user_module");
+const pass = require("../coach/user_module")
 
 async function insertNewCoachDB(trans, users, coachDetails, i) {
     return trans.sql(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub,photo)
@@ -85,6 +86,81 @@ async function deleteCoach(coach) {
     return ans;
 }
 
+async function registerAdmin(user) {
+    let ans = new Object();
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async (newTransaction) => {
+            trans = newTransaction;
+            await Promise.all(await dbUtils.sql(`insert into user_Manger (id, firstname, lastname, email)
+                        values  (@id,@firstName,@lastName,@email);`)
+                .parameter('id', tediousTYPES.Int, user.id)
+                .parameter('firstName', tediousTYPES.NVarChar, user.firstName)
+                .parameter('lastName', tediousTYPES.NVarChar, user.lastName)
+                .parameter('email', tediousTYPES.NVarChar, user.email)
+                .execute(), await pass.insertPasswordDB(trans, [user], common_func.getArrayFromJson(user), 0, Constants.userType.MANAGER)
+                .then((result) => {
+                    //sendEmail(users);
+                    ans.status = Constants.statusCode.ok;
+                    ans.results = Constants.msg.registerSuccess;
+                    trans.commitTransaction();
+                })
+                .catch((err) => {
+                    ans.status = Constants.statusCode.badRequest;
+                    ans.results = err;
+                    trans.rollbackTransaction();
+                }))
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        });
+
+    return ans
+}
+async function getAdmins(){
+    let ans = new Object();
+    await dbUtils.sql('Select * from user_Manger order by firstname')
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+async function deleteAdmin(id){
+    let ans = new Object();
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @id;`)
+                .parameter('id', tediousTYPES.Int, id)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            return await trans.sql(`DELETE FROM user_Manger WHERE id = @id;`)
+                .parameter('id', tediousTYPES.Int, id)
+                .returnRowCount()
+                .execute();
+        })
+        .then(async function (testResult) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.userDeleted;
+            trans.commitTransaction();
+        })
+        .fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
+        })
+    return ans;
+}
 
 async function sendMail(req) {
     var subject = 'רישום משתמש חדש wuhsu'
@@ -104,4 +180,7 @@ async function sendMail(req) {
 
 module.exports.registerCoaches = registerCoaches;
 module.exports.deleteCoach = deleteCoach;
+module.exports.registerAdmin = registerAdmin;
+module.exports.getAdmins = getAdmins;
+module.exports.deleteAdmin = deleteAdmin;
 

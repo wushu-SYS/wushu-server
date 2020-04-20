@@ -300,6 +300,10 @@ app.post("/private/regExcelCompetitionSportsmen", async function (req, res) {
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 })
+app.post("/private/manager/registerAdmin", async function (req, res) {
+    let ans = await manger_user_module.registerAdmin(req.body);
+    res.status(ans.status).send(ans.results)
+})
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -606,6 +610,10 @@ app.post("/private/commonCoachManager/competitionResults",async function (req,re
     res.status(ans.status).send(ans.results)
 
 })
+app.post("/private/manager/getAdmins", async function (req, res) {
+    let ans = await manger_user_module.getAdmins();
+    res.status(ans.status).send(ans.results)
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -666,6 +674,14 @@ app.post("/private/manager/deleteCoachProfile", async function (req, res) {
 app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
     let ans = await manager_judge_module.deleteJudge(req.body.userID);
     res.status(ans.status).send(ans.results)
+});
+app.post("/private/manager/deleteAdmin", async function (req, res) {
+    if(req.body.id !== id) {
+        let ans = await manger_user_module.deleteAdmin(req.body.id);
+        res.status(ans.status).send(ans.results)
+    }
+    else
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 //----------------------------------------------------------------------------------------------------------------------
 
