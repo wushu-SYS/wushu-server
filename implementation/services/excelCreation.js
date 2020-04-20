@@ -137,13 +137,14 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         },
     });
 
-    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","S1:S100","T1:T100","Q1:Q100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "S1:S100", "T1:T100", "Q1:Q100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 1);
 
     fileName = 'רישום ספורטאים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
 
 }
+
 async function createExcelRegisterCoaches(clubList) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -206,12 +207,13 @@ async function createExcelRegisterCoaches(clubList) {
     });
 
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 1);
-    lockListCell(worksheet, ["I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","S1:S100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    lockListCell(worksheet, ["I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "S1:S100", "T1:T100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
 
     fileName = 'רישום מאמנים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
 
 }
+
 async function createExcelRegisterNewJudge() {
     let {workbook, worksheet} = createWorkBook();
 
@@ -242,12 +244,13 @@ async function createExcelRegisterNewJudge() {
     });
 
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E'], 1);
-    lockListCell(worksheet, ["F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    lockListCell(worksheet, ["F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "T1:T100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
 
 
     fileName = 'רישום שופטים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
 }
+
 async function createExcelCoachAsJudge(coachList) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -268,7 +271,7 @@ async function createExcelCoachAsJudge(coachList) {
 
 
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
-    lockListCell(worksheet, ["E1:E100", "F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100","T1:T100","Z1:Z100","W1:W100","X1:X100","Y1:Y100"]);
+    lockListCell(worksheet, ["E1:E100", "F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "T1:T100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
     worksheet.addDataValidation({
         type: 'list',
         allowBlank: false,
@@ -326,6 +329,7 @@ async function createExcelCompetitionState(compState, date) {
     return writeExcel(workbook, (path + fileName));
 
 }
+
 async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -431,6 +435,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
 
 
 }
+
 async function createSportsmenExcel(sportsmen) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -456,6 +461,7 @@ async function createSportsmenExcel(sportsmen) {
     fileName = 'ייצוא ספורטאיים' + '.xlsx';
     return writeExcel(workbook, (path + fileName));
 }
+
 async function createCoachExcel(coaches) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -479,6 +485,7 @@ async function createCoachExcel(coaches) {
     fileName = 'ייצוא מאמנים' + '.xlsx';
     return writeExcel(workbook, (path + fileName));
 }
+
 async function createJudgeExcel(judges) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -503,7 +510,7 @@ async function createJudgeExcel(judges) {
     return writeExcel(workbook, (path + fileName));
 }
 
-async function createCompetitionUploadGrade(sportsman,judges,idComp){
+async function createCompetitionUploadGrade(sportsman, judges, idComp) {
     let {workbook, worksheet} = createWorkBook();
     let row = 2;
 
@@ -513,12 +520,12 @@ async function createCompetitionUploadGrade(sportsman,judges,idComp){
     worksheet.cell(1, 4).string('קטגוריה').style(style).style(({font: {bold: true}}));
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D'], 1);
     setWidthListCell(worksheet, [4], 30);
-    let i=0;let j=0
-    let numOfRows=0
+    let i = 0, j = 0, numOfRows = 0;
+
     while (i < sportsman.length) {
-        j=0;
-        let  users =sportsman[i].users
-        while(j<users.length) {
+        j = 0;
+        let users = sportsman[i].users
+        while (j < users.length) {
             worksheet.cell(row, 1).number(users[j].id).style(style);
             worksheet.cell(row, 2).string(users[j].firstname).style(style);
             worksheet.cell(row, 3).string(users[j].lastname).style(style);
@@ -529,15 +536,18 @@ async function createCompetitionUploadGrade(sportsman,judges,idComp){
         }
         i++;
     }
-    numOfRows= row;
-
-    i = 5; j=0;
-    while(j<judges.length) {
-        let char =String.fromCharCode(64+i);
+    numOfRows = row;
+    let judgesCharts = []
+    i = 5;
+    j = 0;
+    while (j < judges.length) {
+        let char = String.fromCharCode(64 + i);
+        lockListCell(worksheet, [`${char}${numOfRows}:${char}100`]);
+        judgesCharts.push(char)
         worksheet.cell(1, i).string(setIdJudge(judges[j])).style(style).style(({font: {bold: true}}));
         lockListValueCell(worksheet, [char], 1)
         setWidthListCell(worksheet, [i], 30);
-        let sqref = char+'2:'+char+numOfRows
+        let sqref = char + '2:' + char + numOfRows
         worksheet.addDataValidation({
             type: 'decimal',
             operator: 'between',
@@ -551,29 +561,32 @@ async function createCompetitionUploadGrade(sportsman,judges,idComp){
         i++
     }
 
-    let char =String.fromCharCode(64+i);
+    let char = String.fromCharCode(64 + i);
     worksheet.cell(1, i).string('ציון סופי').style(style).style(({font: {bold: true}}));
     lockListValueCell(worksheet, [char], 1);
+    lockListCell(worksheet, [`${char}${numOfRows}:${char}100`]);
+
     worksheet.row(1).freeze(); // Freezes the top four rows
+
+    for (row = 2; row < numOfRows; row++) {
+        let cells = ""
+        judgesCharts.forEach((char) => {
+            cells = cells + char + row + ","
+        })
+        cells = cells.substring(0, cells.length - 1);
+        worksheet.cell(row, i).formula('AVERAGE(' + cells + ')').style(style)
+        lockListValueCell(worksheet, [char], row);
+        cells = ""
+    }
     i++;
-    while(64+i!=90){
-        let char =String.fromCharCode(64+i);
+    while (64 + i != 90) {
+        let char = String.fromCharCode(64 + i);
         lockListCell(worksheet, [`${char}1:${char}100`]);
         i++;
     }
 
-
-    i=5;
-    j=0;
-    while(j<judges.length+1) {
-        let char =String.fromCharCode(64+i);
-        lockListCell(worksheet, [`${char}${row}:${char}${row}100`]);
-        j++;
-        i++;
-    }
-
-    lockListCell(worksheet, [`A${row}:A100`,`B${row}:B100`,`C${row}:C100`,`D${row}:D100`]);
-    fileName =  'הזנת ציון לתחרות טאלו' +" " + idComp +".xlsx"
+    lockListCell(worksheet, [`A${row}:A100`, `B${row}:B100`, `C${row}:C100`, `D${row}:D100`]);
+    fileName = 'הזנת ציון לתחרות טאלו' + " " + idComp + ".xlsx"
     return writeExcel(workbook, (path + fileName));
 }
 
@@ -585,7 +598,6 @@ async function writeExcel(workbook, loc) {
         console.log(e);
     }
 }
-
 
 
 const lockCell = (worksheet, range) => {
@@ -631,24 +643,29 @@ function setAgeCategory(category) {
     else
         return category.minAge + '-' + category.maxAge;
 };
+
 function setIdCategory(category) {
     return '(קוד: ' + category.id + ')';
 }
+
 function setIdCoach(id) {
     return '(ת.ז: ' + id.id + ')';
 }
+
 function setDateFormat(date) {
     let initial = date.split("-");
     return ([initial[2], initial[1], initial[0]].join('-'));
 
 }
-function setIdJudge(judge){
-    let res = judge.firstname +" " +judge.lastname +" "+ "(ת.ז " + judge.idJudge +")"
+
+function setIdJudge(judge) {
+    let res = judge.firstname + " " + judge.lastname + " " + "(ת.ז " + judge.idJudge + ")"
 
     return res;
 }
-function setJudgeCategory(details){
-    return details.categoryName  +" " + common_func.getAgeRange(details) + " " +"(id = "+details.category+")"
+
+function setJudgeCategory(details) {
+    return details.categoryName + " " + common_func.getAgeRange(details) + " " + "(id = " + details.category + ")"
 }
 
 module.exports.createExcelRegisterCompetition = createExcelRegisterCompetition;
