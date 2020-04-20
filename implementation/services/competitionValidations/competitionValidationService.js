@@ -18,8 +18,7 @@ function pushErrorsToList(errList, err) {
         errList.push(err)
 }
 
-function
-checkExcelCompetitionsGrade(data,compType,numOfJudge){
+function checkExcelCompetitionsGrade(data,compType,numOfJudge){
     let errorUsers = [];
     let res = {};
     res.isPassed = true;

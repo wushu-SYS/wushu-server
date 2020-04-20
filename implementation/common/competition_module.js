@@ -453,7 +453,7 @@ async function getCompetitionResultById(compId){
                     on user_Sportsman.id = competition_sportsman.idSportsman
                     left join category as c
                     on competition_sportsman.category = c.id
-                    left join competition_results
+                    right join competition_results
                     on competition_results.compID = competition_sportsman.idCompetition and competition_results.sportmanID = competition_sportsman.idSportsman and competition_results.categoryID = competition_sportsman.category
                     where competition_sportsman.idCompetition = @compId
                     order by indx`)
