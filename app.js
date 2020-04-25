@@ -398,7 +398,7 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
     access = decoded.access;
     let coaches;
     if (access === Constants.userType.MANAGER) {
-        coaches = await common_couches_module.getCoaches();
+        coaches = await common_couches_module.getCoachesNotRegisterAsJudges();
         let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
         res.downloadExcel = util.promisify(res.download);
         await res.downloadExcel(excelFile);
@@ -526,11 +526,8 @@ app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp',async func
 
 //--------------------------------------------Get details---------------------------------------------------------------
 app.post("/private/commonCoachManager/getCoaches", async function (req, res) {
-    if (access !== Constants.userType.SPORTSMAN) {
         let ans = await common_couches_module.getCoaches();
         res.status(ans.status).send(ans.results);
-    } else
-        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
 app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
     let ans;
@@ -613,6 +610,11 @@ app.post("/private/commonCoachManager/competitionResults",async function (req,re
 app.post("/private/manager/getAdmins", async function (req, res) {
     let ans = await manger_user_module.getAdmins();
     res.status(ans.status).send(ans.results)
+});
+app.post("/private/commonCoachManager/getCoachesNotRegisterAsJudges", async function (req, res) {
+    let ans = await common_couches_module.getCoachesNotRegisterAsJudges();
+    res.status(ans.status).send(ans.results);
+
 });
 
 //----------------------------------------------------------------------------------------------------------------------

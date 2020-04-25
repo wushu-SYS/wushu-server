@@ -28,8 +28,9 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
 
 async function insertPasswordDB(trans, users, userDetails, i, userType) {
     return trans.sql(`INSERT INTO user_Passwords (id,password,usertype,isfirstlogin)
-                    Values (@idSportsman ,@password,@userType,@isFirstLogin)`)
-        .parameter('idSportsman', tediousTYPES.Int, userDetails[constants.colRegisterSportsmanExcel.idSportsman])
+                      select * from (select @idUser as id, @password as password,@userType as usertype ,@isFirstLogin as isfirstlogin)
+                      as tmp where not exists( select id,password,usertype,isfirstlogin from user_Passwords where id= @idUser)`)
+        .parameter('idUser', tediousTYPES.Int, userDetails[constants.colRegisterSportsmanExcel.idSportsman])
         .parameter('password', tediousTYPES.NVarChar, bcrypt.hashSync(userDetails[constants.colRegisterSportsmanExcel.idSportsman].toString(), saltRounds))
         .parameter('userType', tediousTYPES.Int, userType)
         .parameter('isFirstLogin', tediousTYPES.Int, 1)

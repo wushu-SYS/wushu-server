@@ -279,7 +279,7 @@ async function createExcelCoachAsJudge(coachList) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'D2:D100',
-        formulas: ['כן,לא'],
+        formulas: ['כן'],
         style: style,
     });
 
