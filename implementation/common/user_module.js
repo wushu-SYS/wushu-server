@@ -26,7 +26,7 @@ async function checkUserDetailsForLogin(userData) {
 
 async function getUserDetails(userData) {
     let result;
-    switch (userData.dbResults.usertype[0]) {
+    switch (userData.dbResults.usertype) {
         case 1:
             result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
             break;

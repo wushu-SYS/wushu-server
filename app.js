@@ -162,17 +162,36 @@ app.options('*', cors());
 //----------------------------------------------------------------------------------------------------------------------
 
 //--------------------------------------------Login---------------------------------------------------------------------
-app.post("/login", async (req, res) => {
-    console.log("someone log in to the system")
+app.post("/loginFirstStep", async (req, res) => {
     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
     if (!ans.isPassed)
         res.status(statusCode.unauthorized).send(ans.err);
-    else {
+    else
+        res.status(statusCode.ok).send(ans)
+});
+app.post("/loginSecondStep", async (req, res) => {
+    console.log("someone log in to the system")
+    console.log(req.body)
+    if (!req.body)
+        res.status(statusCode.unauthorized).send(ans.err);
+    else{
+        let ans = req.body;
         let userDetails = await common_user_module.getUserDetails(ans);
         let token = common_user_module.buildToken(userDetails, ans);
         res.status(statusCode.ok).send(token)
     }
 });
+// app.post("/login", async (req, res) => {
+//     console.log("someone log in to the system")
+//     let ans = await common_user_module.checkUserDetailsForLogin(req.body);
+//     if (!ans.isPassed)
+//         res.status(statusCode.unauthorized).send(ans.err);
+//     else {
+//         let userDetails = await common_user_module.getUserDetails(ans);
+//         let token = common_user_module.buildToken(userDetails, ans);
+//         res.status(statusCode.ok).send(token)
+//     }
+// });
 app.post("/private/changePassword", async function (req, res) {
     let userData = {
         id: id,
