@@ -3,7 +3,7 @@ let constants = require("../../constants");
 
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
-    await dbUtils.sql(`select * from user_Passwords where id = @id`)
+    await dbUtils.sql(`select user_Passwords.*, usertype from user_Passwords join user_UserTypes on user_Passwords.id = user_UserTypes.id where user_Passwords.id = @id`)
         .parameter('id', tediousTYPES.Int, userData.userID)
         .execute()
         .then(function (results) {
@@ -11,7 +11,9 @@ async function checkUserDetailsForLogin(userData) {
                 ans.isPassed = false;
                 ans.err = Constants.errorMsg.errLoginDetails
             } else {
+                let userTypes = results.map(u => u.usertype)
                 ans.dbResults = results[0];
+                ans.dbResults.usertype = userTypes;
                 ans.isPassed = bcrypt.compareSync(userData.password, results[0].password);
             }
         }).fail(function (err) {
@@ -24,7 +26,7 @@ async function checkUserDetailsForLogin(userData) {
 
 async function getUserDetails(userData) {
     let result;
-    switch (userData.dbResults.usertype) {
+    switch (userData.dbResults.usertype[0]) {
         case 1:
             result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
             break;

@@ -197,7 +197,7 @@ async function checkIfNeedUpdate(id){
 
 async function getCompetitionsToJudgeById(judgeId){
     let ans = new Object();
-    let query = `select * from events join events_competition ec on events.idEvent = ec.idEvent join competition_judge on ec.idCompetition = competition_judge.idCompetition where idJudge=@judgeId`
+    let query = `select * from events join events_competition ec on events.idEvent = ec.idEvent join competition_judge on ec.idCompetition = competition_judge.idCompetition where status like '${Constants.competitionStatus.inProgressComp}' and idJudge=@judgeId`
     await dbUtils.sql(query)
         .parameter('judgeId', tediousTYPES.Int, judgeId)
         .execute()
