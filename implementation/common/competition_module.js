@@ -102,7 +102,7 @@ async function startUpdateIndexRegistrationTrans(compId,sportsman){
     await dbUtils.beginTransaction()
         .then(async (newTransaction) => {
             trans = newTransaction;
-            await Promise.all(await  updateIndexSportsmanRegistration(trans,sportsman,sportsman[0],0,compId)
+            await  updateIndexSportsmanRegistration(trans,sportsman,sportsman[0],0,compId)
                     .then(async (result) => {
                         ans.status = constants.statusCode.ok;
                         ans.results = constants.msg.competitionUpdate;
@@ -113,7 +113,7 @@ async function startUpdateIndexRegistrationTrans(compId,sportsman){
                         ans.status = constants.statusCode.badRequest;
                         ans.results = err;
                         trans.rollbackTransaction();
-                    }))
+                    })
         })
         .fail(function (err) {
             console.log(err)

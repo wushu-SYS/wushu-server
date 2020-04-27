@@ -14,7 +14,7 @@ function getArrayFromJson(row){
     }
     return tmp;
 }
-
+/*
 async function sendMail(sendTo, message, sub) {
     const send = require('gmail-send')({
         user: 'wushuSys@gmail.com',
@@ -29,6 +29,8 @@ async function sendMail(sendTo, message, sub) {
     })
 
 }
+
+ */
 
 function setDateFormatRegisterUser(birthDate) {
     if (birthDate != undefined) {
@@ -108,12 +110,20 @@ function sortUsers(users) {
     return resultJson;
 }
 
+function getSessionYear(){
+    let year = new Date().getFullYear();
+    if(new Date().getMonth() < constants.monthDateFromZERO.SEPTEMBER)
+        year = year - 1;
+
+    return year
+}
 module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
-module.exports.sendEmail = sendMail;
+//module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;
 module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
 module.exports.sortUsers = sortUsers;
+module.exports.getSessionYear = getSessionYear;

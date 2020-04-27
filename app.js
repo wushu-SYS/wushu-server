@@ -47,11 +47,11 @@ const manger_competition_module = require("./implementation/manger/competition_m
 const manager_judge_module = require("./implementation/manger/judge_module");
 const manger_sportclub_module = require("./implementation/manger/sportClub_module");
 
-const judge_user_module = require("./implementation/judge/user_module");
 const sportsman_user_module = require("./implementation/sportsman/user_module");
 const master_judge_module = require("./implementation/judge/masterJudge");
 
-const socket_service = require("././SocketService")
+const sportsman_charts = require("./implementation/charts/sportsman")
+
 
 common_function = require("./implementation/commonFunc");
 const excelCreation = require("./implementation/services/excelCreation");
@@ -976,7 +976,11 @@ app.post("/private/manager/updateCompetitionGrades",async function (req,res) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
+//-------------------------------------------charts---------------------------------------------------------------------
+app.post("/private/allUsers/participateSportsmanCompetitions",async function (req,res) {
+    let ans = await sportsman_charts.getParticipateSportsManCompetitions(req.body.sportsmanId)
+    res.status(ans.status).send(ans);
+})
 
 
 
