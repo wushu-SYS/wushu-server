@@ -982,7 +982,11 @@ app.post("/private/allUsers/participateSportsmanCompetitions",async function (re
     res.status(ans.status).send(ans);
 })
 
+app.post("/private/allUsers/sportsmanRecords",async function (req,res) {
+    let ans = await sportsman_charts.getSportsmanRecords(req.body.sportsmanId)
+    res.status(ans.status).send(ans)
 
+})
 
 //start the server
 server.listen(process.env.PORT || 3000, () => {
