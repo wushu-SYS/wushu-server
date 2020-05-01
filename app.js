@@ -51,6 +51,7 @@ const sportsman_user_module = require("./implementation/sportsman/user_module");
 const master_judge_module = require("./implementation/judge/masterJudge");
 
 const sportsman_charts = require("./implementation/charts/sportsman")
+const club_charts = require("./implementation/charts/clubs")
 
 
 common_function = require("./implementation/commonFunc");
@@ -981,10 +982,14 @@ app.post("/private/allUsers/participateSportsmanCompetitions",async function (re
     let ans = await sportsman_charts.getParticipateSportsManCompetitions(req.body.sportsmanId)
     res.status(ans.status).send(ans);
 })
-
 app.post("/private/allUsers/sportsmanRecords",async function (req,res) {
     let ans = await sportsman_charts.getSportsmanRecords(req.body.sportsmanId)
     res.status(ans.status).send(ans)
+
+})
+app.post("/private/commonCoachManager/clubTree",async function (req,res) {
+    let ans = await club_charts.getClubTree(req.body.clubId)
+    res.status(ans.status).send(ans.result)
 
 })
 

@@ -54,7 +54,6 @@ async function getCountSportsmanCompetition(year, sportsmanId) {
     return ans;
 
 }
-
 async function getSportsmanRecords(sportsmanId){
     let res = new Object();
     let grades = await getSportsmanGrades(common_functions.getSessionYear(),sportsmanId)
@@ -92,5 +91,7 @@ async function getSportsmanGrades(year,sportsamId){
     return ans;
 
 }
+
+
 module.exports.getParticipateSportsManCompetitions = getParticipateSportsManCompetitions
 module.exports.getSportsmanRecords =getSportsmanRecords
