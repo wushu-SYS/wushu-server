@@ -1,3 +1,5 @@
+const comFunc = require("../commonFunc")
+
 async function getSportClubs(idCoach) {
     let ans = new Object();
     let query ='Select * from sportclub order by name';

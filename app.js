@@ -39,7 +39,6 @@ const common_judge_module = require("./implementation/common/judge_module");
 
 const coach_sportsman_module = require("./implementation/coach/sportsman_module");
 const coach_user_module = require("./implementation/coach/user_module");
-const coach_competition_module = require("./implementation/coach/competition_module");
 
 const manger_sportsman_module = require("./implementation/manger/sportsman_module");
 const manger_user_module = require("./implementation/manger/user_module");
@@ -990,6 +989,11 @@ app.post("/private/allUsers/sportsmanRecords",async function (req,res) {
 app.post("/private/commonCoachManager/clubTree",async function (req,res) {
     let ans = await club_charts.getClubTree(req.body.clubId)
     res.status(ans.status).send(ans.result)
+
+})
+app.post("/private/commonCoachManager/clubsParticipateSportsmanCompetitions",async function (req,res) {
+    let ans = await club_charts.getClubParticipateSportsmanCompetitions(req.body.clubId)
+    res.status(ans.status).send(ans.results)
 
 })
 

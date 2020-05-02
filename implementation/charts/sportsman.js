@@ -32,7 +32,7 @@ async function getCountSessionCompetition(year) {
 }
 async function getCountSportsmanCompetition(year, sportsmanId) {
     let ans = new Object();
-    await dbUtils.sql(`select sum(compCount) as sportsmanComp from(
+    await dbUtils.sql(`select COUNT(compCount) as sportsmanComp from(
                        SELECT COUNT(*) as compCount
                        FROM competition_sportsman
                         join events_competition
