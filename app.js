@@ -51,6 +51,7 @@ const master_judge_module = require("./implementation/judge/masterJudge");
 
 const sportsman_charts = require("./implementation/charts/sportsman")
 const club_charts = require("./implementation/charts/clubs")
+const organization_charts = require("./implementation/charts/organization")
 
 
 common_function = require("./implementation/commonFunc");
@@ -993,6 +994,11 @@ app.post("/private/commonCoachManager/clubTree",async function (req,res) {
 })
 app.post("/private/commonCoachManager/clubsParticipateSportsmanCompetitions",async function (req,res) {
     let ans = await club_charts.getClubParticipateSportsmanCompetitions(req.body.clubId)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/wushuTree",async function (req,res) {
+    let ans = await organization_charts.getWushuTree()
     res.status(ans.status).send(ans.results)
 
 })

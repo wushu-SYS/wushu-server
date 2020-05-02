@@ -1,4 +1,3 @@
-const clubs_functions = require("../common/sportclub_module")
 const comFunc = require("../commonFunc")
 const constants = require("../../constants")
 
