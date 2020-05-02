@@ -126,7 +126,7 @@ let sportsManFields = {
 
 let competitionStatus = {
     close: 'תחרות סגורה',
-    open: ' תחרות פתוחה',
+    open: 'תחרות פתוחה',
     regClose: 'רישום סגור',
     inProgressComp: 'תחרות בתהליך',
 };

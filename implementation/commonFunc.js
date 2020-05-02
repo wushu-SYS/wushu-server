@@ -97,15 +97,10 @@ function sortUsers(users) {
     });
     let i = 0;
     usedCategories.forEach(category => {
-        let categoryUsers = {
+        resultJson.push({
             category: category,
-            users: []
-        };
-        while (i < users.length && category.id === users[i].category) {
-            categoryUsers.users.push(users[i]);
-            i++;
-        }
-        resultJson.push(categoryUsers);
+            users: users.filter(u => u.category == category.id)
+        });
     });
     return resultJson;
 }

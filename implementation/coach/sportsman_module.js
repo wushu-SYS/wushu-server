@@ -32,6 +32,7 @@ async function getSportsmen(queryData, idCoach) {
         .parameter('compId', tediousTYPES.Int, queryData.competition)
         .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
+        .parameter('year', tediousTYPES.Int, common_func.getSessionYear())
         .execute()
         .then(result => {
             result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
