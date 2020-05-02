@@ -52,6 +52,7 @@ const master_judge_module = require("./implementation/judge/masterJudge");
 const sportsman_charts = require("./implementation/charts/sportsman")
 const club_charts = require("./implementation/charts/clubs")
 const organization_charts = require("./implementation/charts/organization")
+const socketService =require("./SocketService");
 
 
 common_function = require("./implementation/commonFunc");
@@ -171,8 +172,6 @@ app.post("/loginFirstStep", async (req, res) => {
         res.status(statusCode.ok).send(ans)
 });
 app.post("/loginSecondStep", async (req, res) => {
-    console.log("someone log in to the system")
-    console.log(req.body)
     if (!req.body)
         res.status(statusCode.unauthorized).send(ans.err);
     else{
