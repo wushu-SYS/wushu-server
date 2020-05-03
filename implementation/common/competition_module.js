@@ -79,17 +79,22 @@ async function reRangeCompetitionSportsman(compId) {
     let sportsmanList = await getNewOldSportsmanRegisteredComp(compId)
     let sportsmanNew = sportsmanList.newSportsman;
     let sportsmanOld = sportsmanList.oldSportsman;
-    sportsmanNew.forEach((sportsman)=>{
-        let newInd =sportsmanNew.lastIndexOf(sportsman.category==sportsmanOld.category)
-        if(newInd!=-1)
-            sportsmanOld.splice(newInd+1,0,sportsman);
-        else
-            sportsmanOld.push(sportsman)
-    })
-
-    let indx =0
-    for (let i = 0 ; i <sportsmanOld.length;i++){
-        sportsmanOld[i].indx =indx;
+   if (sportsmanOld.length>0) {
+       sportsmanNew.forEach((sportsman) => {
+           let newInd = sportsmanNew.lastIndexOf(sportsman.category == sportsmanOld.category)
+           if (newInd != -1)
+               sportsmanOld.splice(newInd + 1, 0, sportsman);
+           else
+               sportsmanOld.push(sportsman)
+       })
+   }
+   else {
+       sportsmanNew.sort((a,b) => (a.category > b.category) ? 1 : ((b.category > a.category) ? -1 : 0));
+       sportsmanOld=sportsmanNew;
+   }
+    let indx = 0
+    for (let i = 0; i < sportsmanOld.length; i++) {
+        sportsmanOld[i].indx = indx;
         indx++;
     }
     await startUpdateIndexRegistrationTrans(compId,sportsmanOld)
