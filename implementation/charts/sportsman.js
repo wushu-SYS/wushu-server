@@ -99,7 +99,12 @@ async function getSportsmanJudgeRecords(sportsmanId){
         res.status = 400;
         return res
     }
-    res.categories = [...new Set(grades.map(grade=>grade.name))]
+   res.categories = []
+    grades.forEach((grade)=>{
+        let a = {id: grade.categoryId, name: grade.name }
+        if(!res.categories.some(item=>item.id==a.id))
+            res.categories.push(a)
+    })
     res.resultes = grades;
     res.status = 200;
 
