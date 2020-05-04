@@ -1001,6 +1001,10 @@ app.post("/private/manager/wushuTree",async function (req,res) {
     res.status(ans.status).send(ans.results)
 
 })
+app.post("/private/allUsers/sportsmanJudgeGrades", async function (req, res) {
+    let ans = await sportsman_charts.getSportsmanJudgeRecords(req.body.sportsmanId)
+    res.status(ans.status).send(ans)
+})
 
 //start the server
 server.listen(process.env.PORT || 3000, () => {

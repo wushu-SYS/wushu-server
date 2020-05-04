@@ -92,6 +92,44 @@ async function getSportsmanGrades(year,sportsamId){
 
 }
 
+async function getSportsmanJudgeRecords(sportsmanId){
+    let res = new Object();
+    let grades = await getSportsmanJudgeGrades(common_functions.getSessionYear(),sportsmanId)
+    if (!grades){
+        res.status = 400;
+        return res
+    }
+    res.categories = [...new Set(grades.map(grade=>grade.name))]
+    res.resultes = grades;
+    res.status = 200;
+
+    return res;
+}
+async function getSportsmanJudgeGrades(year, sportsmanId) {
+    let ans = new Object();
+    await dbUtils.sql(`SELECT compID, date,categoryID, judgeId, firstname as judgeFirstName, lastname as judgeLastName, name, grade
+                        FROM competition_Judgment
+                        join events_competition
+                        on compID = events_competition.idCompetition
+                        join events
+                        on events_competition.idEvent = events.idEvent
+                        join category on competition_Judgment.categoryID = category.id
+                        join user_Judge on user_Judge.id = competition_Judgment.judgeId
+                        WHERE sportsmanId = @sportsmanId
+                        and date >= datefromparts(@year, 9, 1)`)
+        .parameter('year', tediousTYPES.Int, year)
+        .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+        .execute()
+        .then(function (results) {
+            ans = results
+        }).catch((err) => {
+            console.log(err)
+            ans = undefined
+        })
+    return ans;
+}
+
 
 module.exports.getParticipateSportsManCompetitions = getParticipateSportsManCompetitions
 module.exports.getSportsmanRecords =getSportsmanRecords
+module.exports.getSportsmanJudgeRecords = getSportsmanJudgeRecords
