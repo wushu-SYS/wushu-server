@@ -52,13 +52,17 @@ const master_judge_module = require("./implementation/judge/masterJudge");
 const sportsman_charts = require("./implementation/charts/sportsman")
 const club_charts = require("./implementation/charts/clubs")
 const organization_charts = require("./implementation/charts/organization")
-const socketService =require("./SocketService");
 
+//dont delete this
+const socketService = require("./SocketService");
+
+const msg_board = require("./implementation/manger/msg_board")
+const events = require("./implementation/manger/events")
 
 common_function = require("./implementation/commonFunc");
 const excelCreation = require("./implementation/services/excelCreation");
 const userVaildationService = require("./implementation/services/userValidations/userValidationService");
-const competitionValidationService =require("./implementation/services/competitionValidations/competitionValidationService");
+const competitionValidationService = require("./implementation/services/competitionValidations/competitionValidationService");
 
 let statusCode = {
     ok: 200,
@@ -78,16 +82,15 @@ let statusCode = {
 let automaticCloseCompetition = schedule.scheduleJob({minute: 600}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
-let automaticOpenCompetitionToJudge =schedule.scheduleJob({minute : 30},function () {
+let automaticOpenCompetitionToJudge = schedule.scheduleJob({minute: 30}, function () {
     manger_competition_module.autoOpenCompetitionToJudge()
 
 })
-let autoReminderForUploadCriminalRecord =schedule.scheduleJob({dayOfWeek: 0,hour:12},function () {
+let autoReminderForUploadCriminalRecord = schedule.scheduleJob({dayOfWeek: 0, hour: 12}, function () {
     manager_judge_module.autoReminderForUploadCriminalRecord()
-        .then(()=>console.log("[Log] -autoReminderForUploadCriminalRecord succeed")).catch((error => console.log(error)))
+        .then(() => console.log("[Log] -autoReminderForUploadCriminalRecord succeed")).catch((error => console.log(error)))
 
 })
-
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -134,7 +137,7 @@ app.use("/private/coach", (req, res, next) => {
 
 });
 app.use("/private/judge", (req, res, next) => {
-    if (access === Constants.userType.JUDGE||access===Constants.userType.MANAGER)
+    if (access === Constants.userType.JUDGE || access === Constants.userType.MANAGER)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
@@ -142,18 +145,17 @@ app.use("/private/judge", (req, res, next) => {
 
 });
 app.use("/private/allUsers", (req, res, next) => {
-    if (access === Constants.userType.SPORTSMAN || access === Constants.userType.MANAGER || access === Constants.userType.COACH || access==Constants.userType.JUDGE)
+    if (access === Constants.userType.SPORTSMAN || access === Constants.userType.MANAGER || access === Constants.userType.COACH || access == Constants.userType.JUDGE)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
 app.use("/private/commonCoachManager", (req, res, next) => {
-    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH ||access==Constants.userType.JUDGE)
+    if (access === Constants.userType.MANAGER || access === Constants.userType.COACH || access == Constants.userType.JUDGE)
         next();
     else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied);
 });
-
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -174,7 +176,7 @@ app.post("/loginFirstStep", async (req, res) => {
 app.post("/loginSecondStep", async (req, res) => {
     if (!req.body)
         res.status(statusCode.unauthorized).send(ans.err);
-    else{
+    else {
         let ans = req.body;
         let userDetails = await common_user_module.getUserDetails(ans);
         let token = common_user_module.buildToken(userDetails, ans);
@@ -333,7 +335,7 @@ app.post("/private/commonCoachManager/competitionSportsmen", async function (req
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/competitionJudge", async function (req, res) {
-    let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId,req.body.masterJudge);
+    let ans = await manger_competition_module.registerJudgeToCompetition(req.body.insertJudges, req.body.deleteJudges, req.body.compId, req.body.masterJudge);
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/commonCoachManager/getRegistrationState", async function (req, res) {
@@ -376,7 +378,8 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let excelFile = await excelCreation.createExcelRegisterSportsman(clubs.results, coaches.results);
 
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 
 
 });
@@ -390,7 +393,8 @@ app.get('/downloadExcelFormatCoach/:token', async (req, res) => {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         let excelFile = await excelCreation.createExcelRegisterCoach(clubs.results);
         await res.downloadExcel(excelFile);
-        fs.unlink(excelFile,function (err) {})
+        fs.unlink(excelFile, function (err) {
+        })
 
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
@@ -406,7 +410,8 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
         let excelFile = await excelCreation.createExcelRegisterNewJudge();
         res.downloadExcel = util.promisify(res.download);
         await res.downloadExcel(excelFile);
-        fs.unlink(excelFile,function (err) {})
+        fs.unlink(excelFile, function (err) {
+        })
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -421,7 +426,8 @@ app.get('/downloadExcelFormatCoachAsJudge/:token', async (req, res) => {
         let excelFile = await excelCreation.createExcelCoachAsJudge(coaches.results);
         res.downloadExcel = util.promisify(res.download);
         await res.downloadExcel(excelFile);
-        fs.unlink(excelFile,function (err) {})
+        fs.unlink(excelFile, function (err) {
+        })
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 
@@ -442,7 +448,8 @@ app.get('/downloadExcelFormatRegisterToCompetition/:token/:compId', async (req, 
     let excelFile = await excelCreation.createExcelRegisterCompetition(sportsManData.results, categoryData.results);
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 
 });
 app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) => {
@@ -461,7 +468,8 @@ app.get('/downloadExcelCompetitionState/:token/:compId/:date', async (req, res) 
 
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 
 
 });
@@ -482,7 +490,8 @@ app.get('/downloadSportsmanList/:token', async (req, res) => {
     let excelFile = await excelCreation.createSportsmenExcel(data);
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 });
 app.get('/downloadCoachList/:token', async (req, res) => {
     let token = req.params.token;
@@ -499,7 +508,8 @@ app.get('/downloadCoachList/:token', async (req, res) => {
     let excelFile = await excelCreation.createCoachExcel(data);
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 });
 app.get('/downloadJudgeList/:token', async (req, res) => {
     let token = req.params.token;
@@ -516,9 +526,10 @@ app.get('/downloadJudgeList/:token', async (req, res) => {
     let excelFile = await excelCreation.createJudgeExcel(data);
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 });
-app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp',async function (req,res) {
+app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp', async function (req, res) {
     let token = req.params.token;
     let idComp = req.params.idComp
     const decoded = jwt.verify(token, secret);
@@ -531,13 +542,14 @@ app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp',async func
     let sportsman = await manger_competition_module.getRegistrationState(idComp);
     let judges = await master_judge_module.getRegisteredJudgeForCompetition(idComp);
 
-    sportsman =sportsman.results;
-    judges=judges.results;
+    sportsman = sportsman.results;
+    judges = judges.results;
 
-    let excelFile = await excelCreation.createCompetitionUploadGrade(sportsman,judges,idComp);
+    let excelFile = await excelCreation.createCompetitionUploadGrade(sportsman, judges, idComp);
     res.downloadExcel = util.promisify(res.download);
     await res.downloadExcel(excelFile);
-    fs.unlink(excelFile,function (err) {})
+    fs.unlink(excelFile, function (err) {
+    })
 })
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -545,8 +557,8 @@ app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp',async func
 
 //--------------------------------------------Get details---------------------------------------------------------------
 app.post("/private/commonCoachManager/getCoaches", async function (req, res) {
-        let ans = await common_couches_module.getCoaches();
-        res.status(ans.status).send(ans.results);
+    let ans = await common_couches_module.getCoaches();
+    res.status(ans.status).send(ans.results);
 });
 app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
     let ans;
@@ -607,20 +619,20 @@ app.post("/private/commonCoachManager/getReferees", async function (req, res) {
     let ans = await common_judge_module.getReferees();
     res.status(ans.status).send(ans.results);
 });
-app.post("/private/getCompetitionToJudge",async function (req,res) {
+app.post("/private/getCompetitionToJudge", async function (req, res) {
     let ans = await manager_judge_module.getCompetitionsToJudgeById(id);
     res.status(ans.status).send(ans.results);
 
 });
-app.post("/private/judge/getRegisteredJudgeCompetition",async function (req,res){
+app.post("/private/judge/getRegisteredJudgeCompetition", async function (req, res) {
     let ans = await master_judge_module.getRegisteredJudgeForCompetition(req.body.compId);
     res.status(ans.status).send(ans.results)
 })
-app.post("/private/judge/deleteJudgesFromCompetition",async function (req,res){
-    let ans = await master_judge_module.deleteJudgesFromCompetition(req.body.compId,req.body.judgeIds);
+app.post("/private/judge/deleteJudgesFromCompetition", async function (req, res) {
+    let ans = await master_judge_module.deleteJudgesFromCompetition(req.body.compId, req.body.judgeIds);
     res.status(ans.status).send(ans.results)
 })
-app.post("/private/commonCoachManager/competitionResults",async function (req,res) {
+app.post("/private/commonCoachManager/competitionResults", async function (req, res) {
     let idComp = req.body.idComp
     let ans = await common_competition_module.getCompetitionResultById(idComp);
     res.status(ans.status).send(ans.results)
@@ -668,7 +680,7 @@ app.post("/private/commonCoachManager/getRefereeProfile", async function (req, r
         ans = await common_judge_module.getRefereeProfileById(id);
     res.status(ans.status).send(ans.results)
 });
-app.post("/private/commonCoachManager/sportsmanRank",async function (req,res) {
+app.post("/private/commonCoachManager/sportsmanRank", async function (req, res) {
     if (req.body.id !== undefined) {
         let ans = await common_sportsman_module.getSportsmanRank(req.body.id);
         res.status(ans.status).send(ans.results)
@@ -697,11 +709,10 @@ app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/deleteAdmin", async function (req, res) {
-    if(req.body.id !== id) {
+    if (req.body.id !== id) {
         let ans = await manger_user_module.deleteAdmin(req.body.id);
         res.status(ans.status).send(ans.results)
-    }
-    else
+    } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
 //----------------------------------------------------------------------------------------------------------------------
@@ -786,10 +797,10 @@ app.post("/private/commonCoachManager/updateRefereeProfile", async function (req
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
 });
-app.post("/private/manager/updateClubDetails",async function (req,res) {
-    let sportsClubDetails=req.body
+app.post("/private/manager/updateClubDetails", async function (req, res) {
+    let sportsClubDetails = req.body
     let ans = manger_sportclub_module.validateSportClubDetails(sportsClubDetails)
-    if(ans.isPassed){
+    if (ans.isPassed) {
         ans = await manger_sportclub_module.updateSportClubDetails(sportsClubDetails);
         res.status(ans.status).send(ans.results)
     } else
@@ -865,14 +876,15 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    if (access == Constants.userType.MANAGER|| access==Constants.userType.COACH || decoded.id==req.params.sportsmanId)
+    if (access == Constants.userType.MANAGER || access == Constants.userType.COACH || decoded.id == req.params.sportsmanId)
         switch (req.params.fileType) {
             case 'medicalScan' :
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'medicalScan.pdf')
                     .then(async (result) => {
                         res.downloadMedicalScan = util.promisify(res.download);
                         await res.downloadMedicalScan(result.path);
-                        fs.unlink(result.path,function (err) {})
+                        fs.unlink(result.path, function (err) {
+                        })
                     });
                 break;
             case 'healthInsurance':
@@ -880,7 +892,8 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
                     .then(async (result) => {
                         res.downloadHelathInsurance = util.promisify(res.download);
                         await res.downloadHelathInsurance(result.path);
-                        fs.unlink(result.path,function (err) {})
+                        fs.unlink(result.path, function (err) {
+                        })
                     });
                 break;
         }
@@ -917,14 +930,15 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
     let token = req.params.token;
     const decoded = jwt.verify(token, secret);
     access = decoded.access;
-    if (access == Constants.userType.MANAGER|| decoded.id==req.params.judgeId)
+    if (access == Constants.userType.MANAGER || decoded.id == req.params.judgeId)
         switch (req.params.fileType) {
             case 'criminalRecord' :
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.judgeId, 'criminalRecord.pdf')
                     .then(async (result) => {
                         res.downloadMedicalScan = util.promisify(res.download);
                         await res.downloadMedicalScan(result.path);
-                        fs.unlink(result.path,function (err) {})
+                        fs.unlink(result.path, function (err) {
+                        })
                     });
                 break;
         }
@@ -945,11 +959,11 @@ app.post("/private/judge/updateSportsmanCompetitionGrade", async function (req, 
 });
 app.post("/private/judge/manualCloseCompetition", async function (req, res) {
     let idComp = req.body.idComp
-    let ans =  await master_judge_module.manualCloseCompetition(idComp);
+    let ans = await master_judge_module.manualCloseCompetition(idComp);
     res.status(ans.status).send(ans.results)
 
 });
-app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,res) {
+app.post("/private/judge/excelUpdateTaulloCompetitionGrade", async function (req, res) {
     let sportsmanGrade = req.body.sportsman;
     let idComp = req.body.idComp
     if (sportsmanGrade.length == 0)
@@ -958,18 +972,18 @@ app.post("/private/judge/excelUpdateTaulloCompetitionGrade",async function (req,
         let judges = await master_judge_module.getRegisteredJudgeForCompetition(idComp)
         judges = judges.results
         let numOfJudges = judges.length
-        let checkData = competitionValidationService.checkExcelCompetitionsGrade(sportsmanGrade,Constants.sportStyle.taullo,numOfJudges);
+        let checkData = competitionValidationService.checkExcelCompetitionsGrade(sportsmanGrade, Constants.sportStyle.taullo, numOfJudges);
         if (checkData.isPassed) {
-            let registerStatus = await master_judge_module.uploadTaulloCompetitionGrade(checkData.users,idComp,judges,numOfJudges);
+            let registerStatus = await master_judge_module.uploadTaulloCompetitionGrade(checkData.users, idComp, judges, numOfJudges);
             res.status(registerStatus.status).send(registerStatus.results);
         } else
             res.status(statusCode.badRequest).send(checkData.results);
     }
 })
-app.post("/private/manager/updateCompetitionGrades",async function (req,res) {
+app.post("/private/manager/updateCompetitionGrades", async function (req, res) {
     let sportsman = req.body.grades
-    let idComp= req.body.idComp
-    let ans = await manger_competition_module.updateCompetitionGrades(sportsman,idComp)
+    let idComp = req.body.idComp
+    let ans = await manger_competition_module.updateCompetitionGrades(sportsman, idComp)
     res.status(ans.status).send(ans.results)
 
 })
@@ -977,26 +991,26 @@ app.post("/private/manager/updateCompetitionGrades",async function (req,res) {
 //----------------------------------------------------------------------------------------------------------------------
 
 //-------------------------------------------charts---------------------------------------------------------------------
-app.post("/private/allUsers/participateSportsmanCompetitions",async function (req,res) {
+app.post("/private/allUsers/participateSportsmanCompetitions", async function (req, res) {
     let ans = await sportsman_charts.getParticipateSportsManCompetitions(req.body.sportsmanId)
     res.status(ans.status).send(ans);
 })
-app.post("/private/allUsers/sportsmanRecords",async function (req,res) {
+app.post("/private/allUsers/sportsmanRecords", async function (req, res) {
     let ans = await sportsman_charts.getSportsmanRecords(req.body.sportsmanId)
     res.status(ans.status).send(ans)
 
 })
-app.post("/private/commonCoachManager/clubTree",async function (req,res) {
+app.post("/private/commonCoachManager/clubTree", async function (req, res) {
     let ans = await club_charts.getClubTree(req.body.clubId)
     res.status(ans.status).send(ans.result)
 
 })
-app.post("/private/commonCoachManager/clubsParticipateSportsmanCompetitions",async function (req,res) {
+app.post("/private/commonCoachManager/clubsParticipateSportsmanCompetitions", async function (req, res) {
     let ans = await club_charts.getClubParticipateSportsmanCompetitions(req.body.clubId)
     res.status(ans.status).send(ans.results)
 
 })
-app.post("/private/manager/wushuTree",async function (req,res) {
+app.post("/private/manager/wushuTree", async function (req, res) {
     let ans = await organization_charts.getWushuTree()
     res.status(ans.status).send(ans.results)
 
@@ -1004,6 +1018,29 @@ app.post("/private/manager/wushuTree",async function (req,res) {
 app.post("/private/allUsers/sportsmanJudgeGrades", async function (req, res) {
     let ans = await sportsman_charts.getSportsmanJudgeRecords(req.body.sportsmanId)
     res.status(ans.status).send(ans)
+})
+
+
+//------------------------------------------msg board-------------------------------------------------------------------
+app.post("/private/manager/getAllMessages", async function (req, res) {
+    let ans = await msg_board.getAllMsg()
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/getMessageById", async function (req, res) {
+    let ans = await msg_board.getMsgById(req.body.msgId)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/deleteMessage", async function (req, res) {
+    let ans = await msg_board.deleteMessage(req.body.msgId)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/addMessage", async function (req, res) {
+    let ans = await msg_board.addMessage(req.body.msg)
+    res.status(ans.status).send(ans.results)
+
 })
 
 //start the server
