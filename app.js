@@ -1042,7 +1042,11 @@ app.post("/private/manager/addMessage", async function (req, res) {
     res.status(ans.status).send(ans.results)
 
 })
+app.post("/private/manager/editMessage", async function (req, res) {
+    let ans = await msg_board.editMessage(req.body.msg,req.body.msgId)
+    res.status(ans.status).send(ans.results)
 
+})
 //start the server
 server.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
