@@ -4,7 +4,7 @@ async function addMessage(msg) {
     let ans = new Object();
     await dbUtils.sql(`insert into msg_board (msg, createDate)
                         values (@msg,@date);`)
-        .parameter('msg', tediousTYPES.Text, msg)
+        .parameter('msg', tediousTYPES.NVarChar, msg)
         .parameter('date', tediousTYPES.Date, new Date())
         .execute()
         .then(function (results) {
@@ -22,7 +22,7 @@ async function addMessage(msg) {
 async function editMessage(msg,msgId) {
     let ans = new Object();
     await dbUtils.sql(`update msg_board set msg =@msg where id = @id`)
-        .parameter('msg', tediousTYPES.Text, msg)
+        .parameter('msg', tediousTYPES.NVarChar, msg)
         .parameter('id', tediousTYPES.Int, msgId)
         .execute()
         .then(function (results) {
