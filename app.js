@@ -676,7 +676,7 @@ app.post("/private/commonCoachManager/sportsmanRank",async function (req,res) {
 })
 //----------------------------------------------------------------------------------------------------------------------
 
-//TODO: when implementing delete don't forget to delete also from user_passwords table (you need 2 delete queries -> look at the implementation for the sportsmans)
+//TODO: when implementing delete don't forget to delete also from user_passwords and user_userTypes table (you need 2 delete queries -> look at the implementation for the sportsmans)
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
