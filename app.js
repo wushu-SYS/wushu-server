@@ -23,7 +23,7 @@ saltRounds = 10;
 
 //---------------------------------------------Google-Drive-------------------------------------------------------------
 const googleDrive = require("./implementation/services/googleDrive/googleDriveService");
-let googleDriveCredentials = (fs.readFileSync('./implementation/services/googleDrive/credentials.json'));
+let googleDriveCredentials = (fs.readFileSync('./implementation/services-test/googleDrive/credentials.json'));
 googleDriveCredentials = JSON.parse(googleDriveCredentials);
 let authGoogleDrive = googleDrive.authorize(googleDriveCredentials);
 

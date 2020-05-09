@@ -2,8 +2,10 @@
  * validate user's fields
  */
 const constants = require("../../../constants")
+const validator =require('validator')
 
-function checkId(id, userType) {
+
+function checkId(id) {
     if (id != null) {
         if (!(validator.isInt(id.toString()) && id.toString().length == 9))
             return constants.userError.idErr

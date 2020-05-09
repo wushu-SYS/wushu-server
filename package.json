@@ -6,6 +6,7 @@
     "await": "^0.2.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "latest",
+    "chai": "^4.2.0",
     "core-js": "^3.4.0",
     "cors": "^2.8.5",
     "excel4node": "^1.7.2",
@@ -30,7 +31,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "mocha"
+    "test": "mocha test/**.js  test/**/*.js test/**/**/*.js"
   },
   "engines": {
     "node": "12.7.0",
