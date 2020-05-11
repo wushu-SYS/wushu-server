@@ -289,7 +289,6 @@ async function createExcelCoachAsJudge(coachList) {
 
 }
 
-
 async function createExcelCompetitionState(compState, date) {
     let {workbook, worksheet} = createWorkBook();
 

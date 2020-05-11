@@ -107,6 +107,7 @@ function checkDate(birthDate) {
             return constants.sportsManFields.birthDateErr
 }
 
+
 /**
  * needed validates for sportsman
  */

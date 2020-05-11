@@ -1,12 +1,13 @@
+const constants =require("../../constants")
 async function getCoaches() {
     let ans = new Object();
     await dbUtils.sql(`Select * from user_Coach`)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
         });
     return ans;
@@ -18,10 +19,10 @@ async function getCoachProfileById(id) {
         .parameter('idCoach', tediousTYPES.Int, id)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results[0]
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
         });
     return ans;
@@ -33,10 +34,10 @@ async function getCoachesNotRegisterAsJudges() {
     await dbUtils.sql(`select * from user_Coach except (select user_Coach.* from user_Coach join user_Judge on user_Coach.id = user_Judge.id) `)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
         });
     return ans;
