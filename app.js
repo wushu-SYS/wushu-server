@@ -1022,12 +1022,12 @@ app.post("/private/allUsers/sportsmanJudgeGrades", async function (req, res) {
 
 
 //------------------------------------------msg board-------------------------------------------------------------------
-app.post("/private/manager/getAllMessages", async function (req, res) {
+app.post("/private/allUsers/getAllMessages", async function (req, res) {
     let ans = await msg_board.getAllMsg()
     res.status(ans.status).send(ans.results)
 
 })
-app.post("/private/manager/getMessageById", async function (req, res) {
+app.post("/private/allUsers/getMessageById", async function (req, res) {
     let ans = await msg_board.getMsgById(req.body.msgId)
     res.status(ans.status).send(ans.results)
 
@@ -1047,6 +1047,34 @@ app.post("/private/manager/editMessage", async function (req, res) {
     res.status(ans.status).send(ans.results)
 
 })
+
+//------------------------------------------events-------------------------------------------------------------------
+app.post("/private/allUsers/getAllEvents", async function (req, res) {
+    let ans = await events.getAllEvents()
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/allUsers/getEventById", async function (req, res) {
+    let ans = await events.getEventById(req.body.eventId)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/deleteEvent", async function (req, res) {
+    let ans = await events.deleteEvent(req.body.eventId)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/addEvent", async function (req, res) {
+    let ans = await events.addEvent(req.body.event)
+    res.status(ans.status).send(ans.results)
+
+})
+app.post("/private/manager/editEvent", async function (req, res) {
+    let ans = await events.editEvent(req.body.event,req.body.eventId)
+    res.status(ans.status).send(ans.results)
+
+})
+
 //start the server
 server.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
