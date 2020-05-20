@@ -1075,6 +1075,52 @@ app.post("/private/manager/editEvent", async function (req, res) {
 
 })
 
+/*
+async function changePasswordsProductionDB(){
+    let ans = await getAllProdUsers()
+    if (ans.status ==Constants.statusCode.ok){
+        let users = ans.results
+        for (const user of users) {
+            await changeUserPassword(user.id)
+        }
+    }
+}
+async function getAllProdUsers(){
+    let ans = new Object();
+    await dbUtils.sql(`select id from user_Passwords`)
+        .execute()
+        .then(function (results) {
+            ans.status =Constants.statusCode.ok
+            ans.results = results
+        }).fail(function (err) {
+            console.log(err)
+            ans.results = undefined;
+            ans.status = Constants.statusCode.badRequest
+
+        });
+    return ans;
+}
+async function changeUserPassword(userData) {
+    let ans = new Object();
+    await dbUtils.sql(`UPDATE user_Passwords SET password = @Password, isFirstLogin = 1 where id =@id`)
+        .parameter('Password', tediousTYPES.NVarChar, bcrypt.hashSync(userData.toString(), saltRounds))
+        .parameter('id', tediousTYPES.Int, userData)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = Constants.msg.passUpdated
+        }).fail(function (err) {
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans
+
+}
+changePasswordsProductionDB().then(r => console.log("success"))
+    .catch((err)=>{console.log(err)})
+
+
+ */
 //start the server
 server.listen(process.env.PORT || 3000, () => {
     console.log("Server has been started !!");
