@@ -367,7 +367,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'F2:F' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$2:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$'+categoryData.length],
         style: style,
     });
     worksheet.addDataValidation({
@@ -377,7 +377,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'G2:G' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$2:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$'+categoryData.length],
         style: style,
 
     });
@@ -388,7 +388,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         error: 'Invalid choice was chosen',
         showDropDown: true,
         sqref: 'H2:H' + (sportsmenLength + 1),
-        formulas: ['=sheet1!$Z$2:$Z$100'],
+        formulas: ['=sheet1!$Z$2:$Z$'+categoryData.length],
         style: style,
 
     });

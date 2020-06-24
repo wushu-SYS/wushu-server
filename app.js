@@ -274,7 +274,8 @@ app.post("/private/manager/registerJudgeManual", async function (req, res) {
 });
 app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
-    let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman);
+    let sportsmenArr = common_function.getArrayFromJsonArray(req.body.sportsman)
+    sportsmenArr.shift();
     let categoryData = await common_sportsman_module.getCategories();
     let sportsmen = common_competition_module.fixCategoryExcelData(sportsmenArr);
     ans = common_competition_module.cheackExcelData(sportsmenArr, categoryData.results);
