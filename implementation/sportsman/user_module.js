@@ -1,128 +1,94 @@
-const sysfunc = require("../commonFunc")
+const common_func = require("../commonFunc")
+const userValidation = require("../services/userValidations/userValidationService")
+const constants =require("../../constants")
 
-
-function uploadeMedical(req, res) {
-    var id = jwt.decode(req.header("x-auth-token")).id;
-    DButilsAzure.execQuery(`Select * from sportman_files where id ='${id}'`)
-        .then((result) => {
-            if (result.length == 0)
-                DButilsAzure.execQuery(`Insert INTO sportman_files (id,medicalscan) Values ('${id}','${"./uploades/sportsman/MedicalScan/" + id + ".jpeg"}')`)
-                    .then(() => {
-                        res.status(200).send("File upload successfully")
-                    })
-            else
-                DButilsAzure.execQuery(`UPDATE sportman_files SET medicalscan ='${"./uploades/sportsman/MedicalScan/" + id + ".jpeg"}' WHERE id = ${id};`)
-                    .then(() => {
-                        res.status(200).send("File upload successfully")
-                    })
-        })
-        .catch((error) => {
-            res.status(400).send(error)
-        })
-}
-
-function uploadeInsurance(req, res) {
-    var id = jwt.decode(req.header("x-auth-token")).id;
-    DButilsAzure.execQuery(`Select * from sportman_files where id ='${id}'`)
-        .then((result) => {
-            if (result.length == 0)
-                DButilsAzure.execQuery(`Insert INTO sportman_files (id,insurance) Values ('${id}','${"./uploades/sportsman/InsuranceScan/" + id + ".jpeg"}')`)
-                    .then(() => {
-                        res.status(200).send("File upload successfully")
-                    })
-            else
-                DButilsAzure.execQuery(`UPDATE sportman_files SET medicalscan ='${"./uploades/sportsman/InsuranceScan/" + id + ".jpeg"}' WHERE id = ${id};`)
-                    .then(() => {
-                        res.status(200).send("File upload successfully")
-                    })
-        })
-        .catch((error) => {
-            res.status(400).send(error)
-        })
-
-}
-
-async function sendMail(req) {
-    var subject = 'עדכון פרטי משתמש'
-    var textMsg = "שלום " + req.body.firstname + "\n" +
-        "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
-        "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-        + "שם פרטי: " + req.body.firstname + "\n"
-        + "שם משפחה: " + req.body.lastname + "\n"
-        + "כתובת מגורים: " + req.body.address + "\n"
-        + "פאלפון: " + req.body.phone + "\n"
-        + "תאריך לידה: " + req.body.birthdate + "\n"
-        + "תעודת זהות: " + req.body.id + "\n"
-        + "בברכה, מערכת או-שו"
-    await sysfunc.sendEmail(req.body.email, subject, textMsg)
-}
-
-
-function validateSportsmanData(sportsmanDetails) {
-    let ans = new Object();
-    ans.isPassed = true;
-    let tmpErr = validateData(sportsmanDetails);
-    sportsmanDetails[5] = sysfunc.setDateFormat(sportsmanDetails[5]);
-    if (tmpErr.length != 0) {
-        ans.status = Constants.statusCode.badRequest;
-        ans.isPassed = false;
-        ans.results = tmpErr;
+async function sendMail(sportsmanDetails) {
+    if(sportsmanDetails[constants.sportsmanUpdateArrayVal.email]) {
+        var subject = 'עדכון פרטי משתמש'
+        var textMsg = "שלום " +sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n" +
+            "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+            + "שם פרטי: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n"
+            + "שם משפחה: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.lastName] + "\n"
+            + "כתובת מגורים: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.address] + "\n"
+            + "פאלפון: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.phone] + "\n"
+            + "תאריך לידה: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.birthDate] + "\n"
+            + "תעודת זהות: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.idSportsman] + "\n"
+            + "בברכה, מערכת או-שו"
+        await common_func.sendEmail(sportsmanDetails[constants.sportsmanUpdateArrayVal.email], subject, textMsg)
     }
-    ans.data = sportsmanDetails;
-    return ans;
 }
 
-function validateData(sportsmanDetails) {
-    let err = [];
 
-    //id user
-    if (!validator.isInt(sportsmanDetails[0].toString(), {gt: 100000000, lt: 1000000000}))
-        err.push(Constants.errorMsg.idSportmanErr);
-    //firstName
-    if (!validator.matches(sportsmanDetails[1].toString(), Constants.hebRegex))
-        err.push(Constants.errorMsg.firstNameHeb);
-    //lastName
-    if (!validator.matches(sportsmanDetails[2].toString(), Constants.hebRegex))
-        err.push(Constants.errorMsg.lastNameHeb);
-    //phone
-    if (!validator.isInt(sportsmanDetails[3].toString()) && sportsmanDetails[3].toString().length == 10)
-        err.push(Constants.errorMsg.phoneErr);
-    //email
-    if (!validator.isEmail(sportsmanDetails[4].toString()))
-        err.push(Constants.errorMsg.emailErr);
-    //sex
-    if (!(sportsmanDetails[7].toString() in Constants.sexEnum))
-        err.push(Constants.errorMsg.sexErr);
-
-    return err
-
-}
 
 async function updateSportsmanProfile(sportsManDetails) {
     let ans = new Object();
-    await dbUtils.sql(`UPDATE user_Sportsman SET id =@idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
+    let trans;
+    await dbUtils.beginTransaction()
+        .then(async function (newTransaction) {
+            trans = newTransaction;
+            return await trans.sql(`UPDATE user_Sportsman SET id = @idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
                       address = @address, sex = @sex where id =@oldId;`)
-        .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[0])
-        .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[1])
-        .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[2])
-        .parameter('phone', tediousTYPES.NVarChar, sportsManDetails[3])
-        .parameter('email', tediousTYPES.NVarChar, sportsManDetails[4])
-        .parameter('birthDate', tediousTYPES.Date, sportsManDetails[5])
-        .parameter('address', tediousTYPES.NVarChar, sportsManDetails[6])
-        .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[7])
-        .parameter('oldId', tediousTYPES.Int, sportsManDetails[8])
-        .execute()
+                .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[constants.sportsmanUpdateArrayVal.idSportsman])
+                .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.firstName])
+                .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.lastName])
+                .parameter('phone', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.phone])
+                .parameter('email', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.email])
+                .parameter('birthDate', tediousTYPES.Date, sportsManDetails[constants.sportsmanUpdateArrayVal.birthDate])
+                .parameter('address', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.address])
+                .parameter('sex', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.sex])
+                .parameter('oldId', tediousTYPES.Int, sportsManDetails[constants.sportsmanUpdateArrayVal.oldId])
+                .execute()
+        })
+        .then(async function (testResult) {
+            let newId = sportsManDetails[constants.sportsmanUpdateArrayVal.idSportsman];
+            let oldId = sportsManDetails[constants.sportsmanUpdateArrayVal.oldId];
+            if (newId != oldId) {
+                return await trans.sql(`UPDATE user_Passwords SET id = @sportsmanId WHERE id = @oldId;`)
+                    .parameter('sportsmanId', tediousTYPES.Int, newId)
+                    .parameter('oldId', tediousTYPES.Int, oldId)
+                    .returnRowCount()
+                    .execute();
+            }
+        })
+        .then(async function (t) {
+            sportsManDetails.push(common_func.setIsTaullo(sportsManDetails[constants.sportsmanUpdateArrayVal.sportStyle]))
+            sportsManDetails.push(common_func.setIsSanda(sportsManDetails[constants.sportsmanUpdateArrayVal.sportStyle]))
+            return await trans.sql(`UPDATE sportsman_sportStyle SET taullo = @isTaullo , sanda = @isSanda where id = @id;`)
+                .parameter('isTaullo', tediousTYPES.Bit, sportsManDetails[constants.sportsmanUpdateArrayVal.isTaullo])
+                .parameter('isSanda', tediousTYPES.Bit, sportsManDetails[constants.sportsmanUpdateArrayVal.isSanda])
+                .parameter('id', tediousTYPES.Int, sportsManDetails[constants.sportsmanUpdateArrayVal.idSportsman])
+                .returnRowCount()
+                .execute();
+
+        })
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
-            ans.results = Constants.msg.updateUserDetails;
+            //sendMail(sportsManDetails)
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.updateUserDetails;
+            trans.commitTransaction();
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
-            ans.results = err
+            console.log(err)
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err;
+            trans.rollbackTransaction();
         });
     return ans;
 }
 
-module.exports._uploadeMedical = uploadeMedical;
-module.exports._uploadInsurances = uploadeInsurance;
+async function checkIdCoachRelatedSportsman(idCoach,idSportsman) {
+    await dbUtils.sql('select idCoach from sportsman_coach where idSportsman = @idSportsman ')
+        .parameter('idSportsman', tediousTYPES.Int, idSportsman)
+        .execute()
+        .then(result => {
+            return idCoach == result[0]
+        })
+        .fail((error) => {
+            return false;
+        });
+
+}
+
+
 module.exports.updateSportsmanProfile = updateSportsmanProfile;
-module.exports.validateSportsmanData = validateSportsmanData;
+module.exports.checkIdCoachRelatedSportsman=checkIdCoachRelatedSportsman;

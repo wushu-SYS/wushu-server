@@ -1,58 +1,82 @@
 const common_sportsman_module = require('../common/sportsman_module');
+const common_func = require('../commonFunc');
+const constants = require('../../constants')
 
 function initQuery(queryData) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData);
+    let mainOrderBy = common_sportsman_module.buildOrderBy_forGetSportsmen_forRowNumber(queryData);
     let orderBy = common_sportsman_module.buildOrderBy_forGetSportsmen(queryData);
-    let query = buildQuery_forGetSportsman(queryData, orderBy);
+    let query = buildQuery_forGetSportsman(queryData, mainOrderBy);
     query.query += conditions.conditionStatement;
     query.queryCount += conditions.conditionStatement;
     query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + (conditions.limits ? conditions.limits : '');
+    query.query += orderBy;
     return query;
 }
 
+/**
+ * handle getting list of sportsmen by query data filters
+ * @param queryData - filters
+ * @return {status, results}
+ */
 async function getSportsmen(queryData) {
     let ans = new Object();
+    queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
+    queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData);
+    console.log(query);
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
+        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
         .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
         .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
+        .parameter('year', tediousTYPES.Int, common_func.getSessionYear())
         .execute()
         .then(result => {
+            result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
             ans.results = {
                 sportsmen: result
             };
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans
 }
+
+/**
+ * handle getting the number of sportsmen exists in db
+ * @param queryData - filters to filter by
+ * @return {status, results}
+ */
 async function getSportsmenCount(queryData) {
     let ans = new Object();
+    queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
+    queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData);
 
     await dbUtils.sql(query.queryCount)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
+        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
+        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
         .parameter('club', tediousTYPES.NVarChar, queryData.club)
         .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
         .parameter('compId', tediousTYPES.Int, queryData.competition)
         .execute()
         .then(result => {
             ans.results = result[0]
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans;
@@ -60,7 +84,8 @@ async function getSportsmenCount(queryData) {
 
 function buildQuery_forGetSportsman(queryData, orderBy) {
     let query = new Object();
-    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, `;
+    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, 
+                    ${common_sportsman_module.numCompQuery}  AS competitionCount, `;
     if (queryData.sportStyle != undefined) {
         query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_sportStyle
             on user_Sportsman.id = sportsman_sportStyle.id`;

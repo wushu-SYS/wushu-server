@@ -1,6 +1,9 @@
+let constants = require("../../constants");
+
+
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
-    await dbUtils.sql(`select * from user_Passwords where id = @id`)
+    await dbUtils.sql(`select user_Passwords.*, usertype from user_Passwords join user_UserTypes on user_Passwords.id = user_UserTypes.id where user_Passwords.id = @id`)
         .parameter('id', tediousTYPES.Int, userData.userID)
         .execute()
         .then(function (results) {
@@ -8,7 +11,9 @@ async function checkUserDetailsForLogin(userData) {
                 ans.isPassed = false;
                 ans.err = Constants.errorMsg.errLoginDetails
             } else {
+                let userTypes = results.map(u => u.usertype)
                 ans.dbResults = results[0];
+                ans.dbResults.usertype = userTypes;
                 ans.isPassed = bcrypt.compareSync(userData.password, results[0].password);
             }
         }).fail(function (err) {
@@ -31,6 +36,9 @@ async function getUserDetails(userData) {
         case 3:
             result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
             break;
+        case 4:
+            result = await dbUtils.sql(`select firstname, lastname from user_Judge where id= '${userData.dbResults.id}'`).execute();
+            break;
     }
     return result[0]
 
@@ -50,33 +58,9 @@ function buildToken(userDetails, userData) {
     };
 }
 
-function getTabelName(userType) {
-    switch (userType) {
-        case 1:
-            return "user_Manger";
-        case 2:
-            return "user_Coach";
-        case 3:
-            return "user_Sportsman"
-    }
-}
 
-async function uploadeProfilePic(tblName, id) {
-    let ans = new Object();
-    await dbUtils.sql(`UPDATE @tblName SET picture ='${"./resources/profilePic/" + id + ".jpeg"}' WHERE id = @id;`)
-        .parameter('id', tediousTYPES.Int, id)
-        .parameter('tblName', tediousTYPES.Text, tblName)
-        .execute()
-        .then(function (results) {
-            ans.isPassed = true;
-            ans.results = Constants.msg.profilePicUpdate;
-        }).fail(function (err) {
-            ans.isPassed = false;
-            ans.results = err;
-        });
 
-    return ans;
-}
+
 
 async function validateDiffPass(userData) {
     var ans = new Object()
@@ -126,37 +110,7 @@ async function deleteSportsman(sportsmanId) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportsman_coach WHERE idSportman = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
             return await trans.sql(`DELETE FROM user_Passwords WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportman_files WHERE id = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM competition_sportsman WHERE idSportsman = @sportsmanId;`)
-                .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
-                .returnRowCount()
-                .execute();
-        })
-        .then(async function (testResult) {
-            return await trans.sql(`DELETE FROM sportsman_sportStyle WHERE id = @sportsmanId;`)
                 .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
                 .returnRowCount()
                 .execute();
@@ -168,6 +122,7 @@ async function deleteSportsman(sportsmanId) {
                 .execute();
         })
         .then(async function (testResult) {
+            //TODO: delete sportsman directory on drive - job name deleteSportsmanFilesFromGoogleDrive
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.userDeleted;
             trans.commitTransaction();
@@ -180,11 +135,42 @@ async function deleteSportsman(sportsmanId) {
     return ans;
 }
 
+
+async function updateProfilePic(path ,id,userType){
+    let sql = getSqlUpdatePic(userType);
+    let ans = new Object();
+    await dbUtils.sql(sql)
+        .parameter('id', tediousTYPES.Int, id)
+        .parameter('photo', tediousTYPES.NVarChar, path)
+        .execute()
+        .then(function (results) {
+            ans.status = Constants.statusCode.ok;
+            ans.results = "upload"
+
+        }).fail(function (err) {
+            console.log(err)
+            ans.status = Constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
+function getSqlUpdatePic(userType){
+    switch (userType) {
+        case "judge":
+            return `update ${constants.databaseUserTableName.judge} set photo =@photo where id = @id`;
+        case "sportsman":
+            return `update ${constants.databaseUserTableName.sportsman} set photo =@photo where id = @id`;
+        case "coach":
+            return `update ${constants.databaseUserTableName.coach} set photo =@photo where id = @id`;
+
+    }
+}
+
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
-module.exports.uploadeProfilePic = uploadeProfilePic;
 module.exports.changeUserPassword = changeUserPassword;
 module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;
-module.exports.getTabelName=getTabelName;
+module.exports.updateProfilePic=updateProfilePic;
