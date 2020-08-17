@@ -1,5 +1,6 @@
 const common_sportsman_module = require('../common/sportsman_module');
 const common_func = require('../commonFunc');
+const constants = require('../../constants')
 
 function initQuery(queryData) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData);
@@ -41,10 +42,10 @@ async function getSportsmen(queryData) {
             ans.results = {
                 sportsmen: result
             };
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans
@@ -72,10 +73,10 @@ async function getSportsmenCount(queryData) {
         .execute()
         .then(result => {
             ans.results = result[0]
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans;
