@@ -3,7 +3,7 @@
   "password": "DrorAlina2331",
   "server": "wushu-server.database.windows.net",
   "options": {
-    "database": "wushuDB",
+    "database": "wushuDBProduction",
     "encrypt": true
   }
 }

@@ -126,7 +126,7 @@ let sportsManFields = {
 
 let competitionStatus = {
     close: 'תחרות סגורה',
-    open: ' תחרות פתוחה',
+    open: 'תחרות פתוחה',
     regClose: 'רישום סגור',
     inProgressComp: 'תחרות בתהליך',
 };
@@ -226,6 +226,10 @@ let colUploadExcelTaulloCompetitionGrade ={
     idSportsman :0,
     firstJudge :4
 }
+
+let monthDateFromZERO ={
+    SEPTEMBER :8
+}
 module.exports = {
     statusCode: statusCode,
     sportsManMandatoryFields: sportsManMandatoryFields,
@@ -256,4 +260,5 @@ module.exports = {
     numFieldsTaulloExcelUploadGrade:numFieldsTaulloExcelUploadGrade,
     excelCompUploadGradeErrMsg:excelCompUploadGradeErrMsg,
     colUploadExcelTaulloCompetitionGrade:colUploadExcelTaulloCompetitionGrade,
+    monthDateFromZERO: monthDateFromZERO
 };

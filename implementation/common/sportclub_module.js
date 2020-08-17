@@ -1,3 +1,6 @@
+const comFunc = require("../commonFunc")
+const constants = require("../../constants")
+
 async function getSportClubs(idCoach) {
     let ans = new Object();
     let query ='Select * from sportclub order by name';
@@ -7,10 +10,10 @@ async function getSportClubs(idCoach) {
         .parameter('id', tediousTYPES.Int, idCoach)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -36,18 +39,18 @@ async function getDetails(clubId){
                         .execute()
                         .then(function (resultSportsmen) {
                             results[0].sportsmen = resultSportsmen;
-                            ans.status = Constants.statusCode.ok;
+                            ans.status = constants.statusCode.ok;
                             ans.results = results[0]
                         }).fail(function (err) {
-                            ans.status = Constants.statusCode.badRequest;
+                            ans.status = constants.statusCode.badRequest;
                             ans.results = err
                         })
                 }).fail(function (err) {
-                    ans.status = Constants.statusCode.badRequest;
+                    ans.status = constants.statusCode.badRequest;
                     ans.results = err
                 })
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -58,10 +61,10 @@ async function getErgons(idCoach) {
     await dbUtils.sql('Select * from sport_center order by name')
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -72,10 +75,10 @@ async function getAmutas(idCoach) {
     await dbUtils.sql('Select * from amuta order by name')
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -86,10 +89,10 @@ async function getAgudas(idCoach) {
     await dbUtils.sql('Select * from aguda order by name')
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = results
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;

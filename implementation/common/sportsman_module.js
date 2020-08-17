@@ -1,14 +1,16 @@
 const common_func = require('../commonFunc');
 const constants = require("../../constants")
 
-let numCompQuery = "(SELECT COUNT(*)\n" +
-    "              FROM competition_sportsman\n" +
-    "             join events_competition\n" +
-    "             on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
-    "             join events\n" +
-    "             on events_competition.idEvent = events.idEvent\n" +
-    "              WHERE competition_sportsman.idSportsman = user_Sportsman.id\n" +
-    "                 and date >= datefromparts(YEAR(GETDATE()), 9, 1))";
+let numCompQuery = "(select isnull(count(compCount), 0) as sportsmanComp from(\n" +
+    "                       SELECT COUNT(*) as compCount\n" +
+    "                       FROM competition_sportsman\n" +
+    "                        join events_competition\n" +
+    "                        on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
+    "                        join events\n" +
+    "                        on events_competition.idEvent = events.idEvent\n" +
+    "                        WHERE competition_sportsman.idSportsman = id\n" +
+    "                        and date >= datefromparts(@year, 9, 1)\n" +
+    "                        group by events_competition.idCompetition) as tmp)";
 
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
@@ -56,7 +58,6 @@ function buildOrderBy_forGetSportsmen_forRowNumber(queryData) {
 }
 function buildOrderBy_forGetSportsmen(queryData) {
     let numCompSort = queryData.numCompSort;
-    console.log(numCompSort)
     let orderBy = [];
     if(numCompSort !== '' && numCompSort !== undefined) {
         if (numCompSort === 'desc')

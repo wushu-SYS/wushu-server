@@ -2,12 +2,14 @@ const constants = require('../constants')
 
 function getArrayFromJsonArray(data) {
     var res = [];
-    data.forEach(function (row) {
-        res.push(getArrayFromJson(row))
-    })
+    if (data)
+        data.forEach(function (row) {
+            res.push(getArrayFromJson(row))
+        })
     return res;
 }
-function getArrayFromJson(row){
+
+function getArrayFromJson(row) {
     var tmp = []
     for (var key in row) {
         tmp.push(row[key])
@@ -15,6 +17,7 @@ function getArrayFromJson(row){
     return tmp;
 }
 
+/*
 async function sendMail(sendTo, message, sub) {
     const send = require('gmail-send')({
         user: 'wushuSys@gmail.com',
@@ -30,15 +33,22 @@ async function sendMail(sendTo, message, sub) {
 
 }
 
+ */
+
 function setDateFormatRegisterUser(birthDate) {
     if (birthDate != undefined) {
         let initial = birthDate.split("/");
-        return ([initial[2], initial[0], initial[1]].join('-'));
+        if (initial.length == 3)
+            if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1]))
+                return ([initial[2], initial[0], initial[1]].join('-'));
     }
 }
 
-function getAgeRange(category){
-    if(category.maxAge == null)
+function getAgeRange(category) {
+    if (!category || category.minAge == null)
+        return undefined
+
+    if (category.maxAge == null)
         return category.minAge != 0 ? category.minAge + "+" : "";
     else
         return category.minAge + "-" + category.maxAge;
@@ -66,12 +76,12 @@ function setIsSanda(sportStyle) {
     }
 }
 
-function convertToSportStyle(isTaullo, isSanda){
-    if(isTaullo && !isSanda)
+function convertToSportStyle(isTaullo, isSanda) {
+    if (isTaullo == true && isSanda == false)
         return constants.sportStyle.taullo;
-    else if(!isTaullo && isSanda)
+    else if (isTaullo == false && isSanda == true)
         return constants.sportStyle.sanda;
-    else if(isTaullo && isSanda)
+    else if (isTaullo == true && isSanda == true)
         return constants.sportStyle.both;
 }
 
@@ -83,37 +93,47 @@ function sortUsers(users) {
     //         let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
     //         return x - y;
     //     });
-    let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
-        let currUser = users.find(u => u.category === id);
-        return {
-            id: id,
-            name: currUser.categoryName,
-            minAge: currUser.minAge,
-            maxAge: currUser.maxAge,
-            sex: currUser.categorySex
-        };
-    });
-    let i = 0;
-    usedCategories.forEach(category => {
-        let categoryUsers = {
-            category: category,
-            users: []
-        };
-        while (i < users.length && category.id === users[i].category) {
-            categoryUsers.users.push(users[i]);
-            i++;
-        }
-        resultJson.push(categoryUsers);
-    });
+    if(users) {
+        let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
+            let currUser = users.find(u => u.category === id);
+            return {
+                id: id,
+                name: currUser.categoryName,
+                minAge: currUser.minAge,
+                maxAge: currUser.maxAge,
+                sex: currUser.categorySex
+            };
+        });
+        let i = 0;
+        usedCategories.forEach(category => {
+            resultJson.push({
+                category: category,
+                users: users.filter(u => u.category == category.id)
+            });
+        });
+    }
     return resultJson;
+}
+
+function getSessionYear() {
+    let year = new Date().getFullYear();
+    if (new Date().getMonth() < constants.monthDateFromZERO.SEPTEMBER)
+        year = year - 1;
+
+    return year
+}
+
+function isNumeric(value) {
+    return /^-{0,1}\d+$/.test(value);
 }
 
 module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
-module.exports.sendEmail = sendMail;
+//module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;
 module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
 module.exports.sortUsers = sortUsers;
+module.exports.getSessionYear = getSessionYear;

@@ -1,5 +1,6 @@
 const common_sportsman_module = require('../common/sportsman_module');
 const common_func = require('../commonFunc');
+const constants = require('../../constants')
 
 function initQuery(queryData) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData);
@@ -34,16 +35,17 @@ async function getSportsmen(queryData) {
         .parameter('compId', tediousTYPES.Int, queryData.competition)
         .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
         .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
+        .parameter('year', tediousTYPES.Int, common_func.getSessionYear())
         .execute()
         .then(result => {
             result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
             ans.results = {
                 sportsmen: result
             };
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans
@@ -71,10 +73,10 @@ async function getSportsmenCount(queryData) {
         .execute()
         .then(result => {
             ans.results = result[0]
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
         })
         .fail((error) => {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = error;
         });
     return ans;

@@ -6,7 +6,6 @@ let competitionFinalsGrade = new Map()
 
 
 io.on('connection', (client) => {
-
     client.on('login', function (data) {
         console.log(`[LOG]-user with id ${data.userId} connected to the server , client id = ${client.id} `)
         connectedUsers.set(parseInt(data.userId), client.id);
@@ -50,6 +49,7 @@ io.on('connection', (client) => {
     })
 
     client.on('setNextSportsman', function (data) {
+        console.log(data)
         connectedUsers.set(parseInt(data.userId), client.id);
 
         if (data.sportsman.id)

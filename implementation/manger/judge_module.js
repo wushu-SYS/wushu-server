@@ -217,7 +217,7 @@ async function autoReminderForUploadCriminalRecord(){
     judges.forEach((judge)=>{
         console.log(`[Log] - auto reminder for judge id ${judge.id} to upload criminal record by mail`)
         let msg = 'שלום,'+'\n'+'נא העלה רישום פלילי למערכת'+'\n'+'\n'+'תודה,'+'\n'+'מערכת או-שו'
-        functions_com.sendEmail(judge.email,msg,'מערכת אושו -תזכורת')
+      //  functions_com.sendEmail(judge.email,msg,'מערכת אושו -תזכורת')
     })
 
 }
