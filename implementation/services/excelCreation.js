@@ -60,13 +60,8 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         row++;
     }
 
-    for (let i = 2; i < 1000; i++) {
-        worksheet.cell(i, 4).style(style).style(({
-            font: {color: 'black'},
-            alignment: {horizontal: 'right'},
-            numberFormat: '@'
-        }));
-    }
+    enableStartingfromZero(worksheet,4)
+    enableStartingfromZero(worksheet,1)
 
     worksheet.addDataValidation({
         type: 'list',
@@ -145,6 +140,16 @@ async function createExcelRegisterSportsman(clubList, coachList) {
 
 }
 
+function enableStartingfromZero(worksheet,row) {
+    for (let i = 2; i < 1000; i++) {
+        worksheet.cell(i, row).style(style).style(({
+            font: {color: 'black'},
+            alignment: {horizontal: 'right'},
+            numberFormat: '@'
+        }));
+    }
+}
+
 async function createExcelRegisterCoaches(clubList) {
     let {workbook, worksheet} = createWorkBook();
 
@@ -167,6 +172,8 @@ async function createExcelRegisterCoaches(clubList) {
         }));
         row++;
     }
+    enableStartingfromZero(worksheet,4);
+    enableStartingfromZero(worksheet,1);
     worksheet.addDataValidation({
         type: 'list',
         allowBlank: false,
@@ -224,6 +231,10 @@ async function createExcelRegisterNewJudge() {
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
+
+    enableStartingfromZero(worksheet,1)
+    enableStartingfromZero(worksheet,4)
+
     worksheet.addDataValidation({
         type: 'textLength',
         allowBlank: false,
@@ -260,9 +271,11 @@ async function createExcelCoachAsJudge(coachList) {
     worksheet.cell(1, 4).string('הפוך לשופט').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
+    enableStartingfromZero(worksheet,1)
+
     let row = 2;
     for (let i = 0; i < coachList.length; i++) {
-        worksheet.cell(row, 1).number(coachList[i].id).style(style);
+        worksheet.cell(row, 1).string(common_func.completeIdUser(coachList[i].id)).style(style);
         worksheet.cell(row, 2).string(coachList[i].firstname).style(style);
         worksheet.cell(row, 3).string(coachList[i].lastname).style(style);
         lockListValueCell(worksheet, ['A', 'B', 'C'], row)
@@ -298,6 +311,7 @@ async function createExcelCompetitionState(compState, date) {
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze(); // Freezes the top four rows
 
+    enableStartingfromZero(worksheet,1)
     let row = 2;
     let j;
     for (let i = 0; i < compState.length; i++) {
@@ -315,7 +329,7 @@ async function createExcelCompetitionState(compState, date) {
         let users = compState[i].users;
         for (j = 0; j < users.length; j++) {
 
-            worksheet.cell(row, 1).number(users[j].id).style(style);
+            worksheet.cell(row, 1).string(common_func.completeIdUser(users[j].id)).style(style);
             worksheet.cell(row, 2).string(users[j].firstname).style(style);
             worksheet.cell(row, 3).string(users[j].lastname).style(style);
             row++
@@ -355,6 +369,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     worksheet.cell(1, 7).string('קטגוריה-2').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 8).string('קטגוריה-3').style(style).style(({font: {bold: true},}));
     worksheet.row(1).freeze();
+    enableStartingfromZero(worksheet,1)
 
     lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100"]);
     lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 1);
@@ -404,7 +419,7 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
     let rowCell = 2;
     while (i < sportsmenLength) {
         if (sportsMap.has(sportsmenArr[i].id) == false) {
-            worksheet.cell(rowCell, 1).number(sportsmenArr[i].id).style(style);
+            worksheet.cell(rowCell, 1).string(common_func.completeIdUser(sportsmenArr[i].id)).style(style);
             worksheet.cell(rowCell, 2).string(sportsmenArr[i].firstname).style(style);
             worksheet.cell(rowCell, 3).string(sportsmenArr[i].lastname).style(style);
             worksheet.cell(rowCell, 4).string(sportsmenArr[i].sex).style(style);
@@ -446,9 +461,10 @@ async function createSportsmenExcel(sportsmen) {
     worksheet.cell(1, 6).string('גיל').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
+    enableStartingfromZero(worksheet,1)
     let row = 2;
     for (i = 0; i < sportsmen.length; i++) {
-        worksheet.cell(row, 1).number(sportsmen[i].id).style(style);
+        worksheet.cell(row, 1).string(common_func.completeIdUser(sportsmen[i].id)).style(style);
         worksheet.cell(row, 2).string(sportsmen[i].firstname).style(style);
         worksheet.cell(row, 3).string(sportsmen[i].lastname).style(style);
         worksheet.cell(row, 4).number(sportsmen[i].competitionCount).style(style);
@@ -471,9 +487,11 @@ async function createCoachExcel(coaches) {
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
+    enableStartingfromZero(worksheet,1)
+    enableStartingfromZero(worksheet,4)
     let row = 2;
     for (i = 0; i < coaches.length; i++) {
-        worksheet.cell(row, 1).number(coaches[i].id).style(style);
+        worksheet.cell(row, 1).string(common_func.completeIdUser(coaches[i].id)).style(style);
         worksheet.cell(row, 2).string(coaches[i].firstname).style(style);
         worksheet.cell(row, 3).string(coaches[i].lastname).style(style);
         worksheet.cell(row, 4).string(coaches[i].phone).style(style);
@@ -494,10 +512,12 @@ async function createJudgeExcel(judges) {
     worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
+    enableStartingfromZero(worksheet,1)
+    enableStartingfromZero(worksheet,4)
 
     let row = 2;
     for (i = 0; i < judges.length; i++) {
-        worksheet.cell(row, 1).number(judges[i].id).style(style);
+        worksheet.cell(row, 1).string(common_func.completeIdUser(judges[i].id)).style(style);
         worksheet.cell(row, 2).string(judges[i].firstname).style(style);
         worksheet.cell(row, 3).string(judges[i].lastname).style(style);
         worksheet.cell(row, 4).string(judges[i].phone).style(style);
@@ -521,11 +541,12 @@ async function createCompetitionUploadGrade(sportsman, judges, idComp) {
     setWidthListCell(worksheet, [4], 30);
     let i = 0, j = 0, numOfRows = 0;
 
+    enableStartingfromZero(worksheet,1)
     while (i < sportsman.length) {
         j = 0;
         let users = sportsman[i].users
         while (j < users.length) {
-            worksheet.cell(row, 1).number(users[j].id).style(style);
+            worksheet.cell(row, 1).string(common_func.completeIdUser(users[j].id)).style(style);
             worksheet.cell(row, 2).string(users[j].firstname).style(style);
             worksheet.cell(row, 3).string(users[j].lastname).style(style);
             worksheet.cell(row, 4).string(setJudgeCategory(users[j])).style(style);
