@@ -47,7 +47,7 @@ function sportsmanManualValidations(user, isUpdate) {
 
     if (!isUpdate) {
         pushErrorsToList(errList, userValidation.sportsman.sportClubVal(user.sportClub));
-        pushErrorsToList(errList, userValidation.sportsman.idCoachVal(user.idCoach));
+        //pushErrorsToList(errList, userValidation.sportsman.idCoachVal(user.idCoach));
     }
     return errList
 }

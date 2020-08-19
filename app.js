@@ -570,6 +570,14 @@ app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
     res.status(ans.status).send(ans.results);
 
 });
+app.post("/private/manager/getCoachSportsmen", async function (req, res) {
+    let ans;
+    console.log(req.body.coachId)
+    ans = await manger_sportsman_module.getCoachSportsmen(req.body.coachId);
+    res.status(ans.status).send(ans.results);
+
+});
+
 app.get("/private/commonCoachManager/getSportsmen/count", async function (req, res) {
     let ans;
     if (access === Constants.userType.MANAGER)
