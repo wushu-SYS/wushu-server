@@ -355,7 +355,6 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
 });
 //----------------------------------------------------------------------------------------------------------------------
 
-//TODO:: REOMVE CREATED EXCEL FILE FROM HOMEDIR
 //----------------------------------------------excel download----------------------------------------------------------
 
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
@@ -368,8 +367,9 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let coaches;
     if (access == Constants.userType.COACH) {
         clubs = await common_sportclub_module.getSportClubs(id)
-        coaches = await common_couches_module.getCoachProfileById(id);
+        coaches = await common_couches_module.getClubCoaches(clubs.results[0].id);
         coaches.results = [coaches.results];
+        coaches.results = coaches.results[0]
     } else if (access == Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         coaches = await common_couches_module.getCoaches();

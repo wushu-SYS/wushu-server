@@ -31,7 +31,7 @@ async function getUserDetails(userData) {
             result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
             break;
         case 2:
-            result = await dbUtils.sql(`select firstname, lastname from user_Coach where id= '${userData.dbResults.id}'`).execute();
+            result = await dbUtils.sql(`select firstname, lastname , sportclub from user_Coach where id= '${userData.dbResults.id}'`).execute();
             break;
         case 3:
             result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
@@ -54,7 +54,8 @@ function buildToken(userDetails, userData) {
         'firstname': userDetails.firstname,
         'lastname': userDetails.lastname,
         'access': userData.dbResults.usertype,
-        'isFirstTime': userData.dbResults.isfirstlogin
+        'isFirstTime': userData.dbResults.isfirstlogin,
+        'sportclub': userDetails.sportclub
     };
 }
 

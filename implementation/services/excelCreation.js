@@ -669,7 +669,7 @@ function setIdCategory(category) {
 }
 
 function setIdCoach(id) {
-    return '(ת.ז: ' + id.id + ')';
+    return '(ת.ז: ' + common_func.completeIdUser(id.id) + ')';
 }
 
 function setDateFormat(date) {
