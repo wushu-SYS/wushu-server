@@ -577,7 +577,6 @@ app.post("/private/manager/getCoachSportsmen", async function (req, res) {
     res.status(ans.status).send(ans.results);
 
 });
-
 app.get("/private/commonCoachManager/getSportsmen/count", async function (req, res) {
     let ans;
     if (access === Constants.userType.MANAGER)
@@ -653,6 +652,15 @@ app.post("/private/manager/getAdmins", async function (req, res) {
 });
 app.post("/private/commonCoachManager/getCoachesNotRegisterAsJudges", async function (req, res) {
     let ans = await common_couches_module.getCoachesNotRegisterAsJudges();
+    res.status(ans.status).send(ans.results);
+
+});
+app.post("/private/commonCoachManager/getClubCoaches", async function (req, res) {
+    let clubId = req.body.clubId
+    console.log(clubId)
+    let ans = await common_couches_module.getClubCoaches(clubId);
+    ans.results = [ans.results];
+    ans.results = ans.results[0]
     res.status(ans.status).send(ans.results);
 
 });
@@ -814,6 +822,14 @@ app.post("/private/manager/updateClubDetails", async function (req, res) {
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(ans.results)
+});
+app.post("/private/commonCoachManager/changeSportsmanCoach", async function (req, res) {
+    let coachId = req.body.coachId
+    let sportsmanId = req.body.sportsmanId
+    let ans = await sportsman_user_module.updateSportsmanCoach(coachId,sportsmanId)
+    res.status(ans.status).send(ans.results)
+
+
 });
 
 //----------------------------------------------------------------------------------------------------------------------

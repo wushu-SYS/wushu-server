@@ -76,6 +76,28 @@ async function updateSportsmanProfile(sportsManDetails) {
     return ans;
 }
 
+async function updateSportsmanCoach(idCoach,idSportsman){
+    console.log(idCoach)
+    console.log(idSportsman)
+    let ans = new Object()
+    await dbUtils.sql(`update sportsman_coach set idCoach = @idCoach where idSportman = @idSportsman `)
+        .parameter('idSportsman', tediousTYPES.Int, idSportsman)
+        .parameter('idCoach', tediousTYPES.Int, idCoach)
+        .execute()
+        .then(result => {
+            ans.results = constants.msg.updateUserDetails;
+            ans.status = constants.statusCode.ok;
+        })
+        .fail((err) => {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err;
+        });
+    return ans
+}
+
+
+
+
 async function checkIdCoachRelatedSportsman(idCoach,idSportsman) {
     await dbUtils.sql('select idCoach from sportsman_coach where idSportsman = @idSportsman ')
         .parameter('idSportsman', tediousTYPES.Int, idSportsman)
@@ -92,3 +114,4 @@ async function checkIdCoachRelatedSportsman(idCoach,idSportsman) {
 
 module.exports.updateSportsmanProfile = updateSportsmanProfile;
 module.exports.checkIdCoachRelatedSportsman=checkIdCoachRelatedSportsman;
+module.exports.updateSportsmanCoach=updateSportsmanCoach;
