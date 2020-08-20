@@ -1,5 +1,7 @@
 let constants = require("../../constants");
-
+let common_sportsman_module = require("../common/sportsman_module")
+let common_couches_module = require("../common/coaches_module")
+let common_judge_module = require("../common/judge_module")
 
 async function checkUserDetailsForLogin(userData) {
     var ans = new Object();
@@ -23,6 +25,64 @@ async function checkUserDetailsForLogin(userData) {
     return ans;
 
 }
+
+async function checkUserExist(userId) {
+    let ans = await checkUserTypes(userId)
+    if (ans.results == 0) {
+        ans.status = constants.statusCode.notFound
+        ans.results ={}
+    }
+    return ans
+}
+
+async function checkUserTypes(userId) {
+    let ans = new Object()
+    await dbUtils.sql(`select usertype from user_UserTypes where id = @id`)
+        .parameter('id', tediousTYPES.Int, userId)
+        .execute()
+        .then(async function (results) {
+            if (results.length === 0) {
+                ans.results = 0
+            } else {
+                if (checkUserTypeSportsman(results)) {
+                    ans = await common_sportsman_module.sportsmanProfile(userId)
+                } else if (checkUserTypeCoach(results)) {
+                    ans = await common_couches_module.getCoachProfileById(userId)
+                } else if (checkUserTypeJudge(results)) {
+                    ans = await common_judge_module.getRefereeProfileById(userId);
+                }
+            }
+        })
+        .fail(function (err) {
+            ans.results = err;
+        });
+    return ans;
+}
+
+function checkUserTypeSportsman(results) {
+    for (let i = 0; i < results.length; i++) {
+        if (results[i].usertype == constants.userType.SPORTSMAN)
+            return true
+    }
+    return false
+}
+
+function checkUserTypeCoach(results) {
+    for (let i = 0; i < results.length; i++) {
+        if (results[i].usertype == constants.userType.COACH)
+            return true
+    }
+    return false
+}
+
+function checkUserTypeJudge(results) {
+    for (let i = 0; i < results.length; i++) {
+        if (results[i].usertype == constants.userType.JUDGE)
+            return true
+    }
+    return false
+}
+
 
 async function getUserDetails(userData) {
     let result;
@@ -60,21 +120,17 @@ function buildToken(userDetails, userData) {
 }
 
 
-
-
-
 async function validateDiffPass(userData) {
     var ans = new Object()
     await dbUtils.sql(`Select password from user_Passwords where id= @id`)
         .parameter('id', tediousTYPES.Int, userData.id)
         .execute()
         .then(function (results) {
-            if(bcrypt.compareSync(userData.newPass, results[0].password)) {
+            if (bcrypt.compareSync(userData.newPass, results[0].password)) {
                 ans.status = Constants.statusCode.Conflict;
                 ans.isPassed = false;
                 ans.err = Constants.errorMsg.samePassword
-            }
-            else{
+            } else {
                 ans.status = Constants.statusCode.ok;
                 ans.isPassed = true;
                 ans.err = results
@@ -137,7 +193,7 @@ async function deleteSportsman(sportsmanId) {
 }
 
 
-async function updateProfilePic(path ,id,userType){
+async function updateProfilePic(path, id, userType) {
     let sql = getSqlUpdatePic(userType);
     let ans = new Object();
     await dbUtils.sql(sql)
@@ -156,7 +212,7 @@ async function updateProfilePic(path ,id,userType){
     return ans;
 }
 
-function getSqlUpdatePic(userType){
+function getSqlUpdatePic(userType) {
     switch (userType) {
         case "judge":
             return `update ${constants.databaseUserTableName.judge} set photo =@photo where id = @id`;
@@ -174,4 +230,7 @@ module.exports.getUserDetails = getUserDetails;
 module.exports.changeUserPassword = changeUserPassword;
 module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;
-module.exports.updateProfilePic=updateProfilePic;
+module.exports.updateProfilePic = updateProfilePic;
+module.exports.checkUserExist = checkUserExist;
+
+module.exports.checkUserTypes = checkUserTypes;

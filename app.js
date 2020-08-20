@@ -78,7 +78,7 @@ let statusCode = {
 
 //---------------------------------------server schedule Jobs-----------------------------------------------------------
 //TODO :ASK TZVI for time of schedule at the end of the project
-
+//manger_competition_module.autoCloseRegCompetition();
 let automaticCloseCompetition = schedule.scheduleJob({minute: 600}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
@@ -664,6 +664,13 @@ app.post("/private/commonCoachManager/getClubCoaches", async function (req, res)
     res.status(ans.status).send(ans.results);
 
 });
+
+app.post("/private/allUsers/checkExistUser", async function (req, res) {
+    let userId = req.body.userId
+    let ans = await common_user_module.checkUserExist(userId)
+    res.status(ans.status).send(ans.results);
+});
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
