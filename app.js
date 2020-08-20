@@ -78,7 +78,7 @@ let statusCode = {
 
 //---------------------------------------server schedule Jobs-----------------------------------------------------------
 //TODO :ASK TZVI for time of schedule at the end of the project
-
+//manger_competition_module.autoCloseRegCompetition();
 let automaticCloseCompetition = schedule.scheduleJob({minute: 600}, function () {
     manger_competition_module.autoCloseRegCompetition();
 });
@@ -355,7 +355,6 @@ app.post("/private/manager/getJudgeRegistrationState", async function (req, res)
 });
 //----------------------------------------------------------------------------------------------------------------------
 
-//TODO:: REOMVE CREATED EXCEL FILE FROM HOMEDIR
 //----------------------------------------------excel download----------------------------------------------------------
 
 app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
@@ -368,8 +367,9 @@ app.get('/downloadExcelFormatSportsman/:token', async (req, res) => {
     let coaches;
     if (access == Constants.userType.COACH) {
         clubs = await common_sportclub_module.getSportClubs(id)
-        coaches = await common_couches_module.getCoachProfileById(id);
+        coaches = await common_couches_module.getClubCoaches(clubs.results[0].id);
         coaches.results = [coaches.results];
+        coaches.results = coaches.results[0]
     } else if (access == Constants.userType.MANAGER) {
         clubs = await common_sportclub_module.getSportClubs(undefined);
         coaches = await common_couches_module.getCoaches();
@@ -570,6 +570,13 @@ app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
     res.status(ans.status).send(ans.results);
 
 });
+app.post("/private/manager/getCoachSportsmen", async function (req, res) {
+    let ans;
+    console.log(req.body.coachId)
+    ans = await manger_sportsman_module.getCoachSportsmen(req.body.coachId);
+    res.status(ans.status).send(ans.results);
+
+});
 app.get("/private/commonCoachManager/getSportsmen/count", async function (req, res) {
     let ans;
     if (access === Constants.userType.MANAGER)
@@ -648,6 +655,22 @@ app.post("/private/commonCoachManager/getCoachesNotRegisterAsJudges", async func
     res.status(ans.status).send(ans.results);
 
 });
+app.post("/private/commonCoachManager/getClubCoaches", async function (req, res) {
+    let clubId = req.body.clubId
+    console.log(clubId)
+    let ans = await common_couches_module.getClubCoaches(clubId);
+    ans.results = [ans.results];
+    ans.results = ans.results[0]
+    res.status(ans.status).send(ans.results);
+
+});
+
+app.post("/private/allUsers/checkExistUser", async function (req, res) {
+    let userId = req.body.userId
+    let ans = await common_user_module.checkUserExist(userId)
+    res.status(ans.status).send(ans.results);
+});
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -806,6 +829,14 @@ app.post("/private/manager/updateClubDetails", async function (req, res) {
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(ans.results)
+});
+app.post("/private/commonCoachManager/changeSportsmanCoach", async function (req, res) {
+    let coachId = req.body.coachId
+    let sportsmanId = req.body.sportsmanId
+    let ans = await sportsman_user_module.updateSportsmanCoach(coachId,sportsmanId)
+    res.status(ans.status).send(ans.results)
+
+
 });
 
 //----------------------------------------------------------------------------------------------------------------------

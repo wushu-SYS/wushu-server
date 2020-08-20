@@ -139,5 +139,21 @@ function buildQuery_forGetSportsman(queryData, orderBy) {
     return query;
 }
 
+async function getCoachSportsmen(coachId){
+    let ans = new Object();
+    await dbUtils.sql(`select * from user_Sportsman join sportsman_coach sc on user_Sportsman.id = sc.idSportman where idCoach = @coachId`)
+        .parameter('coachId', tediousTYPES.Int, coachId)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err;
+        });
+    return ans;
+}
+
 module.exports.getSportsmen = getSportsmen;
 module.exports.getSportsmenCount = getSportsmenCount;
+module.exports.getCoachSportsmen = getCoachSportsmen;

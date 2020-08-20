@@ -42,7 +42,21 @@ async function getCoachesNotRegisterAsJudges() {
         });
     return ans;
 }
-
+async function getClubCoaches(clubId){
+    let ans = new Object();
+    await dbUtils.sql(`select * from user_Coach where sportclub = @clubId `)
+        .parameter('clubId', tediousTYPES.Int, clubId)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err;
+        });
+    return ans;
+}
 module.exports.getCoaches = getCoaches;
 module.exports.getCoachProfileById=getCoachProfileById;
 module.exports.getCoachesNotRegisterAsJudges=getCoachesNotRegisterAsJudges;
+module.exports.getClubCoaches=getClubCoaches;

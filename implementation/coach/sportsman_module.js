@@ -3,11 +3,13 @@ const common_func = require('../commonFunc');
 
 function initQuery(queryData, id) {
     let conditions = common_sportsman_module.buildConditions_forGetSportsmen(queryData, id);
+    let mainOrderBy = common_sportsman_module.buildOrderBy_forGetSportsmen_forRowNumber(queryData)
     let orderby = common_sportsman_module.buildOrderBy_forGetSportsmen(queryData);
-    let query = buildQuery_forGetSportsman(queryData, orderby);
+    let query = buildQuery_forGetSportsman(queryData, mainOrderBy);
     query.query += conditions.conditionStatement;
     query.queryCount += conditions.conditionStatement;
     query.query += `) tmp` + (query.additionalData ? ` ${query.additionalData}` : '') + (conditions.limits ? conditions.limits : '');
+    query.query += orderby;
     return query;
 }
 

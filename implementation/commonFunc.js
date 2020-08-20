@@ -127,6 +127,10 @@ function isNumeric(value) {
     return /^-{0,1}\d+$/.test(value);
 }
 
+function completeIdUser(id){
+    return ("000000000" + id).slice(-9);
+}
+
 module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
@@ -137,3 +141,4 @@ module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
 module.exports.sortUsers = sortUsers;
 module.exports.getSessionYear = getSessionYear;
+module.exports.completeIdUser = completeIdUser ;
