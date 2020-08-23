@@ -215,11 +215,11 @@ async function updateProfilePic(path, id, userType) {
 
 function getSqlUpdatePic(userType) {
     switch (userType) {
-        case "judge":
+        case constants.userType.JUDGE:
             return `update ${constants.databaseUserTableName.judge} set photo =@photo where id = @id`;
-        case "sportsman":
+        case constants.userType.SPORTSMAN:
             return `update ${constants.databaseUserTableName.sportsman} set photo =@photo where id = @id`;
-        case "coach":
+        case constants.userType.COACH:
             return `update ${constants.databaseUserTableName.coach} set photo =@photo where id = @id`;
 
     }

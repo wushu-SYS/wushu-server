@@ -913,7 +913,12 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         }).catch((err) => {
             console.log(err)
         });
-        let ans = await common_user_module.updateProfilePic(path, id, userType);
+        let userTypes = await common_user_module.getUserTypes(id)
+        let ans = new Object()
+        for (const userType1 of userTypes.results) {
+            ans = await common_user_module.updateProfilePic(path, id, userType1.usertype);
+        }
+        //let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
     });
 
