@@ -11,7 +11,7 @@ async function checkUserDetailsForLogin(userData) {
         .then(function (results) {
             if (results.length === 0) {
                 ans.isPassed = false;
-                ans.err = Constants.errorMsg.errLoginDetails
+                ans.err = constants.errorMsg.errLoginDetails
             } else {
                 let userTypes = results.map(u => u.usertype)
                 ans.dbResults = results[0];
@@ -127,16 +127,16 @@ async function validateDiffPass(userData) {
         .execute()
         .then(function (results) {
             if (bcrypt.compareSync(userData.newPass, results[0].password)) {
-                ans.status = Constants.statusCode.Conflict;
+                ans.status = constants.statusCode.Conflict;
                 ans.isPassed = false;
-                ans.err = Constants.errorMsg.samePassword
+                ans.err = constants.errorMsg.samePassword
             } else {
-                ans.status = Constants.statusCode.ok;
+                ans.status = constants.statusCode.ok;
                 ans.isPassed = true;
                 ans.err = results
             }
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.isPassed = false;
             ans.err = err
         });
@@ -167,8 +167,9 @@ async function deleteSportsman(sportsmanId) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @sportsmanId;`)
+            return await trans.sql(`DELETE FROM user_UserTypes WHERE id = @sportsmanId and usertype = @type;`)
                 .parameter('sportsmanId', tediousTYPES.Int, sportsmanId)
+                .parameter('type', tediousTYPES.Int, constants.userType.SPORTSMAN)
                 .returnRowCount()
                 .execute();
         })
@@ -180,14 +181,14 @@ async function deleteSportsman(sportsmanId) {
         })
         .then(async function (testResult) {
             //TODO: delete sportsman directory on drive - job name deleteSportsmanFilesFromGoogleDrive
-            ans.status = Constants.statusCode.ok;
-            ans.results = Constants.msg.userDeleted;
-            trans.commitTransaction();
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.userDeleted;
+           await trans.commitTransaction();
         })
-        .fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+        .fail(async function (err) {
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            await trans.rollbackTransaction();
         })
     return ans;
 }
@@ -201,12 +202,12 @@ async function updateProfilePic(path, id, userType) {
         .parameter('photo', tediousTYPES.NVarChar, path)
         .execute()
         .then(function (results) {
-            ans.status = Constants.statusCode.ok;
+            ans.status = constants.statusCode.ok;
             ans.results = "upload"
 
         }).fail(function (err) {
             console.log(err)
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
@@ -241,6 +242,19 @@ async function getUserTypes(userId) {
     return ans;
 }
 
+async function deletePassword(userId){
+    let userTypes = await getUserTypes(userId)
+    if (userTypes.status == constants.statusCode.ok && userTypes.results.length == 0){
+        await dbUtils.sql(`DELETE FROM user_Passwords WHERE id = @id;`)
+            .parameter('id', tediousTYPES.Int, userId)
+            .execute()
+            .then((res)=>{console.log("[Log] - user password for user id " + userId + "has been deleted")})
+            .catch((err)=>{console.log(err)})
+    }
+}
+
+
+
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
@@ -250,5 +264,5 @@ module.exports.validateDiffPass = validateDiffPass;
 module.exports.updateProfilePic = updateProfilePic;
 module.exports.checkUserExist = checkUserExist;
 module.exports.getUserTypes = getUserTypes;
-
 module.exports.checkUserTypes = checkUserTypes;
+module.exports.deletePassword = deletePassword;

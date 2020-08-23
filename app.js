@@ -716,25 +716,26 @@ app.post("/private/commonCoachManager/sportsmanRank", async function (req, res) 
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
-        let ans = await common_user_module.deleteSportsman(req.body.userID);
+        let ans = await common_user_module.deleteSportsman(req.body.userID)
+        await common_user_module.deletePassword(req.body.userID)
         res.status(ans.status).send(ans.results)
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
-//TODO: DELETE COACH FROM ALL TABLE -> BY ORDER . use sql cascade to delete coach. and check that there is no sportsman that connected to the coach.
 app.post("/private/manager/deleteCoachProfile", async function (req, res) {
-
     let ans = await manger_user_module.deleteCoach(req.body.id);
+    await common_user_module.deletePassword(req.body.id)
     res.status(ans.status).send(ans.results)
-
 });
 app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
     let ans = await manager_judge_module.deleteJudge(req.body.userID);
+    await common_user_module.deletePassword(req.body.userID)
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/deleteAdmin", async function (req, res) {
     if (req.body.id !== id) {
         let ans = await manger_user_module.deleteAdmin(req.body.id);
+        await common_user_module.deletePassword(req.body.id)
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
@@ -850,7 +851,6 @@ app.post("/private/commonCoachManager/changeSportsmanCoach", async function (req
 
 
 });
-
 app.post("/private/allUser/updateProfile", async function (req, res) {
     let data = req.body
     let userTypes = await common_user_module.getUserTypes(data.id)
