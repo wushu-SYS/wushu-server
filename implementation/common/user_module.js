@@ -224,6 +224,23 @@ function getSqlUpdatePic(userType) {
     }
 }
 
+
+async function getUserTypes(userId) {
+    let ans = new Object()
+    await dbUtils.sql(`select usertype from user_UserTypes where id = @id`)
+        .parameter('id', tediousTYPES.Int, userId)
+        .execute()
+        .then(async function (results) {
+            ans.results = results
+            ans.status = constants.statusCode.ok
+        })
+        .fail(function (err) {
+            ans.results = err;
+            ans.status = constants.statusCode.badRequest
+        });
+    return ans;
+}
+
 module.exports.buildToken = buildToken;
 module.exports.checkUserDetailsForLogin = checkUserDetailsForLogin;
 module.exports.getUserDetails = getUserDetails;
@@ -232,5 +249,6 @@ module.exports.deleteSportsman = deleteSportsman;
 module.exports.validateDiffPass = validateDiffPass;
 module.exports.updateProfilePic = updateProfilePic;
 module.exports.checkUserExist = checkUserExist;
+module.exports.getUserTypes = getUserTypes;
 
 module.exports.checkUserTypes = checkUserTypes;
