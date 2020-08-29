@@ -1,6 +1,7 @@
 const common_func = require("../commonFunc")
 const coach_user_module = require("../coach/user_module");
 const pass = require("../coach/user_module")
+let constants = require("../../constants");
 
 async function insertNewCoachDB(trans, users, coachDetails, i) {
     return trans.sql(` INSERT INTO user_Coach (id, firstname, lastname, phone, email, birthdate, address, sportclub,photo)
@@ -62,8 +63,9 @@ async function deleteCoach(coach) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @id;`)
+            return await trans.sql(`DELETE FROM user_UserTypes WHERE id = @id and usertype = @type;`)
                 .parameter('id', tediousTYPES.Int, coach)
+                .parameter('type', tediousTYPES.Int, constants.userType.COACH)
                 .returnRowCount()
                 .execute();
         })
@@ -74,14 +76,14 @@ async function deleteCoach(coach) {
                 .execute();
         })
         .then(async function (testResult) {
-            ans.status = Constants.statusCode.ok;
-            ans.results = Constants.msg.userDeleted;
-            trans.commitTransaction();
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.userDeleted;
+           await trans.commitTransaction();
         })
-        .fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+        .fail(async function (err) {
+            ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            await trans.rollbackTransaction();
         })
     return ans;
 }
@@ -138,8 +140,9 @@ async function deleteAdmin(id){
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`DELETE FROM user_Passwords WHERE id = @id;`)
+            return await trans.sql(`DELETE FROM user_UserTypes WHERE id = @id and usertype =@type;`)
                 .parameter('id', tediousTYPES.Int, id)
+                .parameter('type', tediousTYPES.Int, constants.userType.MANAGER)
                 .returnRowCount()
                 .execute();
         })
@@ -152,12 +155,12 @@ async function deleteAdmin(id){
         .then(async function (testResult) {
             ans.status = Constants.statusCode.ok;
             ans.results = Constants.msg.userDeleted;
-            trans.commitTransaction();
+            await trans.commitTransaction();
         })
-        .fail(function (err) {
+        .fail(async function (err) {
             ans.status = Constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            await trans.rollbackTransaction();
         })
     return ans;
 }

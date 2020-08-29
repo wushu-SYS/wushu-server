@@ -716,25 +716,26 @@ app.post("/private/commonCoachManager/sportsmanRank", async function (req, res) 
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
     if (access === Constants.userType.MANAGER) {
-        let ans = await common_user_module.deleteSportsman(req.body.userID);
+        let ans = await common_user_module.deleteSportsman(req.body.userID)
+        await common_user_module.deletePassword(req.body.userID)
         res.status(ans.status).send(ans.results)
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 });
-//TODO: DELETE COACH FROM ALL TABLE -> BY ORDER . use sql cascade to delete coach. and check that there is no sportsman that connected to the coach.
 app.post("/private/manager/deleteCoachProfile", async function (req, res) {
-
     let ans = await manger_user_module.deleteCoach(req.body.id);
+    await common_user_module.deletePassword(req.body.id)
     res.status(ans.status).send(ans.results)
-
 });
 app.post("/private/manager/deleteJudgeProfile", async function (req, res) {
     let ans = await manager_judge_module.deleteJudge(req.body.userID);
+    await common_user_module.deletePassword(req.body.userID)
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/deleteAdmin", async function (req, res) {
     if (req.body.id !== id) {
         let ans = await manger_user_module.deleteAdmin(req.body.id);
+        await common_user_module.deletePassword(req.body.id)
         res.status(ans.status).send(ans.results)
     } else
         res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
@@ -767,7 +768,7 @@ app.post("/private/manager/addCompetition", async function (req, res) {
 //----------------------------------------------------------------------------------------------------------------------
 
 //------------------------------------------------Update----------------------------------------------------------------
-app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
+/*app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
     let ans;
     let user = req.body;
     let canEditSportsmanProfile;
@@ -780,23 +781,21 @@ app.post("/private/allUsers/updateSportsmanProfile", async function (req, res) {
         let ans = userVaildationService.validateUserDetails(user, "sportsman");
         if (ans.canUpdate) {
             ans = await sportsman_user_module.updateSportsmanProfile(common_function.getArrayFromJson(ans.data));
-            res.status(ans.status).send(ans.results)
+            console.log(ans[0])
+            console.log(ans[1])
+            if (ans[0].status == 200) {
+                ans[1].commitTransaction();
+            }
+            res.status(ans[0].status).send(ans[0].results)
         } else
             res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
 
     } else
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied)
 });
-app.post("/private/manager/closeRegistration", async function (req, res) {
-    let ans = await manger_competition_module.closeRegistration(req.body.idCompetition);
-    res.status(ans.status).send(ans.results)
-});
-app.post("/private/manager/updateCompetitionDetails", async function (req, res) {
-    let idEvent = await manger_competition_module.getIdEvent(req.body.competitionId);
-    let ans = await manger_competition_module.updateCompetitionDetails(req.body, idEvent);
-    res.status(ans.status).send(ans.results)
-});
-app.post("/private/commonCoachManager/updateCoachProfile", async function (req, res) {
+
+ */
+/*app.post("/private/commonCoachManager/updateCoachProfile", async function (req, res) {
     let ans;
     let user = req.body
     if (id == user.id || access === Constants.userType.MANAGER) {
@@ -811,7 +810,9 @@ app.post("/private/commonCoachManager/updateCoachProfile", async function (req, 
         res.status(Constants.statusCode.unauthorized).send(Constants.errorMsg.accessDenied)
 
 });
-app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
+
+ */
+/*app.post("/private/commonCoachManager/updateRefereeProfile", async function (req, res) {
     let ans;
     let user = req.body;
     ans = userVaildationService.validateUserDetails(user, "judge");
@@ -820,6 +821,18 @@ app.post("/private/commonCoachManager/updateRefereeProfile", async function (req
         res.status(ans.status).send(ans.results);
     } else
         res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied);
+});
+
+ */
+
+app.post("/private/manager/closeRegistration", async function (req, res) {
+    let ans = await manger_competition_module.closeRegistration(req.body.idCompetition);
+    res.status(ans.status).send(ans.results)
+});
+app.post("/private/manager/updateCompetitionDetails", async function (req, res) {
+    let idEvent = await manger_competition_module.getIdEvent(req.body.competitionId);
+    let ans = await manger_competition_module.updateCompetitionDetails(req.body, idEvent);
+    res.status(ans.status).send(ans.results)
 });
 app.post("/private/manager/updateClubDetails", async function (req, res) {
     let sportsClubDetails = req.body
@@ -833,8 +846,44 @@ app.post("/private/manager/updateClubDetails", async function (req, res) {
 app.post("/private/commonCoachManager/changeSportsmanCoach", async function (req, res) {
     let coachId = req.body.coachId
     let sportsmanId = req.body.sportsmanId
-    let ans = await sportsman_user_module.updateSportsmanCoach(coachId,sportsmanId)
+    let ans = await sportsman_user_module.updateSportsmanCoach(coachId, sportsmanId)
     res.status(ans.status).send(ans.results)
+
+
+});
+app.post("/private/allUser/updateProfile", async function (req, res) {
+    let data = req.body
+    let userTypes = await common_user_module.getUserTypes(data.id)
+    let sportsmanUpdate, coachUpdate, judgeUpdate;
+    let canUpdate = true
+    if (userTypes.status == Constants.statusCode.ok) {
+        if (userTypes.results.find(type => type.usertype == Constants.userType.SPORTSMAN)) {
+            let sportsmanProfile = await common_sportsman_module.sportsmanProfile(data.id);
+            sportsmanUpdate = await sportsman_user_module.updateProfile(data, access, id, sportsmanProfile.results)
+            if (sportsmanUpdate[0].status != Constants.statusCode.ok)
+                canUpdate = false;
+        }
+        if (userTypes.results.find(type => type.usertype == Constants.userType.COACH)) {
+            let coachProfile = await common_couches_module.getCoachProfileById(data.id);
+            coachUpdate = await coach_user_module.updateProfile(data, access, id, coachProfile.results)
+            if (coachUpdate[0].status != Constants.statusCode.ok)
+                canUpdate = false;
+        }
+        if (userTypes.results.find(type => type.usertype == Constants.userType.JUDGE)) {
+            let judgeProfile = await common_judge_module.getRefereeProfileById(data.id);
+            judgeUpdate = await common_judge_module.updateProfile(data, access, id, judgeProfile.results)
+            if (judgeUpdate[0].status != Constants.statusCode.ok)
+                canUpdate = false;
+        }
+        common_function.updateTrans(canUpdate, sportsmanUpdate, coachUpdate, judgeUpdate)
+        if (canUpdate) {
+            res.status(Constants.statusCode.ok).send(Constants.msg.updateUserDetails)
+        } else {
+            res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+        }
+    } else {
+        res.status(Constants.statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+    }
 
 
 });
@@ -864,7 +913,12 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         }).catch((err) => {
             console.log(err)
         });
-        let ans = await common_user_module.updateProfilePic(path, id, userType);
+        let userTypes = await common_user_module.getUserTypes(id)
+        let ans = new Object()
+        for (const userType1 of userTypes.results) {
+            ans = await common_user_module.updateProfilePic(path, id, userType1.usertype);
+        }
+        //let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
     });
 
@@ -1075,7 +1129,7 @@ app.post("/private/manager/addMessage", async function (req, res) {
 
 })
 app.post("/private/manager/editMessage", async function (req, res) {
-    let ans = await msg_board.editMessage(req.body.msg,req.body.msgId)
+    let ans = await msg_board.editMessage(req.body.msg, req.body.msgId)
     res.status(ans.status).send(ans.results)
 
 })
@@ -1102,7 +1156,7 @@ app.post("/private/manager/addEvent", async function (req, res) {
 
 })
 app.post("/private/manager/editEvent", async function (req, res) {
-    let ans = await events.editEvent(req.body.event,req.body.eventId)
+    let ans = await events.editEvent(req.body.event, req.body.eventId)
     res.status(ans.status).send(ans.results)
 
 })

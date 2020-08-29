@@ -1,4 +1,7 @@
 const constants = require("../../constants");
+const userValidation = require("../services/userValidations/userValidationService")
+const common_func = require("../commonFunc");
+
 
 async function getJudgesToRegister() {
     let ans = new Object();
@@ -50,7 +53,12 @@ async function updateRefereeProfile(user) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`UPDATE user_Judge SET id = @id, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email where id =@oldId;`)
+            return await trans.sql(`UPDATE user_Judge SET id = ISNULL(@id, id),
+                                                            firstname = ISNULL(@firstName, firstname),
+                                                            lastname  = ISNULL(@lastName, lastname),
+                                                            phone     = ISNULL(@phone, phone),
+                                                            email     = ISNULL(@email, email)
+                                                               where id = @oldId;`)
                 .parameter('id', tediousTYPES.Int, user[0])
                 .parameter('firstName', tediousTYPES.NVarChar, user[1])
                 .parameter('lastName', tediousTYPES.NVarChar, user[2])
@@ -63,8 +71,8 @@ async function updateRefereeProfile(user) {
             let newId = user[0];
             let oldId = user[5];
             if (newId != oldId) {
-                return await trans.sql(`UPDATE user_Passwords SET id = @sportsmanId WHERE id = @oldId;`)
-                    .parameter('sportsmanId', tediousTYPES.Int, newId)
+                return await trans.sql(`UPDATE user_Passwords SET id = @id WHERE id = @oldId;`)
+                    .parameter('id', tediousTYPES.Int, newId)
                     .parameter('oldId', tediousTYPES.Int, oldId)
                     .returnRowCount()
                     .execute();
@@ -74,18 +82,19 @@ async function updateRefereeProfile(user) {
             //sendJudgeUpdateEmail(user)
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.updateUserDetails;
-            trans.commitTransaction();
+            //trans.commitTransaction();
         }).fail(function (err) {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            //trans.rollbackTransaction();
         });
-    return ans;
+    return [ans, trans];
 }
-async function sendJudgeUpdateEmail(user){
-    if(user[4]) {
+
+async function sendJudgeUpdateEmail(user) {
+    if (user[4]) {
         var subject = 'עדכון פרטי משתמש'
-        var textMsg = "שלום " +user[1] + "\n" +
+        var textMsg = "שלום " + user[1] + "\n" +
             "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
             "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
             + "שם פרטי: " + user[1] + "\n"
@@ -97,7 +106,37 @@ async function sendJudgeUpdateEmail(user){
     }
 }
 
+async function updateProfile(data, access, id, profile) {
+    let ans;
+    if (id == data.id || access === constants.userType.MANAGER) {
+        let user = combineData(data, profile)
+        ans = userValidation.validateUserDetails(user, "judge");
+        if (ans.canUpdate) {
+            ans = await updateRefereeProfile(common_func.getArrayFromJson(ans.data));
+            return ans
+        }
+        ans =[]
+        ans[0] = new Object()
+        ans[0].status = constants.statusCode.badRequest
+        return ans
+    }
+}
+
+function combineData(data, profile) {
+    let user = {
+        id: data.id ? data.id : profile.id,
+        firstName: data.firstName ? data.firstName : profile.firstname,
+        lastName: data.lastName ? data.lastName : profile.lastname,
+        phone: data.phone ? data.phone : profile.phone,
+        email: data.email ? data.email : profile.email,
+        oldId: data.oldId ? data.oldId : profile.id
+    }
+    return user
+}
+
+
 module.exports.getReferees = getReferees;
 module.exports.getJudgesToRegister = getJudgesToRegister;
 module.exports.getRefereeProfileById = getRefereeProfileById;
 module.exports.updateRefereeProfile = updateRefereeProfile;
+module.exports.updateProfile = updateProfile;

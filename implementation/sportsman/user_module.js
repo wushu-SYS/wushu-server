@@ -1,11 +1,11 @@
 const common_func = require("../commonFunc")
 const userValidation = require("../services/userValidations/userValidationService")
-const constants =require("../../constants")
+const constants = require("../../constants")
 
 async function sendMail(sportsmanDetails) {
-    if(sportsmanDetails[constants.sportsmanUpdateArrayVal.email]) {
+    if (sportsmanDetails[constants.sportsmanUpdateArrayVal.email]) {
         var subject = 'עדכון פרטי משתמש'
-        var textMsg = "שלום " +sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n" +
+        var textMsg = "שלום " + sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n" +
             "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
             "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
             + "שם פרטי: " + sportsmanDetails[constants.sportsmanUpdateArrayVal.firstName] + "\n"
@@ -20,15 +20,21 @@ async function sendMail(sportsmanDetails) {
 }
 
 
-
 async function updateSportsmanProfile(sportsManDetails) {
     let ans = new Object();
     let trans;
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`UPDATE user_Sportsman SET id = @idSportsman, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
-                      address = @address, sex = @sex where id =@oldId;`)
+            return await trans.sql(`UPDATE user_Sportsman SET id = ISNULL(@idSportsman, id),
+                                                              firstname = ISNULL(@firstName, firstname),
+                                                              lastname  = ISNULL(@lastName, lastname),
+                                                              phone     = ISNULL(@phone, phone),
+                                                              email     = ISNULL(@email, email),
+                                                              birthdate = ISNULL(@birthDate, birthdate),
+                                                              address   = ISNULL(@address, address),
+                                                              sex       = ISNULL(@sex, sex)
+                                                                                            where id = @oldId;`)
                 .parameter('idSportsman', tediousTYPES.Int, sportsManDetails[constants.sportsmanUpdateArrayVal.idSportsman])
                 .parameter('firstName', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.firstName])
                 .parameter('lastName', tediousTYPES.NVarChar, sportsManDetails[constants.sportsmanUpdateArrayVal.lastName])
@@ -66,17 +72,17 @@ async function updateSportsmanProfile(sportsManDetails) {
             //sendMail(sportsManDetails)
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.updateUserDetails;
-            trans.commitTransaction();
+            // trans.commitTransaction();
         }).fail(function (err) {
             console.log(err)
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            // trans.rollbackTransaction();
         });
-    return ans;
+    return [ans, trans];
 }
 
-async function updateSportsmanCoach(idCoach,idSportsman){
+async function updateSportsmanCoach(idCoach, idSportsman) {
     console.log(idCoach)
     console.log(idSportsman)
     let ans = new Object()
@@ -95,10 +101,7 @@ async function updateSportsmanCoach(idCoach,idSportsman){
     return ans
 }
 
-
-
-
-async function checkIdCoachRelatedSportsman(idCoach,idSportsman) {
+async function checkIdCoachRelatedSportsman(idCoach, idSportsman) {
     await dbUtils.sql('select idCoach from sportsman_coach where idSportsman = @idSportsman ')
         .parameter('idSportsman', tediousTYPES.Int, idSportsman)
         .execute()
@@ -111,7 +114,50 @@ async function checkIdCoachRelatedSportsman(idCoach,idSportsman) {
 
 }
 
+async function updateProfile(data, access, id, profile) {
+    let ans = new Object();
+    if (await canUpdateProfile(access, id)) {
+        let user = combineData(data, profile)
+        let ans = userValidation.validateUserDetails(user, "sportsman");
+        if (ans.canUpdate) {
+            ans = await updateSportsmanProfile(common_func.getArrayFromJson(ans.data));
+            return ans
+        }
+    }
+    ans =[]
+    ans[0] = new Object()
+    ans[0].status = constants.statusCode.badRequest
+    return ans
+}
+
+async function canUpdateProfile(access, id) {
+    let canEditSportsmanProfile;
+    if (access === constants.userType.COACH) {
+        canEditSportsmanProfile = await checkIdCoachRelatedSportsman(id, user.id)
+    } else if (access === constants.userType.MANAGER || id === user.id) {
+        canEditSportsmanProfile = true;
+    }
+    return canEditSportsmanProfile
+}
+
+function combineData(data, profile) {
+    let user = {
+        id: data.id ? data.id : profile.id,
+        firstName: data.firstName ? data.firstName : profile.firstname,
+        lastName: data.lastName ? data.lastName : profile.lastname,
+        phone: data.phone ? data.phone : profile.phone,
+        email: data.email ? data.email : profile.email,
+        birthDate: data.birthDate ? data.birthDate : (new Date(profile.birthdate)).toLocaleDateString(),
+        address: data.address ? data.address : profile.address,
+        sex: data.sex ? data.sex : profile.sex,
+        oldId: data.oldId ? data.oldId : profile.id,
+        sportStyle: data.sportStyle ? data.sportStyle : profile.sportStyle,
+    }
+    return user
+
+}
 
 module.exports.updateSportsmanProfile = updateSportsmanProfile;
-module.exports.checkIdCoachRelatedSportsman=checkIdCoachRelatedSportsman;
-module.exports.updateSportsmanCoach=updateSportsmanCoach;
+module.exports.checkIdCoachRelatedSportsman = checkIdCoachRelatedSportsman;
+module.exports.updateSportsmanCoach = updateSportsmanCoach;
+module.exports.updateProfile = updateProfile;

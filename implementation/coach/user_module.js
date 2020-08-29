@@ -1,7 +1,6 @@
 const common_func = require("../commonFunc");
+const userValidation = require("../services/userValidations/userValidationService")
 const constants = require("../../constants")
-
-
 
 
 async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
@@ -119,8 +118,14 @@ async function updateCoachProfile(coachDetails) {
     await dbUtils.beginTransaction()
         .then(async function (newTransaction) {
             trans = newTransaction;
-            return await trans.sql(`UPDATE user_Coach SET id = @idCoach, firstname = @firstName, lastname = @lastName, phone = @phone, email = @email, birthdate = @birthDate,
-                      address = @address where id =@oldId;`)
+            return await trans.sql(`UPDATE user_Coach SET id = ISNULL(@idCoach, id),
+                                                            firstname = ISNULL(@firstName, firstname),
+                                                            lastname  = ISNULL(@lastName, lastname),
+                                                            phone     = ISNULL(@phone, phone),
+                                                            email     = ISNULL(@email, email),
+                                                            birthdate = ISNULL(@birthDate, birthdate),
+                                                            address   = ISNULL(@address, address)
+                                                                            where id = @oldId;`)
                 .parameter('idCoach', tediousTYPES.Int, coachDetails[0])
                 .parameter('firstName', tediousTYPES.NVarChar, coachDetails[1])
                 .parameter('lastName', tediousTYPES.NVarChar, coachDetails[2])
@@ -135,8 +140,8 @@ async function updateCoachProfile(coachDetails) {
             let newId = coachDetails[0];
             let oldId = coachDetails[7];
             if (newId != oldId) {
-                return await trans.sql(`UPDATE user_Passwords SET id = @sportsmanId WHERE id = @oldId;`)
-                    .parameter('sportsmanId', tediousTYPES.Int, newId)
+                return await trans.sql(`UPDATE user_Passwords SET id = @id WHERE id = @oldId;`)
+                    .parameter('id', tediousTYPES.Int, newId)
                     .parameter('oldId', tediousTYPES.Int, oldId)
                     .returnRowCount()
                     .execute();
@@ -144,15 +149,15 @@ async function updateCoachProfile(coachDetails) {
         })
         .then(function (results) {
             //sendUpdateEmail(coachDetails)
-            ans.status = Constants.statusCode.ok;
-            ans.results = Constants.msg.updateUserDetails;
-            trans.commitTransaction();
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.updateUserDetails;
+            //trans.commitTransaction();
         }).fail(function (err) {
-            ans.status = Constants.statusCode.badRequest;
+            ans.status = constants.statusCode.badRequest;
             ans.results = err
-            trans.rollbackTransaction();
+            //trans.rollbackTransaction();
         });
-    return ans;
+    return [ans,trans];
 }
 
 async function sendEmail(users) {
@@ -178,23 +183,54 @@ async function sendEmail(users) {
 
 
 async function sendUpdateEmail(coachDetails) {
-        if(coachDetails[4]) {
-            var subject = 'עדכון פרטי משתמש'
-            var textMsg = "שלום " +coachDetails[1] + "\n" +
-                "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
-                "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
-                + "שם פרטי: " + coachDetails[1] + "\n"
-                + "שם משפחה: " + coachDetails[2] + "\n"
-                + "כתובת מגורים: " + coachDetails[6] + "\n"
-                + "פאלפון: " + coachDetails[3] + "\n"
-                + "תאריך לידה: " + coachDetails[5] + "\n"
-                + "תעודת זהות: " + coachDetails[0] + "\n"
-                + "בברכה, מערכת או-שו"
-            await common_func.sendEmail(coachDetails[0], subject, textMsg)
-        }
+    if (coachDetails[4]) {
+        var subject = 'עדכון פרטי משתמש'
+        var textMsg = "שלום " + coachDetails[1] + "\n" +
+            "לבקשתך עודכנו הפרטים האישים שלך במערכת" + "\n" +
+            "אנא בדוק כי פרטיך נכונים,במידה ולא תוכל לשנות אותם בדף הפרופיל האישי או לעדכן את מאמנך האישי" + "\n"
+            + "שם פרטי: " + coachDetails[1] + "\n"
+            + "שם משפחה: " + coachDetails[2] + "\n"
+            + "כתובת מגורים: " + coachDetails[6] + "\n"
+            + "פאלפון: " + coachDetails[3] + "\n"
+            + "תאריך לידה: " + coachDetails[5] + "\n"
+            + "תעודת זהות: " + coachDetails[0] + "\n"
+            + "בברכה, מערכת או-שו"
+        await common_func.sendEmail(coachDetails[0], subject, textMsg)
     }
+}
+
+async function updateProfile(data, access, id, profile) {
+    let ans;
+    if (id == data.id || access === constants.userType.MANAGER) {
+        let user = combineData(data, profile)
+        ans = userValidation.validateUserDetails(user, "coach")
+        if (ans.canUpdate) {
+            ans = await updateCoachProfile(common_func.getArrayFromJson(ans.data));
+            return ans
+        }
+        ans =[]
+        ans[0] = new Object()
+        ans[0].status = constants.statusCode.badRequest
+        return ans
+    }
+}
+
+function combineData(data, profile) {
+    let user = {
+        id: data.id ? data.id : profile.id,
+        firstName: data.firstName ? data.firstName : profile.firstname,
+        lastName: data.lastName ? data.lastName : profile.lastname,
+        phone: data.phone ? data.phone : profile.phone,
+        email: data.email ? data.email : profile.email,
+        birthDate: data.birthDate ? data.birthDate : (new Date(profile.birthdate)).toLocaleDateString(),
+        address: data.address ? data.address : profile.address,
+        oldId: data.oldId ? data.oldId : profile.id
+    }
+    return user
+}
 
 
 module.exports.registerSportsman = registerSportsman;
 module.exports.updateCoachProfile = updateCoachProfile;
 module.exports.insertPasswordDB = insertPasswordDB;
+module.exports.updateProfile = updateProfile;

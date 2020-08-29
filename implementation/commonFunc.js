@@ -93,7 +93,7 @@ function sortUsers(users) {
     //         let y = obj2.category ? obj2.category : Number.NEGATIVE_INFINITY;
     //         return x - y;
     //     });
-    if(users) {
+    if (users) {
         let usedCategories = Array.from(new Set(users.map(u => u.category))).map(id => {
             let currUser = users.find(u => u.category === id);
             return {
@@ -127,8 +127,31 @@ function isNumeric(value) {
     return /^-{0,1}\d+$/.test(value);
 }
 
-function completeIdUser(id){
+function completeIdUser(id) {
     return ("000000000" + id).slice(-9);
+}
+
+function updateTrans(canUpdate, transA, transB, transC) {
+    if (canUpdate) {
+        commitTrans(transA)
+        commitTrans(transB)
+        commitTrans(transC)
+    } else {
+        rollBackTrans(transA)
+        rollBackTrans(transB)
+        rollBackTrans(transC)
+    }
+}
+
+
+function commitTrans(trans) {
+    if (trans && trans[1])
+        trans[1].commitTransaction()
+}
+
+function rollBackTrans(trans) {
+    if (trans && trans[1])
+        trans[1].rollbackTransaction()
 }
 
 module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
@@ -141,4 +164,5 @@ module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
 module.exports.sortUsers = sortUsers;
 module.exports.getSessionYear = getSessionYear;
-module.exports.completeIdUser = completeIdUser ;
+module.exports.completeIdUser = completeIdUser;
+module.exports.updateTrans = updateTrans
