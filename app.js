@@ -1214,4 +1214,8 @@ server.listen(process.env.PORT || 3000, () => {
     console.log("wu-shu project");
     console.log("----------------------------------");
 
+    if (fs.existsSync(__dirname+'/resources')) {
+        console.log("resources directory exist")
+    }
+
 });
