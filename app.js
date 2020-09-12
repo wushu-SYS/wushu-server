@@ -902,13 +902,17 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let userType = req.params.userType;
         let old_path = files.file.path;
         let new_path = __dirname + '/resources/profilePics/' + picName;
-        fs.rename(old_path, new_path, function (err) {
-        });
+        fs.renameSync(old_path, new_path)
+
+        if (fs.existsSync(new_path)){
+            console.log("file created successfully ")
+        }else{
+            console.log("file not created successfully")
+        }
+
         let path = undefined
         await googleDrive.uploadUserPicture(authGoogleDrive, id, new_path, picName, userType).then((res) => {
-            fs.unlink(new_path, function (err) {
-                if (err) console.log(err)
-            })
+            fs.unlinkSync(new_path)
             path = Constants.googleDrivePath.profilePicPath + res
         }).catch((err) => {
             console.log(err)
@@ -931,8 +935,8 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
-        await fs.rename(old_path, new_path, function (err) {
-        })
+        await fs.renameSync(old_path, new_path)
+
         switch (req.params.fileType) {
             case 'medicalScan' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
@@ -995,8 +999,7 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
-        await fs.rename(old_path, new_path, function (err) {
-        })
+        await fs.renameSync(old_path, new_path)
         switch (req.params.fileType) {
             case 'criminalRecord' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'judge', Constants.googleDriveFolderNames.criminalRecord).then(async (res) => {
@@ -1213,9 +1216,5 @@ server.listen(process.env.PORT || 3000, () => {
     console.log("port 3000");
     console.log("wu-shu project");
     console.log("----------------------------------");
-
-    if (fs.existsSync(__dirname+'/resources')) {
-        console.log("resources directory exist")
-    }
 
 });
