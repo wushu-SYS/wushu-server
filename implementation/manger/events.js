@@ -43,7 +43,6 @@ async function editEvent(event, eventId) {
     return ans;
 }
 async function deleteEvent(eventId) {
-    console.log(eventId)
     let ans = new Object();
     await dbUtils.sql(`delete from events where idEvent = @eventId`)
         .parameter('eventId', tediousTYPES.Int, eventId)

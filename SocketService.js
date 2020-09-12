@@ -49,9 +49,7 @@ io.on('connection', (client) => {
     })
 
     client.on('setNextSportsman', function (data) {
-        console.log(data)
         connectedUsers.set(parseInt(data.userId), client.id);
-
         if (data.sportsman.id)
             console.log(`[LOG]- next sportsman in comp ${data.idComp} is ${data.sportsman.id}`)
         let nextSportsman = new Object();

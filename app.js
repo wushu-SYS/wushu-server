@@ -572,7 +572,6 @@ app.post("/private/commonCoachManager/getSportsmen", async function (req, res) {
 });
 app.post("/private/manager/getCoachSportsmen", async function (req, res) {
     let ans;
-    console.log(req.body.coachId)
     ans = await manger_sportsman_module.getCoachSportsmen(req.body.coachId);
     res.status(ans.status).send(ans.results);
 
@@ -657,7 +656,6 @@ app.post("/private/commonCoachManager/getCoachesNotRegisterAsJudges", async func
 });
 app.post("/private/commonCoachManager/getClubCoaches", async function (req, res) {
     let clubId = req.body.clubId
-    console.log(clubId)
     let ans = await common_couches_module.getClubCoaches(clubId);
     ans.results = [ans.results];
     ans.results = ans.results[0]
@@ -903,13 +901,6 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let old_path = files.file.path;
         let new_path = __dirname + '/resources/profilePics/' + picName;
         fs.copyFileSync(old_path, new_path)
-
-        if (fs.existsSync(new_path)){
-            console.log("file created successfully ")
-        }else{
-            console.log("file not created successfully")
-        }
-
         let path = undefined
         await googleDrive.uploadUserPicture(authGoogleDrive, id, new_path, picName, userType).then((res) => {
             fs.unlinkSync(new_path)
@@ -936,7 +927,6 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
         await fs.copyFileSync(old_path, new_path)
-
         switch (req.params.fileType) {
             case 'medicalScan' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
@@ -957,7 +947,6 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
                 ans = await coach_sportsman_module.updateHealthInsuranceDB(path, id);
                 break;
         }
-        console.log(ans)
         res.status(200).send("ok")
     });
 });

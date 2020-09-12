@@ -24,7 +24,6 @@ async function getSportsmen(queryData) {
     queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery(queryData);
-    console.log(query);
     await dbUtils.sql(query.query)
         .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
         .parameter('value', tediousTYPES.NVarChar, queryData.value)
