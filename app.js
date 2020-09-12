@@ -902,7 +902,7 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let userType = req.params.userType;
         let old_path = files.file.path;
         let new_path = __dirname + '/resources/profilePics/' + picName;
-        fs.renameSync(old_path, new_path)
+        fs.copyFileSync(old_path, new_path)
 
         if (fs.existsSync(new_path)){
             console.log("file created successfully ")
@@ -935,7 +935,7 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
-        await fs.renameSync(old_path, new_path)
+        await fs.copyFileSync(old_path, new_path)
 
         switch (req.params.fileType) {
             case 'medicalScan' :
@@ -999,7 +999,7 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
-        await fs.renameSync(old_path, new_path)
+        await fs.copyFileSync(old_path, new_path)
         switch (req.params.fileType) {
             case 'criminalRecord' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'judge', Constants.googleDriveFolderNames.criminalRecord).then(async (res) => {
