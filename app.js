@@ -15,8 +15,8 @@ const util = require('util');
 
 secret = "wushuSecret";
 let schedule = require('node-schedule');
+let path = require('path');
 
-global.__basedir = __dirname;
 let id, access;
 bcrypt = require('bcryptjs');
 saltRounds = 10;
@@ -901,22 +901,23 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
         let picName = id + '_pic.jpeg';
         let userType = req.params.userType;
         let old_path = files.file.path;
-        let new_path = __dirname + '/resources/profilePics/' + picName;
+        let dir_path = path.dirname('resources')
+        let new_path = dir_path+'/resources/profilePics/' + picName;
         fs.rename(old_path, new_path, function (err) {
         });
-        let path = undefined
+        let f_path = undefined
         await googleDrive.uploadUserPicture(authGoogleDrive, id, new_path, picName, userType).then((res) => {
             fs.unlink(new_path, function (err) {
                 if (err) console.log(err)
             })
-            path = Constants.googleDrivePath.profilePicPath + res
+            f_path = Constants.googleDrivePath.profilePicPath + res
         }).catch((err) => {
             console.log(err)
         });
         let userTypes = await common_user_module.getUserTypes(id)
         let ans = new Object()
         for (const userType1 of userTypes.results) {
-            ans = await common_user_module.updateProfilePic(path, id, userType1.usertype);
+            ans = await common_user_module.updateProfilePic(f_path, id, userType1.usertype);
         }
         //let ans = await common_user_module.updateProfilePic(path, id, userType);
         res.status(ans.status).send(ans.results)
@@ -926,8 +927,10 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
 app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName = Date.now().toString() + ".pdf";
-    let new_path = __dirname + '/resources/' + fileName;
-    let path, ans;
+    let resource_path = path.dirname('resources')
+    let new_path = resource_path + '/resources/' + fileName;
+
+    let db_path, ans;
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
@@ -937,20 +940,20 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
             case 'medicalScan' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.medical).then(async (res) => {
                     fs.unlinkSync(new_path)
-                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
+                    db_path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
                     console.log(err)
                 });
-                ans = await coach_sportsman_module.updateMedicalScanDB(path, id);
+                ans = await coach_sportsman_module.updateMedicalScanDB(db_path, id);
                 break;
             case 'healthInsurance' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', Constants.googleDriveFolderNames.insurance).then(async (res) => {
                     fs.unlinkSync(new_path)
-                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
+                    db_path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
                     console.log(err)
                 });
-                ans = await coach_sportsman_module.updateHealthInsuranceDB(path, id);
+                ans = await coach_sportsman_module.updateHealthInsuranceDB(db_path, id);
                 break;
         }
         console.log(ans)
@@ -965,7 +968,7 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
     if (access == Constants.userType.MANAGER || access == Constants.userType.COACH || decoded.id == req.params.sportsmanId)
         switch (req.params.fileType) {
             case 'medicalScan' :
-                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'medicalScan.pdf')
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, path.dirname('resources'), req.params.sportsmanId, 'medicalScan.pdf')
                     .then(async (result) => {
                         res.downloadMedicalScan = util.promisify(res.download);
                         await res.downloadMedicalScan(result.path);
@@ -974,7 +977,7 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
                     });
                 break;
             case 'healthInsurance':
-                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'healthInsurance.pdf')
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, path.dirname('resources'), req.params.sportsmanId, 'healthInsurance.pdf')
                     .then(async (result) => {
                         res.downloadHelathInsurance = util.promisify(res.download);
                         await res.downloadHelathInsurance(result.path);
@@ -990,8 +993,8 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
 app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName = Date.now().toString() + ".pdf";
-    let new_path = __dirname + '/resources/' + fileName;
-    let path, ans;
+    let new_path = path.dirname('resources') + '/resources/' + fileName;
+    let db_path, ans;
     let id = req.params.id;
     await form.parse(req, async function (err, fields, files) {
         let old_path = files.file.path;
@@ -1001,11 +1004,11 @@ app.post("/private/uploadJudgeFile/:id/:fileType", async function (req, res) {
             case 'criminalRecord' :
                 await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'judge', Constants.googleDriveFolderNames.criminalRecord).then(async (res) => {
                     fs.unlinkSync(new_path)
-                    path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
+                    db_path = Constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
                     console.log(err)
                 });
-                ans = await manager_judge_module.updateCriminalRecordDB(path, id);
+                ans = await manager_judge_module.updateCriminalRecordDB(db_path, id);
                 break;
         }
         res.status(200).send("ok")
@@ -1019,7 +1022,7 @@ app.get("/downloadJudgeFile/:token/:fileId/:judgeId/:fileType", async function (
     if (access == Constants.userType.MANAGER || decoded.id == req.params.judgeId)
         switch (req.params.fileType) {
             case 'criminalRecord' :
-                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.judgeId, 'criminalRecord.pdf')
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, path.dirname('resources'), req.params.judgeId, 'criminalRecord.pdf')
                     .then(async (result) => {
                         res.downloadMedicalScan = util.promisify(res.download);
                         await res.downloadMedicalScan(result.path);
