@@ -119,6 +119,28 @@ async function getSportsmanRank(sportsmanId) {
     return ans;
 }
 
+async function getSportsmen(id){
+    let ans = new Object()
+    let query = 'Select user_Sportsman.id,user_Sportsman.firstname as firstname,user_Sportsman.lastname  as lastname,user_Sportsman.phone,user_Sportsman.email,user_Sportsman.phone,user_Sportsman.birthdate,user_Sportsman.address,sex,user_Coach.id as coachId,' +
+        'user_Coach.firstname as cfirstname, user_Coach.lastname  as clastname,name as club, user_Sportsman.sportclub as clubId, taullo, sanda from user_Sportsman' +
+        ' join sportsman_sportStyle on user_Sportsman.id = sportsman_sportStyle.id' +
+        ' join sportsman_coach on user_Sportsman.id = sportsman_coach.idSportman' +
+        ' join user_Coach on sportsman_coach.idCoach = user_Coach.id' +
+        ' join sportclub on user_Sportsman.sportclub = sportclub.id'
+    if(id)
+        query += ' where sportsman_coach.idCoach = @id'
+    await dbUtils.sql(query)
+        .parameter('id', tediousTYPES.Int, id)
+        .execute()
+        .then(function (results) {
+            ans.status = constants.statusCode.ok;
+            ans.results = results
+        }).fail(function (err) {
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
 
 
 module.exports.buildConditions_forGetSportsmen = buildConditions_forGetSportsmen;
@@ -128,3 +150,4 @@ module.exports.getCategories = getCategories;
 module.exports.numCompQuery = numCompQuery;
 module.exports.buildOrderBy_forGetSportsmen_forRowNumber = buildOrderBy_forGetSportsmen_forRowNumber;
 module.exports.getSportsmanRank = getSportsmanRank;
+module.exports.getSportsmen = getSportsmen;

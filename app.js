@@ -327,6 +327,7 @@ app.post("/private/manager/registerAdmin", async function (req, res) {
     res.status(ans.status).send(ans.results)
 })
 
+
 //----------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------Competition registration-------------------------------------------------
@@ -553,6 +554,36 @@ app.get('/downloadExcelFormatUpdateCompetitionResults/:token/:idComp', async fun
     })
 })
 
+app.get('/downloadExcelEditSportsmanDetails/:token', async (req, res) => {
+    res.downloadExcel = util.promisify(res.download);
+    let token = req.params.token;
+    const decoded = jwt.verify(token, secret);
+    access = decoded.access;
+    id = decoded.id;
+    let clubs;
+    let coaches;
+    let sportsmen;
+
+    if (access == Constants.userType.COACH) {
+        clubs = await common_sportclub_module.getSportClubs(id)
+        coaches = await common_couches_module.getClubCoaches(clubs.results[0].id);
+        coaches.results = [coaches.results];
+        coaches.results = coaches.results[0]
+        sportsmen = await common_sportsman_module.getSportsmen(id);
+    } else if (access == Constants.userType.MANAGER) {
+        clubs = await common_sportclub_module.getSportClubs(undefined);
+        coaches = await common_couches_module.getCoaches();
+        sportsmen = await common_sportsman_module.getSportsmen();
+    } else
+        res.status(statusCode.badRequest).send(Constants.errorMsg.accessDenied)
+
+    let excelFile = await excelCreation.editSportsmanDetails(sportsmen.results, coaches.results,clubs.results);
+
+    await res.downloadExcel(excelFile);
+    fs.unlink(excelFile, function (err) {
+    })
+
+});
 //----------------------------------------------------------------------------------------------------------------------
 
 
