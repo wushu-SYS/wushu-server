@@ -37,6 +37,7 @@ function checkAddress(address, userType) {
         case constants.userType.sportsman :
             if (constants.sportsManMandatoryFields.includes("Address"))
                 return constants.sportsManFields.addressErr
+            break
         default:
             return constants.sportsManFields.addressErr
     }
@@ -50,6 +51,7 @@ function checkPhone(phone, userType) {
         case constants.userType.sportsman :
             if (constants.sportsManMandatoryFields.includes("Phone"))
                 return constants.sportsManFields.phoneErr
+            break
         default:
             return constants.sportsManFields.phoneErr
     }
@@ -63,6 +65,7 @@ function checkEmail(email, userType) {
         case constants.userType.sportsman :
             if (constants.sportsManMandatoryFields.includes("Email"))
                 return constants.sportsManFields.emailErr
+            break
         default:
             return constants.sportsManFields.emailErr
     }
@@ -86,7 +89,7 @@ function checkSportStyle(sportStyle) {
 
 function checkIdCoach(idCoach) {
     if (idCoach != null) {
-        if (!(validator.isInt(idCoach.toString()) && idCoach.toString().length === 9))
+        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length === 9) || idCoach.toString().length ===8))
             return constants.userError.idCoachErr
     } else if (constants.sportsManMandatoryFields.includes("IdCoach"))
         return constants.sportsManFields.idCoachErr
