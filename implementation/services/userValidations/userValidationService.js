@@ -15,9 +15,9 @@ function sportsManExcelValidations(user) {
     pushErrorsToList(errList, userValidation.sportsman.idVal(user[constants.colRegisterSportsmanExcel.idSportsman]));
     pushErrorsToList(errList, userValidation.sportsman.firstNameVal(user[constants.colRegisterSportsmanExcel.firstName]));
     pushErrorsToList(errList, userValidation.sportsman.lastNameVal(user[constants.colRegisterSportsmanExcel.lastName]));
-    pushErrorsToList(errList, userValidation.sportsman.phoneVal(user[constants.colRegisterSportsmanExcel.phone]));
-    pushErrorsToList(errList, userValidation.sportsman.addressVal(user[constants.colRegisterSportsmanExcel.address]));
-    pushErrorsToList(errList, userValidation.sportsman.emailVal(user[constants.colRegisterSportsmanExcel.email]));
+    pushErrorsToList(errList, userValidation.sportsman.phoneVal(user[constants.colRegisterSportsmanExcel.phone],constants.userType.sportsman));
+    pushErrorsToList(errList, userValidation.sportsman.addressVal(user[constants.colRegisterSportsmanExcel.address],constants.userType.sportsman));
+    pushErrorsToList(errList, userValidation.sportsman.emailVal(user[constants.colRegisterSportsmanExcel.email],constants.userType.sportsman));
     pushErrorsToList(errList, userValidation.sportsman.setBirthDate(user[constants.colRegisterSportsmanExcel.birthDate]));
     pushErrorsToList(errList, userValidation.sportsman.sexVal(user[constants.colRegisterSportsmanExcel.sex]));
     pushErrorsToList(errList, userValidation.sportsman.sportStyleVal(user[constants.colRegisterSportsmanExcel.sportStyle]));
@@ -204,6 +204,9 @@ function getClubId(line) {
 function getCoachId(line) {
     line = line.split(" ")[line.split(" ").length - 1];
     line = line.substring(0, line.length - 1);
+    if (line.startsWith('0')){
+        line = line.substring(1)
+    }
     return parseInt(line)
 
 }

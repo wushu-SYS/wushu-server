@@ -1,5 +1,6 @@
 const common_func = require("../commonFunc")
 let excel = require('excel4node');
+let dateFormat = require('dateformat');
 let path = './resources/';
 let fileName;
 const util = require('util');
@@ -27,19 +28,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
     let {workbook, worksheet} = createWorkBook();
     let row = 2;
 
-    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
-    worksheet.row(1).freeze(); // Freezes the top four rows
-
+   prepareCreateEditSportsman(worksheet)
 
     worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
     for (let i = 0; i < clubList.length; i++) {
@@ -407,6 +396,15 @@ async function createExcelRegisterCompetition(SportsmanData, categoryData) {
         style: style,
 
     });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס ת.ז ספורטאי',
+        error: 'ת.ז צריכה להכיל 9 ספרות',
+        sqref: 'A2:A100',
+        formulas: [9, 9],
+
+    });
 
     sportsmenArr.sort(function (a, b) {
         if (a.sex === b.sex) {
@@ -610,6 +608,137 @@ async function createCompetitionUploadGrade(sportsman, judges, idComp) {
     return writeExcel(workbook, (path + fileName));
 }
 
+function prepareCreateEditSportsman(worksheet) {
+    worksheet.cell(1, 1).string('ת.ז ספורטאי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.row(1).freeze(); // Freezes the top four rows
+}
+
+function addCreateEditSportsmenValidations(worksheet, coachList, clubList) {
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מאמן',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'K2:K100',
+        formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
+        style: style,
+    });
+
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'הכנס פאלפון',
+        error: 'פאלפון צריך להכיל 10 ספרות',
+        sqref: 'D2:D100',
+        formulas: [10, 10],
+
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'H2:H100',
+        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מין',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'I2:I100',
+        formulas: ['זכר,נקבה'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר ענף',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'J2:J100',
+        formulas: ['טאולו,סנדא,משולב'],
+        style: style,
+    });
+    worksheet.addDataValidation({
+        type: 'date',
+        allowBlank: false,
+        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
+        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
+        sqref: 'F2:F100',
+        style: {
+            dateFormat: 'dd/mm/yyyy',
+        },
+    });
+}
+
+async function editSportsmanDetails(sportsmen ,coachList,clubList){
+    let {workbook, worksheet} = createWorkBook();
+    let row = 2;
+    prepareCreateEditSportsman(worksheet);
+
+    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < clubList.length; i++) {
+        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+
+    row = 2;
+    worksheet.cell(1, 27).string("מאמנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < coachList.length; i++) {
+        worksheet.cell(row, 27).string(coachList[i].firstname + ' ' + coachList[i].lastname + ' ' + setIdCoach(coachList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
+
+    enableStartingfromZero(worksheet,4)
+    enableStartingfromZero(worksheet,1)
+
+    addCreateEditSportsmenValidations(worksheet, coachList, clubList);
+
+    row =2
+    for (let i = 0; i < sportsmen.length; i++) {
+        let birthdate = dateFormat(sportsmen[i].birthdate, "dd/mm/yyyy")
+        worksheet.cell(row, 1).string(common_func.completeIdUser(sportsmen[i].id)).style(style);
+        lockListValueCell(worksheet, ['A'], row);
+        worksheet.cell(row, 2).string(sportsmen[i].firstname).style(style);
+        worksheet.cell(row, 3).string(sportsmen[i].lastname).style(style);
+        worksheet.cell(row, 4).string(sportsmen[i].phone).style(style);
+        worksheet.cell(row, 5).string(sportsmen[i].address).style(style);
+        worksheet.cell(row, 6).string(birthdate).style(style);
+        worksheet.cell(row, 7).string(sportsmen[i].email).style(style);
+        worksheet.cell(row, 8).string(sportsmen[i].club + ' ' + setIdCategory({id :sportsmen[i].clubId})).style(style);
+        worksheet.cell(row, 9).string(sportsmen[i].sex).style(style);
+        worksheet.cell(row, 10).string(common_func.convertToSportStyle(sportsmen[i].taullo,sportsmen[i].sanda)).style(style);
+        worksheet.cell(row, 11).string(sportsmen[i].cfirstname + ' ' + sportsmen[i].clastname + ' ' + setIdCoach({id: sportsmen[i].coachId})).style(style)
+        row++;
+    }
+    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "S1:S100", "T1:T100", "Q1:Q100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 1);
+    fileName = 'עריכת ספורטאים למערכת.xlsx';
+    return writeExcel(workbook, (path + fileName));
+
+}
+
 async function writeExcel(workbook, loc) {
     try {
         let result = await workbook.writeP(loc);
@@ -698,3 +827,4 @@ module.exports.createSportsmenExcel = createSportsmenExcel;
 module.exports.createCoachExcel = createCoachExcel;
 module.exports.createJudgeExcel = createJudgeExcel;
 module.exports.createCompetitionUploadGrade = createCompetitionUploadGrade;
+module.exports.editSportsmanDetails = editSportsmanDetails;
