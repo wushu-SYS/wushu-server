@@ -1,4 +1,4 @@
-const masterJudge_module = require("./implementation/judge/masterJudge");
+const competitionJudgeModule = require("./implementation/modules/competitionJudgeModule");
 let connectedUsers = new Map();
 let startedCompetition = new Map();
 let nextSportsmanInCompetition = [];
@@ -22,7 +22,7 @@ io.on('connection', (client) => {
     client.on('judgeMasterEnterToCompetition', async function (data) {
         console.log(`[LOG]-judge master with client id ${client.id} start to competition ${data.idComp}`);
         connectedUsers.set(parseInt(data.userId), client.id);
-        let judges = (await masterJudge_module.getRegisteredJudgeForCompetition(data.idComp)).results;
+        let judges = (await competitionJudgeModule.getRegisteredJudgeForCompetition(data.idComp)).results;
         startedCompetition.set(data.idComp, {judges: judges, masterJudge: data.userId});
         competitionFinalsGrade.set(data.idComp, [])
         judges.forEach((judge) => {

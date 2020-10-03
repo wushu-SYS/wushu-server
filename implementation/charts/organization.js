@@ -1,12 +1,12 @@
 const constants = require("../../constants")
 const clubs_chart = require("./clubs")
-const sport_clubs = require("../common/sportclub_module")
+const sportClubsModule = require("../modules/sportClubModule")
 
 
 async function getWushuTree() {
     let ans = new Object()
     ans.results = []
-    let clubs = await sport_clubs.getSportClubs()
+    let clubs = await sportClubsModule.getSportClubs()
     clubs = clubs.results
     for (const club of clubs) {
         let data = await clubs_chart.getClubTree(club.id)

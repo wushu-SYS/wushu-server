@@ -17,23 +17,7 @@ function getArrayFromJson(row) {
     return tmp;
 }
 
-/*
-async function sendMail(sendTo, message, sub) {
-    const send = require('gmail-send')({
-        user: 'wushuSys@gmail.com',
-        pass: 'ktrxyruavpyiqfav',
-        to: sendTo,
-        subject: sub
-    });
-    await send({
-        text: message,
-    }, (error, result, fullResult) => {
-        if (error) console.error(error);
-    })
 
-}
-
- */
 
 function setDateFormatRegisterUser(birthDate) {
     if (birthDate != undefined) {

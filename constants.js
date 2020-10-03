@@ -1,3 +1,6 @@
+let secret = "wushuSecret";
+let saltRounds = 10;
+
 let userType = {
     MANAGER: 1,
     COACH: 2,
@@ -231,6 +234,8 @@ let monthDateFromZERO ={
     SEPTEMBER :8
 }
 module.exports = {
+    secret: secret,
+    saltRounds :saltRounds,
     statusCode: statusCode,
     sportsManMandatoryFields: sportsManMandatoryFields,
     competitionStatus: competitionStatus,
