@@ -60,7 +60,7 @@ async function deleteEvent(eventId) {
 }
 async function getAllEvents() {
     let ans = new Object();
-    await dbUtils.sql(`select events.*, ec.idCompetition from events left join events_competition ec on events.idEvent = ec.idEvent where MONTH(date) >= MONTH(GETDATE())`)
+    await dbUtils.sql(`select events.*, ec.idCompetition from events left join events_competition ec on events.idEvent = ec.idEvent where MONTH(date) >= MONTH(GETDATE()) order by date`)
         .execute()
         .then(function (results) {
             ans.status =constants.statusCode.ok
