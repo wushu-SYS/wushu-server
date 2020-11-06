@@ -165,14 +165,14 @@ function checkDataBeforeRegister(user, userType) {
     let userError;
     switch (userType) {
         case "sportsman":
-            user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
+            user.birthDate = common_func.setMysqlDateFormat(user.birthDate);
             user.taullo = common_func.setIsTaullo(user.sportStyle)
             user.sanda = common_func.setIsSanda(user.sportStyle)
             userError = new Object();
             userError.errors = sportsmanManualValidations(user, false);
             break;
         case "coach":
-            user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
+            user.birthDate = common_func.setMysqlDateFormat(user.birthDate);
             userError = new Object();
             userError.errors = coachManualValidation(user, false);
             break;
@@ -215,11 +215,11 @@ function validateUserDetails(user, userType) {
     let userError;
     switch (userType) {
         case "sportsman":
-            user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
+            user.birthDate = common_func.setMysqlDateFormat(user.birthDate);
             userError = sportsmanManualValidations(user, true);
             break;
         case "coach" :
-            user.birthDate = common_func.setDateFormatRegisterUser(user.birthDate);
+            user.birthDate = common_func.setMysqlDateFormat(user.birthDate);
             userError = coachManualValidation(user, true);
             break;
         case "judge":

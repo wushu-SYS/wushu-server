@@ -17,11 +17,14 @@ function getArrayFromJson(row) {
     return tmp;
 }
 
-
-
-function setDateFormatRegisterUser(birthDate) {
-    if (birthDate != undefined) {
-        let initial = birthDate.split("/");
+/**
+ *
+ * @param date - mm/dd/yyyy
+ * @returns {string} yyyy-mm-dd
+ */
+function setMysqlDateFormat(date){
+    if (date != undefined) {
+        let initial = date.split("/");
         if (initial.length == 3)
             if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1]))
                 return ([initial[2], initial[0], initial[1]].join('-'));
@@ -61,6 +64,8 @@ function setIsSanda(sportStyle) {
 }
 
 function convertToSportStyle(isTaullo, isSanda) {
+    isTaullo =  isTaullo[0]
+    isSanda =  isSanda[0]
     if (isTaullo == true && isSanda == false)
         return constants.sportStyle.taullo;
     else if (isTaullo == false && isSanda == true)
@@ -130,15 +135,14 @@ function updateTrans(canUpdate, transA, transB, transC) {
 
 function commitTrans(trans) {
     if (trans && trans[1])
-        trans[1].commitTransaction()
+        trans[1].commit()
 }
 
 function rollBackTrans(trans) {
     if (trans && trans[1])
-        trans[1].rollbackTransaction()
+        trans[1].rollback()
 }
 
-module.exports.setDateFormatRegisterUser = setDateFormatRegisterUser;
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
 //module.exports.sendEmail = sendMail;
@@ -150,3 +154,4 @@ module.exports.sortUsers = sortUsers;
 module.exports.getSessionYear = getSessionYear;
 module.exports.completeIdUser = completeIdUser;
 module.exports.updateTrans = updateTrans
+module.exports.setMysqlDateFormat = setMysqlDateFormat

@@ -1,5 +1,6 @@
 jwt = require("jsonwebtoken");
 const constants = require('../../constants')
+const dbConnection = require('../../dbUtils').dbConnection
 
 function buildToken(userDetails, userData) {
     let payload = {id: userData.dbResults.id, name: userDetails.firstname, access: userData.dbResults.usertype};
@@ -20,19 +21,19 @@ async function getUserDetails(userData) {
     let result;
     switch (userData.dbResults.usertype) {
         case 1:
-            result = await dbUtils.sql(`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`).execute();
+            result = await dbConnection.query({sql:`select firstname, lastname from user_Manger where id= '${userData.dbResults.id}'`});
             break;
         case 2:
-            result = await dbUtils.sql(`select firstname, lastname , sportclub from user_Coach where id= '${userData.dbResults.id}'`).execute();
+            result = await dbConnection.query({sql:`select firstname, lastname , sportclub from user_Coach where id= '${userData.dbResults.id}'`});
             break;
         case 3:
-            result = await dbUtils.sql(`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`).execute();
+            result = await dbConnection.query({sql:`select firstname, lastname from user_Sportsman where id= '${userData.dbResults.id}'`});
             break;
         case 4:
-            result = await dbUtils.sql(`select firstname, lastname from user_Judge where id= '${userData.dbResults.id}'`).execute();
+            result = await dbConnection.query({sql:`select firstname, lastname from user_Judge where id= '${userData.dbResults.id}'`});
             break;
     }
-    return result[0]
+    return result.results[0]
 
 }
 

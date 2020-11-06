@@ -1,16 +1,17 @@
 const constants = require('../../constants')
-async function getAgudas(idCoach) {
+const dbConnection = require('../../dbUtils').dbConnection
+
+async function getAgudas() {
     let ans = new Object();
-    await dbUtils.sql('Select * from aguda order by name')
-        .execute()
+    await dbConnection.query({sql: 'Select * from aguda order by name'})
         .then(function (results) {
             ans.status = constants.statusCode.ok;
-            ans.results = results
-        }).fail(function (err) {
+            ans.results = results.results
+        }).catch(function (err) {
             ans.status = constants.statusCode.badRequest;
             ans.results = err
         });
     return ans;
 }
 
-module.exports.getAgudas=getAgudas
+module.exports.getAgudas = getAgudas

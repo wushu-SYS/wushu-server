@@ -3,10 +3,10 @@ const common_func = require('../commonFunc')
 const sportsmanCoachModule = require('../modules/sportsmanCoachModule')
 const userValidation = require("../services/userValidations/userValidationService")
 const userSportsmanModule = require("../modules/userSportsmanModule")
+const {dbConnection} = require("../../dbUtils");
 
 
-
-let numCompQuery = "(select isnull(count(compCount), 0) as sportsmanComp from(\n" +
+let numCompQuery = "(select ifnull(count(compCount), 0) as sportsmanComp from(\n" +
     "                       SELECT COUNT(*) as compCount\n" +
     "                       FROM competition_sportsman\n" +
     "                        join events_competition\n" +
@@ -14,44 +14,46 @@ let numCompQuery = "(select isnull(count(compCount), 0) as sportsmanComp from(\n
     "                        join events\n" +
     "                        on events_competition.idEvent = events.idEvent\n" +
     "                        WHERE competition_sportsman.idSportsman = id\n" +
-    "                        and date >= datefromparts(@year, 9, 1)\n" +
+    "                        and date >= STR_TO_DATE(CONCAT(:year,'-',LPAD(9,2,'00'),'-',LPAD(1,2,'00')), '%Y-%m-%d')\n" +
     "                        group by events_competition.idCompetition) as tmp)";
 
 
 /**
  * getting list of sportsmen from the DB according the query data
- * @param queryData - filters to filter the result set
- * @param idCoach - whose sportsmen to return
- * @return the following json {status, results}
+ * :param queryData - filters to filter the result set
+ * :param idCoach - whose sportsmen to return
+ * :return the following json {status, results}
  */
 async function getSportsmen_Coach(queryData, idCoach) {
     let ans = new Object();
     queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery_Coach(queryData, idCoach);
-    await dbUtils.sql(query.query)
-        .parameter('idCoach', tediousTYPES.Int, idCoach)
-        .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
-        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
-        .parameter('club', tediousTYPES.NVarChar, queryData.club)
-        .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
-        .parameter('compId', tediousTYPES.Int, queryData.competition)
-        .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
-        .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
-        .parameter('year', tediousTYPES.Int, common_func.getSessionYear())
-        .execute()
-        .then(result => {
-            result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
-            ans.results = {
-                sportsmen: result
-            };
-            ans.status = constants.statusCode.ok;
-        })
-        .fail((err) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err;
-        });
+    await dbConnection.query({
+        sql: query.query,
+        params: {
+            idCoach: idCoach,
+            value: queryData.value,
+            isTaullo: queryData.isTaullo,
+            isSanda: queryData.isSanda,
+            club: queryData.club,
+            sex: queryData.sex,
+            compId: queryData.competition,
+            startIndex: queryData.startIndex,
+            endIndex: queryData.endIndex,
+            year: common_func.getSessionYear()
+        }
+    }).then(result => {
+        result.results.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
+        ans.results = {
+            sportsmen: result.results
+        };
+        ans.status = constants.statusCode.ok;
+    }).catch((err) => {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err;
+    });
     return ans
 }
 
@@ -87,26 +89,26 @@ function buildConditions_forGetSportsmen(queryData, id) {
     var limits;
 
     if (id !== null && id != undefined && (queryData.competitionOperator === undefined || queryData.competitionOperator === '==')) {
-        conditions.push(`sportsman_coach.idCoach = @idCoach`);
+        conditions.push(`sportsman_coach.idCoach = :idCoach`);
     }
     if (value !== '' && value !== undefined) {
-        conditions.push("(firstname like Concat('%', @value, '%') or lastname like Concat('%', @value, '%'))");
+        conditions.push("(firstname like Concat('%', :value, '%') or lastname like Concat('%', :value, '%'))");
     }
     if (sportStyle !== '' && sportStyle !== undefined) {
-        conditions.push("taullo = @isTaullo");
-        conditions.push("sanda = @isSanda");
+        conditions.push("taullo = :isTaullo");
+        conditions.push("sanda = :isSanda");
     }
     if (club !== '' && club !== undefined) {
-        conditions.push("sportclub like @club");
+        conditions.push("sportclub like :club");
     }
     if (sex !== '' && sex !== undefined) {
-        conditions.push("sex like @sex");
+        conditions.push("sex like :sex");
     }
     if (compId !== '' && compId !== undefined && queryData.competitionOperator !== undefined && queryData.competitionOperator === '==') {
-        conditions.push(`idCompetition = @compId`);
+        conditions.push(`idCompetition = :compId`);
     }
     if (startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
-        limits = ' where rowNum >= @startIndex and rowNum <= @endIndex';
+        limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
     }
     let conditionStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
     return {conditionStatement, limits};
@@ -143,26 +145,26 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
                     on user_Sportsman.id = sportsman_coach.idSportman`;
     } else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
-            query.query = `select id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub from(
+            query.query = `select id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub from(
                             Select ROW_NUMBER() OVER ( order by firstname, id) AS rowNum, *
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman`;
             query.additionalData = `left join competition_sportsman
-                    on tmp.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+                    on tmp.id = competition_sportsman.idSportsman and idCompetition = :compId`;
             query.queryCount = `select count(*) as count from
                     (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
-                        where idCoach = @idCoach) as sportsman_coach`;
+                        where idCoach = :idCoach) as sportsman_coach`;
         } else if (queryData.competitionOperator == '==') {
             query.query += `id, firstname, lastname, photo from
                     (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
-                        where sportsman_coach.idCoach = @idCoach) as sportsman_coach
+                        where sportsman_coach.idCoach = :idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman`;
             query.queryCount = `select count(*) as count from
@@ -170,7 +172,7 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman
-                        where idCoach = @idCoach) as sportsman_coach
+                        where idCoach = :idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman`;
         } else if (queryData.competitionOperator == '!=') {
@@ -179,33 +181,33 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
-                    where idCoach = @idCoach
+                    where idCoach = :idCoach
                 except
                 select id, firstname, lastname,photo, sportclub from
                 (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach, sportclub
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
-                    where sportsman_coach.idCoach = @idCoach) as sportsman_coach
+                    where sportsman_coach.idCoach = :idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman
-                    where idCompetition = @compId) as t`;
+                    where idCompetition = :compId) as t`;
             query.queryCount = `Select count(*) as count from
                 (Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
-                    where idCoach = @idCoach
+                    where idCoach = :idCoach
                 except
                 select id, firstname, lastname,photo from
                 (Select user_Sportsman.id, firstname, lastname, photo, sportsman_coach.idCoach
                     from user_Sportsman
                     join sportsman_coach
                     on user_Sportsman.id = sportsman_coach.idSportman
-                    where sportsman_coach.idCoach = @idCoach) as sportsman_coach
+                    where sportsman_coach.idCoach = :idCoach) as sportsman_coach
                     join competition_sportsman
                     on sportsman_coach.id = competition_sportsman.idSportsman
-                    where idCompetition = @compId) as t`;
+                    where idCompetition = :compId) as t`;
         }
     } else {
         query.query += `id,firstname,lastname,photo
@@ -223,37 +225,39 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
 
 /**
  * handle getting list of sportsmen by query data filters
- * @param queryData - filters
- * @return {status, results}
+ * :param queryData - filters
+ * :return {status, results}
  */
 async function getSportsmen_Manager(queryData) {
     let ans = new Object();
     queryData.isTaullo = common_func.setIsTaullo(queryData.sportStyle);
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery_Manager(queryData);
-    await dbUtils.sql(query.query)
-        .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
-        .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
-        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
-        .parameter('club', tediousTYPES.NVarChar, queryData.club)
-        .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
-        .parameter('compId', tediousTYPES.Int, queryData.competition)
-        .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
-        .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
-        .parameter('year', tediousTYPES.Int, common_func.getSessionYear())
-        .execute()
-        .then(result => {
-            result.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
-            ans.results = {
-                sportsmen: result
-            };
-            ans.status = constants.statusCode.ok;
-        })
-        .fail((error) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = error;
-        });
+    await dbConnection.query({
+        sql: query.query,
+        params: {
+            idCoach: queryData.idCoach,
+            value: queryData.value,
+            isTaullo: queryData.isTaullo,
+            isSanda: queryData.isSanda,
+            club: queryData.club,
+            sex: queryData.sex,
+            compId: queryData.competition,
+            startIndex: queryData.startIndex,
+            endIndex: queryData.endIndex,
+            year: common_func.getSessionYear()
+        }
+    }).then(result => {
+//        result.results.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
+        ans.results = {
+            sportsmen: result.results
+        };
+        ans.status = constants.statusCode.ok;
+    }).catch((error) => {
+        console.log(error)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = error;
+    });
     return ans
 }
 
@@ -280,13 +284,13 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
             on user_Sportsman.id = sportsman_sportStyle.id`;
     } else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
-            query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+            query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                             from (
                                     select ROW_NUMBER() OVER ( order by firstname, id)             AS rowNum,
-                                    *
+                                    user_Sportsman.*
                                     from user_Sportsman`;
             query.additionalData = `left join competition_sportsman
-                    on tmp.id = competition_sportsman.idSportsman and idCompetition = @compId`;
+                    on tmp.id = competition_sportsman.idSportsman and idCompetition = :compId`;
             query.queryCount = `Select count(*) as count
                     from user_Sportsman`;
         } else if (queryData.competitionOperator === '==') {
@@ -300,14 +304,14 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
                     on user_Sportsman.id = competition_sportsman.idSportsman`;
         } else if (queryData.competitionOperator === '!=') {
             query.query += `id, firstname, lastname, photo, sex, age, sportclub from
-                (Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+                (Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                     from user_Sportsman
                 except
-                Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub
+                Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                     from user_Sportsman
                     left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
-                    where idCompetition = @compId) as t`;
+                    where idCompetition = :compId) as t`;
             query.queryCount = `Select count(*) as count from
                 (Select user_Sportsman.id, firstname, lastname, photo
                     from user_Sportsman
@@ -316,10 +320,10 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
                     from user_Sportsman
                     left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
-                    where idCompetition = @compId) as t`;
+                    where idCompetition = :compId) as t`;
         }
     } else {
-        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(DAY, birthdate, getdate()) / 365.25) as age, sportclub from user_Sportsman';
+        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub from user_Sportsman';
         query.queryCount = 'Select count(*) as count from user_Sportsman';
     }
     return query;
@@ -334,24 +338,27 @@ async function getAllSportsmenDetails(id) {
         ' join user_Coach on sportsman_coach.idCoach = user_Coach.id' +
         ' join sportclub on user_Sportsman.sportclub = sportclub.id'
     if (id)
-        query += ' where sportsman_coach.idCoach = @id'
-    await dbUtils.sql(query)
-        .parameter('id', tediousTYPES.Int, id)
-        .execute()
-        .then(function (results) {
-            ans.status = constants.statusCode.ok;
-            ans.results = results
-        }).fail(function (err) {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err
-        });
+        query += ' where sportsman_coach.idCoach = :id'
+    await dbConnection.query({
+        sql: query,
+        params: {
+            id: id
+        }
+    }).then(function (results) {
+        ans.status = constants.statusCode.ok;
+        ans.results = results.results
+    }).catch(function (err) {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err
+    });
     return ans;
 }
 
 /**
  * handle getting the number of sportsmen exists in db
- * @param queryData - filters to filter by
- * @return {status, results}
+ * :param queryData - filters to filter by
+ * :return {status, results}
  */
 async function getSportsmenCount_Manager(queryData) {
     let ans = new Object();
@@ -359,32 +366,35 @@ async function getSportsmenCount_Manager(queryData) {
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery_Manager(queryData);
 
-    await dbUtils.sql(query.queryCount)
-        .parameter('idCoach', tediousTYPES.Int, queryData.idCoach)
-        .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
-        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
-        .parameter('club', tediousTYPES.NVarChar, queryData.club)
-        .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
-        .parameter('compId', tediousTYPES.Int, queryData.competition)
-        .execute()
-        .then(result => {
-            ans.results = result[0]
-            ans.status = constants.statusCode.ok;
-        })
-        .fail((error) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = error;
-        });
+    await dbConnection.query({
+        sql: query.queryCount,
+        params: {
+            idCoach: queryData.idCoach,
+            value: queryData.value,
+            isTaullo: queryData.isTaullo,
+            isSanda: queryData.isSanda,
+            club: queryData.club,
+            sex: queryData.sex,
+            compId: queryData.competition,
+
+        }
+    }).then(result => {
+        ans.results = result.results[0]
+        ans.status = constants.statusCode.ok;
+    }).catch((error) => {
+        console.log(error)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = error;
+    });
     return ans;
 }
 
 
 /**
  * getting the number of sportsmen exists according to the query data
- * @param queryData - filters to filter the result set
- * @param idCoach - whose sportsmen to retrieve
- * @return {status, results}
+ * :param queryData - filters to filter the result set
+ * :param idCoach - whose sportsmen to retrieve
+ * :return {status, results}
  */
 async function getSportsmenCount_Coach(queryData, idCoach) {
     let ans = new Object();
@@ -392,23 +402,25 @@ async function getSportsmenCount_Coach(queryData, idCoach) {
     queryData.isSanda = common_func.setIsSanda(queryData.sportStyle);
     let query = initQuery_Coach(queryData, idCoach);
 
-    await dbUtils.sql(query.queryCount)
-        .parameter('idCoach', tediousTYPES.Int, idCoach)
-        .parameter('value', tediousTYPES.NVarChar, queryData.value)
-        .parameter('isTaullo', tediousTYPES.Bit, queryData.isTaullo)
-        .parameter('isSanda', tediousTYPES.Bit, queryData.isSanda)
-        .parameter('club', tediousTYPES.NVarChar, queryData.club)
-        .parameter('sex', tediousTYPES.NVarChar, queryData.sex)
-        .parameter('compId', tediousTYPES.Int, queryData.competition)
-        .execute()
-        .then(result => {
-            ans.results = result[0];
-            ans.status = constants.statusCode.ok;
-        })
-        .fail((err) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err;
-        });
+    await dbConnection.query({
+        sql: query.queryCount,
+        params: {
+            idCoach: idCoach,
+            value: queryData.value,
+            isTaullo: queryData.isTaullo,
+            isSanda: queryData.isSanda,
+            club: queryData.club,
+            sex: queryData.sex,
+            compId: queryData.competition
+        }
+    }).then(result => {
+        ans.results = result.results[0];
+        ans.status = constants.statusCode.ok;
+    }).catch((err) => {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err;
+    });
     return ans;
 }
 
@@ -423,11 +435,12 @@ async function updateProfile(data, access, id, profile) {
             return ans
         }
     }
-    ans =[]
+    ans = []
     ans[0] = new Object()
     ans[0].status = constants.statusCode.badRequest
     return ans
 }
+
 async function canUpdateProfile(access, id) {
     let canEditSportsmanProfile;
     if (access === constants.userType.COACH) {
@@ -455,7 +468,6 @@ function combineData(data, profile) {
     return user
 
 }
-
 
 
 module.exports.getSportsmen_Coach = getSportsmen_Coach
