@@ -15,7 +15,7 @@ async function checkUserTypes(userId) {
         if (results.results.length === 0) {
             ans.results = 0
         } else {
-            results=results.results
+            results = results.results
             if (checkUserTypeSportsman(results)) {
                 ans = await userSportsmanModule.sportsmanProfile(userId)
             } else if (checkUserTypeCoach(results)) {
@@ -24,11 +24,10 @@ async function checkUserTypes(userId) {
                 ans = await userJudgeModule.getJudgeProfileById(userId);
             }
         }
-    })
-        .catch(function (err) {
-            console.log(err)
-            ans.results = err;
-        });
+    }).catch(function (err) {
+        console.log(err)
+        ans.results = err;
+    });
     return ans;
 }
 

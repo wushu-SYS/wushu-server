@@ -18,7 +18,7 @@ async function getClubTree(clubId) {
         coaches.forEach(coach => {
             coachSportsmen.push({
                 coach: coach,
-                sportsman: clubsData.filter(club => club.coachId == coach.id)
+                sportsman: clubsData.filter(club => club.coachId == coach.id && club.sportsmanId)
             })
         })
 
@@ -36,8 +36,8 @@ async function getClubData(clubId) {
     let ans = new Object();
     await dbConnection.query({
         sql: `select user_Coach.id as coachId, user_Coach.firstname as coachFirstName, user_Coach.lastname as coachLastName, user_Coach.photo as coachPhoto, user_Sportsman.id as sportsmanId, user_Sportsman.firstname as sportsmanFirstName, user_Sportsman.lastname as sportsmanLastName, user_Sportsman.photo as sportsmanPhoto from user_Coach
-                        join sportsman_coach on user_Coach.id = sportsman_coach.idCoach
-                        join user_Sportsman on sportsman_coach.idSportman = user_Sportsman.id
+                        left join sportsman_coach on user_Coach.id = sportsman_coach.idCoach
+                        left join user_Sportsman on sportsman_coach.idSportman = user_Sportsman.id
                         where user_Coach.sportclub = :sportsClubId`,
         params: {
             sportsClubId: clubId

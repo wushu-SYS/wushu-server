@@ -688,7 +688,7 @@ app.post("/private/commonCoachManager/sportsmanRank", async function (req, res) 
 //TODO: when implementing delete don't forget to delete also from user_passwords and user_userTypes table (you need 2 delete queries -> look at the implementation for the sportsmans)
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
-    if (access === constants.userType.MANAGER) {
+    if (access === constants.userType.MANAGER || access === constants.userType.COACH) {
         let ans = await userSportsmanModule.deleteSportsman(req.body.userID)
         await userPasswordModule.deletePassword(req.body.userID)
         res.status(ans.status).send(ans.results)

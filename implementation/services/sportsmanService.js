@@ -13,7 +13,7 @@ let numCompQuery = "(select ifnull(count(compCount), 0) as sportsmanComp from(\n
     "                        on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
     "                        join events\n" +
     "                        on events_competition.idEvent = events.idEvent\n" +
-    "                        WHERE competition_sportsman.idSportsman = id\n" +
+    "                        WHERE competition_sportsman.idSportsman = user_Sportsman.id\n" +
     "                        and date >= STR_TO_DATE(CONCAT(:year,'-',LPAD(9,2,'00'),'-',LPAD(1,2,'00')), '%Y-%m-%d')\n" +
     "                        group by events_competition.idCompetition) as tmp)";
 
@@ -44,7 +44,10 @@ async function getSportsmen_Coach(queryData, idCoach) {
             year: common_func.getSessionYear()
         }
     }).then(result => {
-        result.results.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
+        result.results.forEach(res => {
+            if (res.isTaullo && res.isSanda)
+                res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda)
+        });
         ans.results = {
             sportsmen: result.results
         };
@@ -146,7 +149,7 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
     } else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
             query.query = `select id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub from(
-                            Select ROW_NUMBER() OVER ( order by firstname, id) AS rowNum, *
+                            Select ROW_NUMBER() OVER ( order by firstname, id) AS rowNum, user_Sportsman.*
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman`;
@@ -248,7 +251,11 @@ async function getSportsmen_Manager(queryData) {
             year: common_func.getSessionYear()
         }
     }).then(result => {
-//        result.results.forEach(res => res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda));
+
+        result.results.forEach(res => {
+            if (res.isTaullo && res.isSanda)
+                res.sportStyle = common_func.convertToSportStyle(res.isTaullo, res.isSanda)
+        });
         ans.results = {
             sportsmen: result.results
         };
@@ -427,7 +434,7 @@ async function getSportsmenCount_Coach(queryData, idCoach) {
 
 async function updateProfile(data, access, id, profile) {
     let ans = new Object();
-    if (await canUpdateProfile(access, id)) {
+    if (await canUpdateProfile(access, id, data)) {
         let user = combineData(data, profile)
         let ans = userValidation.validateUserDetails(user, "sportsman");
         if (ans.canUpdate) {
@@ -441,7 +448,7 @@ async function updateProfile(data, access, id, profile) {
     return ans
 }
 
-async function canUpdateProfile(access, id) {
+async function canUpdateProfile(access, id, user) {
     let canEditSportsmanProfile;
     if (access === constants.userType.COACH) {
         canEditSportsmanProfile = await sportsmanCoachModule.checkIdCoachRelatedSportsman(id, user.id)

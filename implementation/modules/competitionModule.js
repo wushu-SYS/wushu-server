@@ -87,7 +87,7 @@ async function closeRegistration(idCompetition) {
     await dbConnection.query({
         sql: `update events_competition set status = :status where idCompetition = :idCompetition`,
         params: {
-            status: constants.competitionStatus.regclose,
+            status: constants.competitionStatus.regClose,
             idCompetition: idCompetition
         }
     }).then((results) => {

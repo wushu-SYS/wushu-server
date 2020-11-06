@@ -55,6 +55,7 @@ async function regExcelSportsmenCompDB(sportsmen, compId) {
 async function registerSportsmenToCompetition(insertSportsman, deleteSportsman, updateSportsman, compId) {
     let ans = new Object()
     const trans = await dbConnection.getTransactionDb()
+    if (!insertSportsman) insertSportsman = []
     await competitionSportsmanModule.insertSportsmanToCompetitionDB(trans, insertSportsman, insertSportsman[0], 0, compId)
         .then(async () => {
             await competitionSportsmanModule.deleteSportsmanFromCompetitionDB(trans, deleteSportsman, deleteSportsman[0], 0, compId)

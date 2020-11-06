@@ -52,16 +52,18 @@ async function updateSportsmanCoach(idCoach, idSportsman) {
 }
 
 async function checkIdCoachRelatedSportsman(idCoach, idSportsman) {
+    let res
     await dbConnection.query({
-        sql: 'select idCoach from sportsman_coach where idSportsman = :idSportsman ',
+        sql: 'select idCoach from sportsman_coach where idSportman = :idSportsman ',
         params: {idSportsman: idSportsman}
     }).then(result => {
         result = result.results
-        return idCoach == result[0]
+        res = (idCoach == result[0].idCoach)
     }).catch((error) => {
         console.log(error)
-        return false;
+        res = false;
     });
+    return res
 }
 
 module.exports.insertCoachDB = insertCoachDB
