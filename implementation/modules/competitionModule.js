@@ -24,11 +24,15 @@ async function getCompetitionDetails(compId) {
 
 async function getCompetitionsToJudgeById(judgeId) {
     let ans = new Object();
-    let query = `select * from events join events_competition ec on events.idEvent = ec.idEvent join competition_judge on ec.idCompetition = competition_judge.idCompetition where status like '${Constants.competitionStatus.inProgressComp}' and idJudge=:judgeId`
+    let query = `select * from events join events_competition ec on events.idEvent = ec.idEvent join competition_judge on ec.idCompetition = competition_judge.idCompetition where status like '${constants.competitionStatus.inProgressComp}' and idJudge=:judgeId`
     await dbConnection.query({
         sql: query,
         params: {judgeId: judgeId}
     }).then(result => {
+        result.results.forEach(j => {
+            if (j.isMaster)
+                j.isMaster = j.isMaster[0]
+        })
         ans.results = result.results
         ans.status = constants.statusCode.ok;
     }).catch((error) => {
@@ -51,10 +55,10 @@ async function addCompetition(competitionDetails) {
             startHour: competitionDetails.startHour,
             city: competitionDetails.city
         }
-    // }).then(async function(){
-    //     await trans.query({
-    //         sql:`select last_insert_id() as lastId;`
-    //     })
+        // }).then(async function(){
+        //     await trans.query({
+        //         sql:`select last_insert_id() as lastId;`
+        //     })
     }).then(async function (Result) {
         await trans.query({
             sql: ` INSERT INTO events_competition (sportStyle,description,closeRegDate,closeRegTime,status,idEvent)
@@ -159,7 +163,7 @@ async function updateCompetitionDetails(competitionDetails, idEvent) {
 
 async function manualCloseCompetition(idComp) {
     let ans = new Object();
-    await dbConnection.sql({
+    await dbConnection.query({
         sql: `update events_competition set status = :status where idCompetition =:idComp `,
         params: {
             idComp: idComp,
@@ -180,8 +184,8 @@ function autoCloseRegCompetition() {
     dbConnection.query({
         sql: `UPDATE events_competition
                 SET status='${constants.competitionStatus.close}'
-                WHERE closeRegDate <= cast(convert(datetimeoffset, now(), 121) AT TIME ZONE 'Israel Standard Time' as datetime)
-                 and closeRegTime <= Convert(TIME, CURRENT_TIMESTAMP)
+                WHERE closeRegDate <= CURDATE()
+                 and closeRegTime <= CURRENT_TIME()
                  and status = '${constants.competitionStatus.open}';`
     }).then(function (results) {
         console.log("Finished auto closed register to competitions")
@@ -193,10 +197,11 @@ function autoCloseRegCompetition() {
 function autoOpenCompetitionToJudge() {
     console.log('Start auto opening competitions');
     dbConnection.query({
-        sql: `update events_competition set status = '${constants.competitionStatus.inProgressComp}'
-                 where events_competition.idEvent IN (SELECT events_competition.idEvent from events_competition
-                 join events on events_competition.idEvent = events.idEvent
-                 where (events.date = convert(Date, current_timestamp))and events.startHour <=convert(time, (convert(time,cast(convert(datetimeoffset, now(), 121) AT TIME ZONE 'Israel Standard Time' as datetime)))))`
+        sql: `update events_competition
+                join events on events_competition.idEvent = events.idEvent
+                set status = 'תחרות בתהליך'
+                where events.date = CURDATE()
+                and events.startHour <= CURRENT_TIME()`
     }).then(function (results) {
         console.log("Finished auto opening competitions")
     }).catch(function (err) {

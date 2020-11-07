@@ -12,7 +12,7 @@ async function insertSportsmanDB(trans, users, sportsmanDetails, i) {
             lastName: sportsmanDetails[constants.colRegisterSportsmanExcel.lastName],
             phone: sportsmanDetails[constants.colRegisterSportsmanExcel.phone],
             address: sportsmanDetails[constants.colRegisterSportsmanExcel.address],
-            birthDate: sportsmanDetails[constants.colRegisterSportsmanExcel.birthDate],
+            birthDate: common_func.setMysqlDateFormat(sportsmanDetails[constants.colRegisterSportsmanExcel.birthDate]),
             email: sportsmanDetails[constants.colRegisterSportsmanExcel.email],
             sportClub: sportsmanDetails[constants.colRegisterSportsmanExcel.sportClub],
             sex: sportsmanDetails[constants.colRegisterSportsmanExcel.sex],

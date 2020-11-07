@@ -35,14 +35,19 @@ async function deleteJudgeFromCompetitionDB(trans, deleteJudge, judgeDetails, i,
 
 async function updateMasterToCompetition(trans, compId, idJudge) {
     if (idJudge) {
-        return trans.query({
-            sql: `update competition_judge set isMaster = 0 where idCompetition = :idComp and idJudge != :idJudge ;
-                          update competition_judge set isMaster = 1 where idCompetition =:idComp and idJudge = :idJudge`,
+        return trans.parallelQueries([{
+            sql: `update competition_judge set isMaster = 0 where idCompetition = :idComp and idJudge != :idJudge`,
             params: {
                 idComp: compId,
                 idJudge: idJudge
             }
-        })
+        }, {
+            sql: `update competition_judge set isMaster = 1 where idCompetition =:idComp and idJudge = :idJudge`,
+            params: {
+                idComp: compId,
+                idJudge: idJudge
+            }
+        }])
     }
 }
 
@@ -57,6 +62,10 @@ async function getJudges(queryData) {
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
+        results.results.forEach(j => {
+            if (j.isMaster)
+                j.isMaster = j.isMaster[0]
+        })
         ans.results = results.results
     }).catch(function (err) {
         console.log(err)
@@ -75,11 +84,11 @@ function initQueryGetJudges(queryData) {
                 ' on user_Judge.id = competition_judge.idJudge' +
                 ' where competition_judge.idCompetition = :compId';
         } else if (queryData.competitionOperator === '!=') {
-            query += ' except' +
-                ' select user_Judge.* from user_Judge' +
+            query += ' where id not in (' +
+                ' select user_Judge.id from user_Judge' +
                 ' join competition_judge' +
                 ' on user_Judge.id = competition_judge.idJudge' +
-                ' where competition_judge.idCompetition = :compId';
+                ' where competition_judge.idCompetition = :compId)';
         }
     }
 
@@ -95,6 +104,10 @@ async function getRegisteredJudgeForCompetition(compId) {
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
+        results.results.forEach(j => {
+            if (j.isMaster)
+                j.isMaster = j.isMaster[0]
+        })
         ans.results = results.results
     }).catch(function (err) {
         console.log(err)

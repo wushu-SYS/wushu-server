@@ -1,4 +1,5 @@
 const constants = require('../../constants')
+const common_func = require('../commonFunc')
 const {dbConnection} = require("../../dbUtils");
 
 async function insertNewCoachDB(trans, users, coachDetails, i) {
@@ -11,7 +12,7 @@ async function insertNewCoachDB(trans, users, coachDetails, i) {
             lastName: coachDetails[constants.colRegisterCoachExcel.lastName],
             phone: coachDetails[constants.colRegisterCoachExcel.phone],
             address: coachDetails[constants.colRegisterCoachExcel.address],
-            birthDate: coachDetails[constants.colRegisterCoachExcel.birthDate],
+            birthDate: common_func.setMysqlDateFormat(coachDetails[constants.colRegisterCoachExcel.birthDate]),
             email: coachDetails[constants.colRegisterCoachExcel.email],
             sportClub: coachDetails[constants.colRegisterCoachExcel.sportClub],
             photo: constants.defaultProfilePic
@@ -59,7 +60,7 @@ async function getCoaches() {
 async function getCoachesNotRegisterAsJudges() {
     let ans = new Object();
     await dbConnection.query({
-        sql: `select * from user_Coach except (select user_Coach.* from user_Coach join user_Judge on user_Coach.id = user_Judge.id) `
+        sql: `select * from user_Coach where id not in (select user_Coach.id from user_Coach join user_Judge on user_Coach.id = user_Judge.id) `
     })
         .then(function (results) {
             ans.status = constants.statusCode.ok;

@@ -112,7 +112,7 @@ async function getSportsmanJudgeRecords(sportsmanId) {
     }
     res.categories = []
     grades.forEach((grade) => {
-        let a = {id: grade.categoryId, name: grade.name}
+        let a = {id: grade.categoryID, name: grade.name}
         if (!res.categories.some(item => item.id == a.id))
             res.categories.push(a)
     })

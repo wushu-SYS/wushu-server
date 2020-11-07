@@ -88,10 +88,10 @@ let statusCode = {
 
 //---------------------------------------server schedule Jobs-----------------------------------------------------------
 let automaticCloseCompetition = schedule.scheduleJob({minute: 600}, function () {
-    // competitionModule.autoCloseRegCompetition();
+    competitionModule.autoCloseRegCompetition();
 });
 let automaticOpenCompetitionToJudge = schedule.scheduleJob({minute: 30}, function () {
-    // competitionModule.autoOpenCompetitionToJudge()
+    competitionModule.autoOpenCompetitionToJudge()
 
 })
 let autoReminderForUploadCriminalRecord = schedule.scheduleJob({dayOfWeek: 0, hour: 12}, function () {
