@@ -199,7 +199,7 @@ function autoOpenCompetitionToJudge() {
     dbConnection.query({
         sql: `update events_competition
                 join events on events_competition.idEvent = events.idEvent
-                set status = 'תחרות בתהליך'
+                set status = '${constants.competitionStatus.inProgressComp}'
                 where events.date = CURDATE()
                 and events.startHour <= CURRENT_TIME()`
     }).then(function (results) {
