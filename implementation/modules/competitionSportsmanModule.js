@@ -85,7 +85,7 @@ async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanD
                 isDeleted: sportsmanDetails.isDeleted ? 1 : 0,
                 idCompetition: compId,
                 oldCategory: sportsmanDetails.oldCategory,
-                indx: sportsmanDetails.indx ? sportsmanDetails.indx : -1
+                indx: sportsmanDetails.indx !== undefined ? sportsmanDetails.indx : -1
             }
         }).then(async function () {
             if (i + 1 < updateSportsman.length)
