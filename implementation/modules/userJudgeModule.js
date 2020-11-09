@@ -28,7 +28,7 @@ async function insertNewJudgeDB(trans, judges, judge, number) {
 async function registerCoachAsJudge(judges) {
     let ans = new Object();
     const trans = await dbConnection.getTransactionDb()
-    trans.query({
+    await trans.query({
         sql: `Insert into user_Judge (id,firstname,lastname,phone,photo,email)
                         SELECT id, firstname, lastname, phone,photo,email
                         from user_Coach

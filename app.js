@@ -296,7 +296,6 @@ app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
     ans = await userJudgeModule.registerCoachAsJudge(coachAsJudgeData);
     res.status(ans.status).send(ans.results)
 });
-
 app.post("/private/manager/regExcelJudge", async function (req, res) {
     let usersToRegister = req.body;
     if (usersToRegister.length == 0)
@@ -310,7 +309,6 @@ app.post("/private/manager/regExcelJudge", async function (req, res) {
             res.status(statusCode.badRequest).send(checkData.results);
     }
 });
-
 app.post("/private/manager/registerAdmin", async function (req, res) {
     let ans = await registerService.registerAdmin(req.body);
     res.status(ans.status).send(ans.results)

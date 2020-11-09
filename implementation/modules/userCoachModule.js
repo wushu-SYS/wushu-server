@@ -64,7 +64,7 @@ async function getCoachesNotRegisterAsJudges() {
     })
         .then(function (results) {
             ans.status = constants.statusCode.ok;
-            ans.results = results
+            ans.results = results.results
         }).catch(function (err) {
             console.log(err)
             ans.status = constants.statusCode.badRequest;
