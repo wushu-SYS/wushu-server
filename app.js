@@ -295,7 +295,22 @@ app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
     let coachAsJudgeData = excelRegisterService.cleanCoachAsJudgeExcelData(common_function.getArrayFromJsonArray(req.body))
     ans = await userJudgeModule.registerCoachAsJudge(coachAsJudgeData);
     res.status(ans.status).send(ans.results)
-})
+});
+
+app.post("/private/manager/regExcelJudge", async function (req, res) {
+    let usersToRegister = req.body;
+    if (usersToRegister.length == 0)
+        res.status(statusCode.badRequest).send({line: 0, errors: [constants.errorMsg.emptyExcel]});
+    else {
+        let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister, "judge");
+        if (checkData.isPassed) {
+            let registerStatus = await registerService.registerNewJudge(checkData.users);
+            res.status(registerStatus.status).send(registerStatus.results);
+        } else
+            res.status(statusCode.badRequest).send(checkData.results);
+    }
+});
+
 app.post("/private/manager/registerAdmin", async function (req, res) {
     let ans = await registerService.registerAdmin(req.body);
     res.status(ans.status).send(ans.results)
