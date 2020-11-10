@@ -3,9 +3,9 @@ const bcrypt = require('bcryptjs');
 const constants = require('../wushu-server/constants')
 
 const dbConnection = new MySQL({
-    host: '10.0.0.11',
-    user: 'alina',
-    password: 'alinaalina123',
+    host: 'localhost',
+    user: 'root',
+    password: 'droruri3',
     database: 'wushudev',
     charset: "utf8",
     timeout: 60000,

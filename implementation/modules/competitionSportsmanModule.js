@@ -4,10 +4,10 @@ const dbConnection = require('../../dbUtils').dbConnection
 
 //TODO: CHECK FOR DUPLICATE insertSportsmanToCompetitionDB & excelInsertSportsmanToCompetitionDB ,deleteSportsmanFromCompetitionDB
 
-function deleteExcelSportsmanFromCompetitionDB(trans, sportsmem, sportsmenDetails, i, compId) {
+async function deleteExcelSportsmanFromCompetitionDB(trans, sportsmem, sportsmenDetails, i, compId) {
     if (sportsmenDetails != undefined) {
         if (sportsmenDetails.id.length > 0) {
-            return trans.query({
+            await trans.query({
                 sql: `DELETE FROM competition_sportsman WHERE idCompetition=:compId and idSportsman = :id ;`,
                 params: {
                     compId: compId,
@@ -19,17 +19,19 @@ function deleteExcelSportsmanFromCompetitionDB(trans, sportsmem, sportsmenDetail
                 }
             });
         }
+        return trans
     }
 }
 
 async function excelInsertSportsmanToCompetitionDB(trans, insertSportsman, sportsmanDetails, i, compId) {
     if (sportsmanDetails != undefined) {
         return trans.query({
-            sql: `INSERT INTO competition_sportsman (idCompetition, idSportsman, category) Values (:compId,:id,:category)`,
+            sql: `INSERT INTO competition_sportsman (idCompetition, idSportsman, category, indx) Values (:compId,:id,:category,:idx)`,
             params: {
                 compId: compId,
                 id: sportsmanDetails.id,
-                category: sportsmanDetails.category
+                category: sportsmanDetails.category,
+                idx: -1
             }
         }).then(async function () {
             if (i + 1 < insertSportsman.length) {
@@ -43,13 +45,14 @@ async function insertSportsmanToCompetitionDB(trans, insertSportsman, sportsmanD
     if (sportsmanDetails != undefined)
         return trans.query({
             sql: `INSERT INTO competition_sportsman (idCompetition, idSportsman, category)
-                     SELECT * FROM (select :compId as idCompetition, :id as idSportsman, :category as category) AS tmp
+                     SELECT * FROM (select :compId as idCompetition, :id as idSportsman, :category as category, :idx as indx) AS tmp
                      WHERE NOT EXISTS (
                      SELECT idCompetition, idSportsman, category FROM competition_sportsman WHERE idCompetition = :compId and idSportsman = :id and category = :category)`,
             params: {
                 compId: compId,
                 id: sportsmanDetails.id,
-                category: sportsmanDetails.category
+                category: sportsmanDetails.category,
+                idx : -1
             }
         }).then(async function () {
             if (i + 1 < insertSportsman.length) {
@@ -96,7 +99,7 @@ async function updateSportsmanInCompetitionDB(trans, updateSportsman, sportsmanD
 async function getNewSportsmanRegistrationComp(compId) {
     let res = new Object();
     await dbConnection.query({
-        sql: `select idSportsman,category, indx from competition_sportsman where idCompetition =:compId and indx=-1`,
+        sql: `select idSportsman,category, indx from competition_sportsman where idCompetition =:compId and indx = -1`,
         params: {
             compId: compId
         }
@@ -105,6 +108,7 @@ async function getNewSportsmanRegistrationComp(compId) {
     }).catch((err) => {
         console.log(err)
     });
+    console.log(res)
     return res
 
 }
@@ -121,6 +125,7 @@ async function getOldSportsmanRegistrationComp(compId) {
     }).catch((err) => {
         console.log(err)
     });
+    console.log(res)
     return res
 }
 

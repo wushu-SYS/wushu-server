@@ -6,10 +6,9 @@ const {dbConnection} = require("../../dbUtils");
 function getIdsForDelete(data) {
     let delSportsman = [];
     for (let i = 0; i < data.length; i++) {
-        if (data[i].length > 1)
-            delSportsman.push({
-                id: data[i][constants.colRegisterCompetitionExcel.idSportsman],
-            });
+        delSportsman.push({
+            id: data[i].id
+        });
     }
     return delSportsman;
 }
@@ -20,13 +19,13 @@ async function deleteSportsmanFromCompetition(sportsmen, compId) {
     await competitionSportsmanModule.deleteExcelSportsmanFromCompetitionDB(trans, sportsmen, sportsmen[0], 0, compId)
         .then((result) => {
             ans.pass = true;
-            trans.commit;
+            trans.commit();
         })
         .catch((error) => {
             console.log(error)
             ans.pass = true;
             ans.results = error;
-            trans.rollback;
+            trans.rollback();
         })
 
     return ans
@@ -37,10 +36,10 @@ async function regExcelSportsmenCompDB(sportsmen, compId) {
     let ans = new Object()
     const trans = await dbConnection.getTransactionDb()
     await competitionSportsmanModule.excelInsertSportsmanToCompetitionDB(trans, sportsmen, sportsmen[0], 0, compId)
-        .then((result) => {
+        .then(async (result) => {
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.registerSuccess;
-            trans.commit();
+            trans.commit()
         })
         .catch((error) => {
             console.log(error)
@@ -96,11 +95,13 @@ async function reRangeCompetitionSportsman(compId) {
         sportsmanNew.sort((a, b) => (a.category > b.category) ? 1 : ((b.category > a.category) ? -1 : 0));
         sportsmanOld = sportsmanNew;
     }
+
     let indx = 0
     for (let i = 0; i < sportsmanOld.length; i++) {
         sportsmanOld[i].indx = indx;
         indx++;
     }
+
     await startUpdateIndexRegistrationTrans(compId, sportsmanOld)
 
 }
@@ -179,3 +180,4 @@ module.exports.regExcelSportsmenCompDB = regExcelSportsmenCompDB
 module.exports.registerSportsmenToCompetition = registerSportsmenToCompetition
 module.exports.registerJudgeToCompetition = registerJudgeToCompetition
 module.exports.deleteJudgesFromCompetition = deleteJudgesFromCompetition
+module.exports.reRangeCompetitionSportsman = reRangeCompetitionSportsman

@@ -280,16 +280,18 @@ app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async funct
         res.status(constants.statusCode.badRequest).send([{error: constants.errorMsg.emptyExcel}])
     else {
         if (ans.pass) {
-            let delSportsman = competitionRegistrationService.getIdsForDelete(sportsmenArr)
+            let delSportsman = competitionRegistrationService.getIdsForDelete(sportsmen)
             ans = await competitionRegistrationService.deleteSportsmanFromCompetition(delSportsman, req.body.compId);
             if (ans.pass)
                 ans = await competitionRegistrationService.regExcelSportsmenCompDB(sportsmen, req.body.compId);
+            await competitionRegistrationService.reRangeCompetitionSportsman(req.body.compId)
 
             res.status(ans.status).send(ans.results)
         } else
             res.status(constants.statusCode.badRequest).send(ans.results)
     }
 });
+
 app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
     let ans;
     let coachAsJudgeData = excelRegisterService.cleanCoachAsJudgeExcelData(common_function.getArrayFromJsonArray(req.body))
