@@ -2,7 +2,7 @@ const constants = require('../../constants')
 const dbConnection = require('../../dbUtils').dbConnection
 
 async function updateMedicalScanDB(path, id) {
-    let sql = `INSERT INTO sportman_files (id, medicalscan) VALUES (:id,:medicalScan)`;
+    let sql = `INSERT INTO sportman_files (id, medicalscan,insurance) VALUES (:id,:medicalScan, :insurance)`;
     if (await checkIfNeedUpdate(id))
         sql = `UPDATE sportman_files SET medicalscan = :medicalScan Where id= :id`
     let ans = new Object();
@@ -10,7 +10,8 @@ async function updateMedicalScanDB(path, id) {
         sql: sql,
         params: {
             id: id,
-            medicalScan: path
+            medicalScan: path,
+            insurance: ''
         }
     }).then(function () {
         ans.status = constants.statusCode.ok;
@@ -39,7 +40,7 @@ async function checkIfNeedUpdate(id) {
 }
 
 async function updateHealthInsuranceDB(path, id) {
-    let sql = `INSERT INTO sportman_files (id, insurance) VALUES (:id,:insurance)`;
+    let sql = `INSERT INTO sportman_files (id, insurance,medicalscan) VALUES (:id,:insurance,:medicalscan)`;
     if (await checkIfNeedUpdate(id))
         sql = `UPDATE sportman_files SET insurance = :insurance Where id= :id`;
     let ans = new Object();
@@ -47,7 +48,8 @@ async function updateHealthInsuranceDB(path, id) {
         sql: sql,
         params: {
             id: id,
-            insurance: path
+            insurance: path,
+            medicalscan:''
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;

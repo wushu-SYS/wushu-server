@@ -44,7 +44,7 @@ async function excelInsertSportsmanToCompetitionDB(trans, insertSportsman, sport
 async function insertSportsmanToCompetitionDB(trans, insertSportsman, sportsmanDetails, i, compId) {
     if (sportsmanDetails != undefined)
         return trans.query({
-            sql: `INSERT INTO competition_sportsman (idCompetition, idSportsman, category)
+            sql: `INSERT INTO competition_sportsman (idCompetition, idSportsman, category, indx)
                      SELECT * FROM (select :compId as idCompetition, :id as idSportsman, :category as category, :idx as indx) AS tmp
                      WHERE NOT EXISTS (
                      SELECT idCompetition, idSportsman, category FROM competition_sportsman WHERE idCompetition = :compId and idSportsman = :id and category = :category)`,
@@ -108,7 +108,6 @@ async function getNewSportsmanRegistrationComp(compId) {
     }).catch((err) => {
         console.log(err)
     });
-    console.log(res)
     return res
 
 }
@@ -125,7 +124,6 @@ async function getOldSportsmanRegistrationComp(compId) {
     }).catch((err) => {
         console.log(err)
     });
-    console.log(res)
     return res
 }
 

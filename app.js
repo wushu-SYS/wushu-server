@@ -282,9 +282,10 @@ app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async funct
         if (ans.pass) {
             let delSportsman = competitionRegistrationService.getIdsForDelete(sportsmen)
             ans = await competitionRegistrationService.deleteSportsmanFromCompetition(delSportsman, req.body.compId);
-            if (ans.pass)
+            if (ans.pass) {
                 ans = await competitionRegistrationService.regExcelSportsmenCompDB(sportsmen, req.body.compId);
-            await competitionRegistrationService.reRangeCompetitionSportsman(req.body.compId)
+                await competitionRegistrationService.reRangeCompetitionSportsman(req.body.compId)
+            }
 
             res.status(ans.status).send(ans.results)
         } else

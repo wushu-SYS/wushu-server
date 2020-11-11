@@ -39,13 +39,13 @@ async function regExcelSportsmenCompDB(sportsmen, compId) {
         .then(async (result) => {
             ans.status = constants.statusCode.ok;
             ans.results = constants.msg.registerSuccess;
-            trans.commit()
+            await trans.commit()
         })
-        .catch((error) => {
+        .catch(async (error) => {
             console.log(error)
             ans.status = constants.statusCode.badRequest;
             ans.results = error;
-            trans.rollback();
+            await trans.rollback();
         })
 
     return ans
