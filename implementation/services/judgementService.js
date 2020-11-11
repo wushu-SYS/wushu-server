@@ -1,35 +1,26 @@
 const constants = require("../../constants");
 const competitionJudgementModule = require('../modules/competitionJudgementMoudle')
 const competitionResultsModule = require('../modules/competitionResultsModule')
+const dbConnection = require('../../dbUtils').dbConnection
 
 async function insertJudgeGradeForSportsman(details) {
     let judges = details.judges
     let finalGrade = details.avgGrade
-
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await competitionJudgementModule.insertSportsmanGrade(trans, judges, judges[0], 0, details),
-                await competitionResultsModule.insertSportsmanFinalGrade(trans, finalGrade, details)
-                    .then((result) => {
-                        ans.status = constants.statusCode.ok;
-                        ans.results = constants.msg.competitionUpdate;
-                        trans.commitTransaction();
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                        ans.status = constants.statusCode.badRequest;
-                        ans.results = err;
-                        trans.rollbackTransaction();
-                    }))
-        })
-        .fail(function (err) {
+    const trans = await dbConnection.getTransactionDb()
+    await competitionJudgementModule.insertSportsmanGrade(trans, judges, judges[0], 0, details)
+        .then(async () => {
+            await competitionResultsModule.insertSportsmanFinalGrade(trans, finalGrade, details)
+                .then((result) => {
+                    ans.status = constants.statusCode.ok;
+                    ans.results = constants.msg.competitionUpdate;
+                    trans.commit();
+                })
+        }).catch((err) => {
             console.log(err)
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            trans.rollback();
         })
     return ans
 
@@ -37,77 +28,58 @@ async function insertJudgeGradeForSportsman(details) {
 
 async function uploadTaulloCompetitionGrade(users, idComp, judges, numOfJudge) {
     let userGradeArray = getDataUploadTaulloCompetitionGrades(users, idComp, judges, numOfJudge)
-
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await insertSportsmanGrades(trans, userGradeArray, userGradeArray[0], 0),
-                await insertSportsmanFinalGrades(trans, userGradeArray)
-                    .then((result) => {
-                        ans.status = constants.statusCode.ok;
-                        ans.results = constants.msg.competitionUpdate;
-                        trans.commitTransaction();
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                        ans.status = constants.statusCode.badRequest;
-                        ans.results = err;
-                        trans.rollbackTransaction();
-                    }))
-        })
-        .fail(function (err) {
+    const trans = await dbConnection.getTransactionDb()
+    await insertSportsmanGrades(trans, userGradeArray, userGradeArray[0], 0)
+        .then(async () => {
+            await insertSportsmanFinalGrades(trans, userGradeArray)
+                .then((result) => {
+                    ans.status = constants.statusCode.ok;
+                    ans.results = constants.msg.competitionUpdate;
+                    trans.commit();
+                })
+        }).catch((err) => {
             console.log(err)
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
+            trans.rollback();
         })
     return ans
 }
 
-async function insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrade, i){
+async function insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrade, i) {
     return await competitionJudgementModule.insertSportsmanGrade(trans, sportsmanGrade.judges, sportsmanGrade.judges[0], 0, sportsmanGrade)
         .then(async function (res) {
-            if(i+1 < sportsmanGrades.length)
-                await insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrades[i+1], i+1)
+            if (i + 1 < sportsmanGrades.length)
+                await insertSportsmanGrades(trans, sportsmanGrades, sportsmanGrades[i + 1], i + 1)
             return res;
         })
 }
-async function insertSportsmanFinalGrades(trans, sportsmanGrades, i=0){
+
+async function insertSportsmanFinalGrades(trans, sportsmanGrades, i = 0) {
     return await competitionResultsModule.insertSportsmanFinalGrade(trans, sportsmanGrades[i].avgGrade, sportsmanGrades[i])
         .then(async function (res) {
-            if(i+1 < sportsmanGrades.length)
-                await insertSportsmanFinalGrades(trans, sportsmanGrades,i+1)
+            if (i + 1 < sportsmanGrades.length)
+                await insertSportsmanFinalGrades(trans, sportsmanGrades, i + 1)
             return res;
         })
 }
 
 
-
-async function updateCompetitionGrades(sportsman,compId) {
+async function updateCompetitionGrades(sportsman, compId) {
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await competitionResultsModule.updateSportsmanCompetitionGrade(trans, sportsman, sportsman[0], 0,compId)
-                .then((result) => {
-                    ans.status = constants.statusCode.ok;
-                    ans.results = constants.msg.competitionUpdate;
-                    trans.commitTransaction();
-                })
-                .catch((err) => {
-                    ans.status = constants.statusCode.badRequest;
-                    ans.results = err;
-                    trans.rollbackTransaction();
-                })
-        })
-        .fail(function (err) {
+    const trans = await dbConnection.getTransactionDb()
+    await competitionResultsModule.updateSportsmanCompetitionGrade(trans, sportsman, sportsman[0], 0, compId)
+        .then((result) => {
+            ans.status = constants.statusCode.ok;
+            ans.results = constants.msg.competitionUpdate;
+            trans.commit();
+        }).catch((err) => {
+            console.log(err)
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
-        });
+            trans.rollback();
+        })
 
     return ans
 }
@@ -133,6 +105,7 @@ function getDataUploadTaulloCompetitionGrades(users, idComp, judges, numOfJudge)
     })
     return userGradeArray;
 }
+
 function extractCategoryIdFromExcelCompetitionGrade(line) {
     line = line.split('=')
     let idCategory = line[line.length - 1].substring(1, line[line.length - 1].length - 1)

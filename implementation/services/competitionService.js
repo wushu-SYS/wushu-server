@@ -1,26 +1,29 @@
 const constants = require('../../constants')
 const validator = require('validator');
+const {dbConnection} = require("../../dbUtils");
 
 async function getCompetitions(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
-    await dbUtils.sql(query.query)
-        .parameter('location', tediousTYPES.NVarChar, queryData.location)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
-        .parameter('Value0', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '')
-        .parameter('Value1', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '')
-        .parameter('Value2', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '')
-        .parameter('startIndex', tediousTYPES.NVarChar, queryData.startIndex)
-        .parameter('endIndex', tediousTYPES.NVarChar, queryData.endIndex)
-        .execute()
-        .then(function (results) {
-            ans.status = constants.statusCode.ok;
-            ans.results = results
-        })
-        .fail((error) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = error;
-        });
+    await dbConnection.query({
+        sql: query.query,
+        params: {
+            location: queryData.location,
+            sportStyle: queryData.sportStyle,
+            Value0: queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '',
+            Value1: queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '',
+            Value2: queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '',
+            startIndex: queryData.startIndex,
+            endIndex: queryData.endIndex
+        }
+    }).then(function (results) {
+        ans.status = constants.statusCode.ok;
+        ans.results = results.results
+    }).catch((error) => {
+        console.log(error)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = error;
+    });
     return ans;
 }
 
@@ -46,16 +49,16 @@ function buildConditions_forGetCompetitions(queryData) {
     var limits;
 
     if (location !== '' && location !== undefined) {
-        conditions.push("(events.city like Concat('%', @location, '%') or events.location like Concat('%',  @location, '%'))");
+        conditions.push("(events.city like Concat('%', :location, '%') or events.location like Concat('%',  :location, '%'))");
     }
     if (sportStyle !== '' && sportStyle !== undefined) {
-        conditions.push("events_competition.sportStyle like @sportStyle");
+        conditions.push("events_competition.sportStyle like :sportStyle");
     }
     if (status !== '' && status !== undefined) {
-        conditions.push("events_competition.status in (" + status.split(',').map((val, index) => `@Value${index}`).join(',') + ")");
+        conditions.push("events_competition.status in (" + status.split(',').map((val, index) => `:Value${index}`).join(',') + ")");
     }
     if (startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
-        limits = ' where rowNum >= @startIndex and rowNum <= @endIndex';
+        limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
     }
     let conditionsStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
     return {conditionsStatement, limits};
@@ -64,21 +67,23 @@ function buildConditions_forGetCompetitions(queryData) {
 async function getCompetitionsCount(queryData) {
     let ans = new Object();
     let query = initQuery(queryData);
-    await dbUtils.sql(query.queryCount)
-        .parameter('location', tediousTYPES.NVarChar, queryData.location)
-        .parameter('sportStyle', tediousTYPES.NVarChar, queryData.sportStyle)
-        .parameter('Value0', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '')
-        .parameter('Value1', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '')
-        .parameter('Value2', tediousTYPES.NVarChar, queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '')
-        .execute()
-        .then(function (results) {
-            ans.status = constants.statusCode.ok;
-            ans.results = results[0]
-        })
-        .fail(function (err) {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err
-        });
+    await dbConnection.query({
+        sql: query.queryCount,
+        params: {
+            location: queryData.location,
+            sportStyle: queryData.sportStyle,
+            Value0: queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '',
+            Value1: queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '',
+            Value2: queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : ''
+        }
+    }).then(function (results) {
+        ans.status = constants.statusCode.ok;
+        ans.results = results.results[0]
+    }).catch(function (err) {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err
+    });
     return ans;
 }
 

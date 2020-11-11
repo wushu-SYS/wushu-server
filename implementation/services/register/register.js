@@ -6,6 +6,8 @@ const sportsmanCoachModule = require('../../modules/sportsmanCoachModule')
 const userCoachModule = require('../../modules/userCoachModule')
 const userJudgeModule = require('../../modules/userJudgeModule')
 const common_func = require('../../commonFunc')
+const dbConnection = require('../../../dbUtils').dbConnection
+
 
 /**
  * register new sportsmen to the system, supports manual registration of one sportsman and also excel registration
@@ -14,62 +16,49 @@ const common_func = require('../../commonFunc')
  */
 async function registerSportsman(users) {
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await userSportsmanModule.insertSportsmanDB(trans, users, users[0], 0), await userPasswordModule.insertPasswordDB(trans, users, users[0], 0, constants.userType.SPORTSMAN), await sportsmanCoachModule.insertCoachDB(trans, users, users[0], 0), await sportsmanSportStyleModule.insertSportStyleDB(trans, users, users[0], 0)
-                .then((result) => {
-                    //sendEmail(users);
-                    ans.status = constants.statusCode.ok;
-                    ans.results = constants.msg.registerSuccess;
-                    trans.commitTransaction();
+    const trans = await dbConnection.getTransactionDb()
+    await userSportsmanModule.insertSportsmanDB(trans, users, users[0], 0)
+        .then((async () => {
+            await userPasswordModule.insertPasswordDB(trans, users, users[0], 0, constants.userType.SPORTSMAN)
+                .then(async () => {
+                    await sportsmanCoachModule.insertCoachDB(trans, users, users[0], 0)
+                        .then(async () => {
+                            await sportsmanSportStyleModule.insertSportStyleDB(trans, users, users[0], 0)
+                                .then((result) => {
+                                    //sendEmail(users);
+                                    ans.status = constants.statusCode.ok;
+                                    ans.results = constants.msg.registerSuccess;
+                                    trans.commit();
+                                })
+                        })
                 })
-                .catch((err) => {
-                    ans.status = constants.statusCode.badRequest;
-                    ans.results = err;
-                    console.log(err)
-
-                    trans.rollbackTransaction();
-
-                }))
-        })
-        .fail(function (err) {
+        })).catch((err) => {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
             console.log(err)
+            trans.rollback();
 
-            trans.rollbackTransaction();
         })
-
     return ans
 }
 
 async function registerCoaches(users) {
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await userCoachModule.insertNewCoachDB(trans, users, users[0], 0), await userPasswordModule.insertPasswordDB(trans, users, users[0], 0, constants.userType.COACH)
+    const trans = await dbConnection.getTransactionDb()
+    await userCoachModule.insertNewCoachDB(trans, users, users[0], 0)
+        .then(async () => {
+            await userPasswordModule.insertPasswordDB(trans, users, users[0], 0, constants.userType.COACH)
                 .then((result) => {
                     //sendEmail(users);
                     ans.status = constants.statusCode.ok;
                     ans.results = constants.msg.registerSuccess;
-                    trans.commitTransaction();
+                    trans.commit();
                 })
-                .catch((err) => {
-                    ans.status = constants.statusCode.badRequest;
-                    ans.results = err;
-                    trans.rollbackTransaction();
-                }))
-        })
-        .fail(function (err) {
+        }).catch((err) => {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
-        });
-
+            trans.rollback();
+        })
     return ans
 }
 
@@ -81,63 +70,51 @@ async function registerCoaches(users) {
  */
 async function registerNewJudge(judges) {
     let ans = new Object()
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await userJudgeModule.insertNewJudgeDB(trans, judges, judges[0], 0), await userPasswordModule.insertPasswordDB(trans, judges, judges[0], 0, constants.userType.JUDGE)
-                .then((result) => {
+    const trans = await dbConnection.getTransactionDb()
+    await userJudgeModule.insertNewJudgeDB(trans, judges, judges[0], 0)
+        .then(async () => {
+            await userPasswordModule.insertPasswordDB(trans, judges, judges[0], 0, constants.userType.JUDGE)
+                .then(() => {
                     //sendEmail(users);
                     ans.status = constants.statusCode.ok;
                     ans.results = constants.msg.registerSuccess;
-                    trans.commitTransaction();
+                    trans.commit();
                 })
-                .catch((err) => {
-                    ans.status = constants.statusCode.badRequest;
-                    ans.results = err;
-                    trans.rollbackTransaction();
-                }))
-        })
-        .fail(function (err) {
+        }).catch((err) => {
             ans.status = constants.statusCode.badRequest;
             ans.results = err;
-            trans.rollbackTransaction();
-        });
-
+            console.log(err)
+            trans.rollback();
+        })
     return ans
 }
 
 async function registerAdmin(user) {
     let ans = new Object();
-    let trans;
-    await dbUtils.beginTransaction()
-        .then(async (newTransaction) => {
-            trans = newTransaction;
-            await Promise.all(await dbUtils.sql(`insert into user_Manger (id, firstname, lastname, email)
-                        values  (@id,@firstName,@lastName,@email);`)
-                .parameter('id', tediousTYPES.Int, user.id)
-                .parameter('firstName', tediousTYPES.NVarChar, user.firstName)
-                .parameter('lastName', tediousTYPES.NVarChar, user.lastName)
-                .parameter('email', tediousTYPES.NVarChar, user.email)
-                .execute(), await userPasswordModule.insertPasswordDB(trans, [user], common_func.getArrayFromJson(user), 0, constants.userType.MANAGER)
-                .then((result) => {
-                    //sendEmail(users);
-                    ans.status = constants.statusCode.ok;
-                    ans.results = constants.msg.registerSuccess;
-                    trans.commitTransaction();
-                })
-                .catch((err) => {
-                    ans.status = constants.statusCode.badRequest;
-                    ans.results = err;
-                    trans.rollbackTransaction();
-                }))
-        })
-        .fail(function (err) {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err;
-            trans.rollbackTransaction();
-        });
-
+    const trans = await dbConnection.getTransactionDb()
+    await trans.query({
+        sql: `insert into user_Manger (id, firstname, lastname, email)
+                        values  (:id,:firstName,:lastName,:email);`,
+        params: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+        }
+    }).then(async () => {
+        await userPasswordModule.insertPasswordDB(trans, [user], common_func.getArrayFromJson(user), 0, constants.userType.MANAGER)
+            .then(() => {
+                //sendEmail(users);
+                ans.status = constants.statusCode.ok;
+                ans.results = constants.msg.registerSuccess;
+                trans.commit();
+            })
+    }).catch((err) => {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err;
+        trans.rollback();
+    })
     return ans
 }
 

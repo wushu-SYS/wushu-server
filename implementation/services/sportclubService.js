@@ -12,7 +12,7 @@ function validateSportClubDetails(data) {
     let err = [];
 
     //address
-    if (!validator.matches(data.address, Constants.regexHebrewAndNumbers))
+    if (!validator.matches(data.address, constants.constRegex.regexHebrewAndNumbers))
         err.push(constants.errorMsg.hebErr);
     //phone
     if (!(validator.isInt(data.phone.toString()) && data.phone.toString().length === 10))

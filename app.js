@@ -1,4 +1,4 @@
-DButilsAzure = require('./dBUtils');
+mySqlDb = require('./dBUtils');
 global.__basedir = __dirname;
 
 let express = require('express');
@@ -280,22 +280,38 @@ app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async funct
         res.status(constants.statusCode.badRequest).send([{error: constants.errorMsg.emptyExcel}])
     else {
         if (ans.pass) {
-            let delSportsman = competitionRegistrationService.getIdsForDelete(sportsmenArr)
+            let delSportsman = competitionRegistrationService.getIdsForDelete(sportsmen)
             ans = await competitionRegistrationService.deleteSportsmanFromCompetition(delSportsman, req.body.compId);
-            if (ans.pass)
+            if (ans.pass) {
                 ans = await competitionRegistrationService.regExcelSportsmenCompDB(sportsmen, req.body.compId);
+                await competitionRegistrationService.reRangeCompetitionSportsman(req.body.compId)
+            }
 
             res.status(ans.status).send(ans.results)
         } else
             res.status(constants.statusCode.badRequest).send(ans.results)
     }
 });
+
 app.post("/private/manager/registerCoachAsJudge", async function (req, res) {
     let ans;
     let coachAsJudgeData = excelRegisterService.cleanCoachAsJudgeExcelData(common_function.getArrayFromJsonArray(req.body))
     ans = await userJudgeModule.registerCoachAsJudge(coachAsJudgeData);
     res.status(ans.status).send(ans.results)
-})
+});
+app.post("/private/manager/regExcelJudge", async function (req, res) {
+    let usersToRegister = req.body;
+    if (usersToRegister.length == 0)
+        res.status(statusCode.badRequest).send({line: 0, errors: [constants.errorMsg.emptyExcel]});
+    else {
+        let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister, "judge");
+        if (checkData.isPassed) {
+            let registerStatus = await registerService.registerNewJudge(checkData.users);
+            res.status(registerStatus.status).send(registerStatus.results);
+        } else
+            res.status(statusCode.badRequest).send(checkData.results);
+    }
+});
 app.post("/private/manager/registerAdmin", async function (req, res) {
     let ans = await registerService.registerAdmin(req.body);
     res.status(ans.status).send(ans.results)
@@ -688,7 +704,7 @@ app.post("/private/commonCoachManager/sportsmanRank", async function (req, res) 
 //TODO: when implementing delete don't forget to delete also from user_passwords and user_userTypes table (you need 2 delete queries -> look at the implementation for the sportsmans)
 //------------------------------------------------Delete----------------------------------------------------------------
 app.post("/private/commonCoachManager/deleteSportsmanProfile", async function (req, res) {
-    if (access === constants.userType.MANAGER) {
+    if (access === constants.userType.MANAGER || access === constants.userType.COACH) {
         let ans = await userSportsmanModule.deleteSportsman(req.body.userID)
         await userPasswordModule.deletePassword(req.body.userID)
         res.status(ans.status).send(ans.results)

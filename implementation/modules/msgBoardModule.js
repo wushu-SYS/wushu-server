@@ -1,16 +1,17 @@
 const constants = require("../../constants")
+const dbConnection = require('../../dbUtils').dbConnection
 
 async function addMessage(msg) {
     let ans = new Object();
-    await dbUtils.sql(`insert into msg_board (msg, createDate)
-                        values (@msg,@date);`)
-        .parameter('msg', tediousTYPES.NVarChar, msg)
-        .parameter('date', tediousTYPES.Date, new Date())
-        .execute()
+    await dbConnection.query({
+        sql: `insert into msg_board (msg, createDate)
+                        values (:msg,:date);`,
+        params: {msg: msg, date: new Date()}
+    })
         .then(function (results) {
-            ans.status =constants.statusCode.ok
-            ans.results = results
-        }).fail(function (err) {
+            ans.status = constants.statusCode.ok
+            ans.results = results.results
+        }).catch(function (err) {
             console.log(err)
             ans.results = undefined;
             ans.status = constants.statusCode.badRequest
@@ -19,16 +20,17 @@ async function addMessage(msg) {
     return ans;
 
 }
-async function editMessage(msg,msgId) {
+
+async function editMessage(msg, msgId) {
     let ans = new Object();
-    await dbUtils.sql(`update msg_board set msg =@msg where id = @id`)
-        .parameter('msg', tediousTYPES.NVarChar, msg)
-        .parameter('id', tediousTYPES.Int, msgId)
-        .execute()
+    await dbConnection.query({
+        sql: `update msg_board set msg =:msg where id = :id`,
+        params: {msg: msg, id: msgId}
+    })
         .then(function (results) {
-            ans.status =constants.statusCode.ok
-            ans.results = results
-        }).fail(function (err) {
+            ans.status = constants.statusCode.ok
+            ans.results = results.results
+        }).catch(function (err) {
             console.log(err)
             ans.results = undefined;
             ans.status = constants.statusCode.badRequest
@@ -36,15 +38,17 @@ async function editMessage(msg,msgId) {
         });
     return ans;
 }
+
 async function deleteMessage(msgId) {
     let ans = new Object();
-    await dbUtils.sql(`delete from msg_board where id=@msgId`)
-        .parameter('msgId', tediousTYPES.Int, msgId)
-        .execute()
+    await dbConnection.query({
+        sql: `delete from msg_board where id=:msgId`,
+        params: {msgId: msgId}
+    })
         .then(function (results) {
-            ans.status =constants.statusCode.ok
-            ans.results = results
-        }).fail(function (err) {
+            ans.status = constants.statusCode.ok
+            ans.results = results.results
+        }).catch(function (err) {
             console.log(err)
             ans.results = undefined;
             ans.status = constants.statusCode.badRequest
@@ -52,14 +56,14 @@ async function deleteMessage(msgId) {
         });
     return ans;
 }
+
 async function getAllMsg() {
     let ans = new Object();
-    await dbUtils.sql(`select * from msg_board`)
-        .execute()
+    await dbConnection.query({sql: `select * from msg_board`})
         .then(function (results) {
-            ans.status =constants.statusCode.ok
-            ans.results = results
-        }).fail(function (err) {
+            ans.status = constants.statusCode.ok
+            ans.results = results.results
+        }).catch(function (err) {
             console.log(err)
             ans.results = undefined;
             ans.status = constants.statusCode.badRequest
@@ -70,13 +74,11 @@ async function getAllMsg() {
 
 async function getMsgById(msgId) {
     let ans = new Object();
-    await dbUtils.sql(`select * from msg_board where id = @msgId`)
-        .parameter('msgId', tediousTYPES.Int, msgId)
-        .execute()
+    await dbConnection.query({sql: `select * from msg_board where id = :msgId`, params: {msgId: msgId}})
         .then(function (results) {
-            ans.status =constants.statusCode.ok
-            ans.results = results
-        }).fail(function (err) {
+            ans.status = constants.statusCode.ok
+            ans.results = results.results
+        }).catch(function (err) {
             console.log(err)
             ans.results = undefined;
             ans.status = constants.statusCode.badRequest
@@ -86,8 +88,8 @@ async function getMsgById(msgId) {
 }
 
 
-module.exports.addMessage=addMessage
-module.exports.editMessage=editMessage
-module.exports.deleteMessage=deleteMessage
-module.exports.getAllMsg=getAllMsg
-module.exports.getMsgById=getMsgById
+module.exports.addMessage = addMessage
+module.exports.editMessage = editMessage
+module.exports.deleteMessage = deleteMessage
+module.exports.getAllMsg = getAllMsg
+module.exports.getMsgById = getMsgById

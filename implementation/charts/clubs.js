@@ -1,5 +1,6 @@
 const comFunc = require("../commonFunc")
 const constants = require("../../constants")
+const dbConnection = require('../../dbUtils').dbConnection
 
 async function getClubTree(clubId) {
     let clubsData = await getClubData(clubId)
@@ -17,7 +18,7 @@ async function getClubTree(clubId) {
         coaches.forEach(coach => {
             coachSportsmen.push({
                 coach: coach,
-                sportsman: clubsData.filter(club => club.coachId == coach.id)
+                sportsman: clubsData.filter(club => club.coachId == coach.id && club.sportsmanId)
             })
         })
 
@@ -33,25 +34,27 @@ async function getClubTree(clubId) {
 
 async function getClubData(clubId) {
     let ans = new Object();
-    await dbUtils.sql(`select user_Coach.id as coachId, user_Coach.firstname as coachFirstName, user_Coach.lastname as coachLastName, user_Coach.photo as coachPhoto, user_Sportsman.id as sportsmanId, user_Sportsman.firstname as sportsmanFirstName, user_Sportsman.lastname as sportsmanLastName, user_Sportsman.photo as sportsmanPhoto from user_Coach
-                        join sportsman_coach on user_Coach.id = sportsman_coach.idCoach
-                        join user_Sportsman on sportsman_coach.idSportman = user_Sportsman.id
-                        where user_Coach.sportclub = @sportsClubId`)
-        .parameter('sportsClubId', tediousTYPES.Int, clubId)
-        .execute()
-        .then((results) => {
-            ans = results;
-        })
-        .catch((err) => {
-            ans = undefined
-            console.log(err)
-        })
+    await dbConnection.query({
+        sql: `select user_Coach.id as coachId, user_Coach.firstname as coachFirstName, user_Coach.lastname as coachLastName, user_Coach.photo as coachPhoto, user_Sportsman.id as sportsmanId, user_Sportsman.firstname as sportsmanFirstName, user_Sportsman.lastname as sportsmanLastName, user_Sportsman.photo as sportsmanPhoto from user_Coach
+                        left join sportsman_coach on user_Coach.id = sportsman_coach.idCoach
+                        left join user_Sportsman on sportsman_coach.idSportman = user_Sportsman.id
+                        where user_Coach.sportclub = :sportsClubId`,
+        params: {
+            sportsClubId: clubId
+        }
+    }).then((results) => {
+        ans = results.results;
+    }).catch((err) => {
+        ans = undefined
+        console.log(err)
+    })
     return ans;
 }
 
 async function getClubParticipateSportsmanCompetitions(clubId) {
     let ans = new Object();
-    await dbUtils.sql(`select numComps, count(*) as count from
+    await dbConnection.query({
+        sql: `select numComps, count(*) as count from
                         (select (select count(compCount) as sportsmanComp from(
                        SELECT COUNT(*) as compCount
                        FROM competition_sportsman
@@ -60,21 +63,21 @@ async function getClubParticipateSportsmanCompetitions(clubId) {
                         join events
                         on events_competition.idEvent = events.idEvent
                         WHERE competition_sportsman.idSportsman = id
-                        and date >= datefromparts(@year, 9, 1)
-                        group by events_competition.idCompetition) as tmp) as numComps from user_Sportsman where sportclub = @sportClubId) as tmp2
-                        group by numComps`)
-        .parameter('sportClubId', tediousTYPES.Int, clubId)
-        .parameter('year', tediousTYPES.Int, comFunc.getSessionYear())
-        .execute()
-        .then((results) => {
-            ans.results = results;
-            ans.status = constants.statusCode.ok
-        })
-        .catch((err) => {
-            ans.results = undefined
-            ans.status = constants.statusCode.badRequest
-            console.log(err)
-        })
+                        and date >= STR_TO_DATE(CONCAT(:year,'-',LPAD(9,2,'00'),'-',LPAD(1,2,'00')), '%Y-%m-%d')
+                        group by events_competition.idCompetition) as tmp) as numComps from user_Sportsman where sportclub = :sportClubId) as tmp2
+                        group by numComps`,
+        params: {
+            sportClubId: clubId,
+            year: comFunc.getSessionYear()
+        }
+    }).then((results) => {
+        ans.results = results.results;
+        ans.status = constants.statusCode.ok
+    }).catch((err) => {
+        ans.results = undefined
+        ans.status = constants.statusCode.badRequest
+        console.log(err)
+    })
     return ans;
 }
 
