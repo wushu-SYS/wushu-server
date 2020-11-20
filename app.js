@@ -11,7 +11,7 @@ let fs = require("fs");
 let schedule = require('node-schedule');
 const util = require('util');
 const constants = require('./constants');
-io = require('socket.io')(server);
+io = require('socket.io').listen(server);
 jwt = require("jsonwebtoken");
 
 
