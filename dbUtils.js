@@ -1,6 +1,6 @@
 const {MySQL} = require("mysql-promisify");
 const bcrypt = require('bcryptjs');
-const constants = require('../wushu-server/constants')
+const constants = require('./constants')
 
 const dbConnection = new MySQL({
     host: 'zpfp07ebhm2zgmrm.chr7pe7iynqr.eu-west-1.rds.amazonaws.com',

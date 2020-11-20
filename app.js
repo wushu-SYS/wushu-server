@@ -1,4 +1,4 @@
-mySqlDb = require('./dBUtils');
+mySqlDb = require('./dbUtils');
 global.__basedir = __dirname;
 
 let express = require('express');
@@ -105,6 +105,8 @@ let autoReminderForUploadCriminalRecord = schedule.scheduleJob({dayOfWeek: 0, ho
 
 //----------------------------------------app uses----------------------------------------------------------------------
 app.use(cors());
+app.options('*', cors());
+
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", '*');
     res.header("Access-Control-Allow-Credentials", true);
@@ -176,7 +178,7 @@ app.use("/private/commonCoachManager", (req, res, next) => {
 //----------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------app options------------------------------------------------------------------
 
-app.options('*', cors());
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
