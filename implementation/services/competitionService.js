@@ -13,7 +13,7 @@ async function getCompetitions(queryData) {
             Value0: queryData.status && queryData.status.split(',')[0] ? queryData.status.split(',')[0] : '',
             Value1: queryData.status && queryData.status.split(',')[1] ? queryData.status.split(',')[1] : '',
             Value2: queryData.status && queryData.status.split(',')[2] ? queryData.status.split(',')[2] : '',
-            startIndex: queryData.startIndex,
+            startIndex: queryData.startIndex-1,
             endIndex: queryData.endIndex
         }
     }).then(function (results) {
@@ -28,7 +28,7 @@ async function getCompetitions(queryData) {
 }
 
 function initQuery(queryData) {
-    let query = `select * from (select ROW_NUMBER() OVER (order by events.date) AS rowNum, events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
+    let query = `select * from (select events_competition.idCompetition,events_competition.sportStyle ,events_competition.status,events_competition.closeRegDate, events.date from events_competition
                                    left join events on events_competition.idEvent = events.idEvent`;
     let queryCount = `select count(*) as count from events_competition 
                         left join events on events_competition.idEvent = events.idEvent`;
@@ -58,7 +58,9 @@ function buildConditions_forGetCompetitions(queryData) {
         conditions.push("events_competition.status in (" + status.split(',').map((val, index) => `:Value${index}`).join(',') + ")");
     }
     if (startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
-        limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
+        // limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
+        let rowCount = endIndex - startIndex + 1;
+        limits = ' limit :startIndex, ' + rowCount;
     }
     let conditionsStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
     return {conditionsStatement, limits};

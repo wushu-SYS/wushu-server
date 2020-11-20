@@ -13,7 +13,7 @@ let numCompQuery = "(select ifnull(count(compCount), 0) as sportsmanComp from(\n
     "                        on competition_sportsman.idCompetition = events_competition.idCompetition\n" +
     "                        join events\n" +
     "                        on events_competition.idEvent = events.idEvent\n" +
-    "                        WHERE competition_sportsman.idSportsman = user_Sportsman.id\n" +
+    "                        WHERE competition_sportsman.idSportsman = @user_Sportsman.id\n" +
     "                        and date >= STR_TO_DATE(CONCAT(:year,'-',LPAD(9,2,'00'),'-',LPAD(1,2,'00')), '%Y-%m-%d')\n" +
     "                        group by events_competition.idCompetition) as tmp)";
 
@@ -39,7 +39,7 @@ async function getSportsmen_Coach(queryData, idCoach) {
             club: queryData.club,
             sex: queryData.sex,
             compId: queryData.competition,
-            startIndex: queryData.startIndex,
+            startIndex: queryData.startIndex-1,
             endIndex: queryData.endIndex,
             year: common_func.getSessionYear()
         }
@@ -111,7 +111,9 @@ function buildConditions_forGetSportsmen(queryData, id) {
         conditions.push(`idCompetition = :compId`);
     }
     if (startIndex !== '' && startIndex !== undefined && endIndex != '' && endIndex !== undefined) {
-        limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
+        // limits = ' where rowNum >= :startIndex and rowNum <= :endIndex';
+        let rowCount = endIndex - startIndex + 1;
+        limits = ' limit :startIndex, ' + rowCount;
     }
     let conditionStatement = conditions.length ? ' where ' + conditions.join(' and ') : '';
     return {conditionStatement, limits};
@@ -131,7 +133,7 @@ function buildOrderBy_forGetSportsmen(queryData) {
 
 function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
     let query = new Object();
-    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, 
+    query.query = `select * from (select  
                     ${numCompQuery}  AS competitionCount, `;
     if (queryData.sportStyle !== undefined) {
         query.query += `user_Sportsman.id,firstname,lastname,photo
@@ -149,7 +151,7 @@ function buildQuery_forGetSportsman_Coach(queryData, orderBy) {
     } else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
             query.query = `select id, firstname, lastname, photo, category, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub from(
-                            Select ROW_NUMBER() OVER ( order by firstname, id) AS rowNum, user_Sportsman.*
+                            Select user_Sportsman.*
                         from user_Sportsman
                         join sportsman_coach
                         on user_Sportsman.id = sportsman_coach.idSportman`;
@@ -246,7 +248,7 @@ async function getSportsmen_Manager(queryData) {
             club: queryData.club,
             sex: queryData.sex,
             compId: queryData.competition,
-            startIndex: queryData.startIndex,
+            startIndex: queryData.startIndex-1,
             endIndex: queryData.endIndex,
             year: common_func.getSessionYear()
         }
@@ -282,7 +284,7 @@ function initQuery_Manager(queryData) {
 
 function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
     let query = new Object();
-    query.query = `select * from (select ROW_NUMBER() OVER (${orderBy}) AS rowNum, 
+    query.query = `select * from (select  
                     ${numCompQuery}  AS competitionCount, `;
     if (queryData.sportStyle != undefined) {
         query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_sportStyle
@@ -293,7 +295,7 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
         if (queryData.competitionOperator == undefined) {
             query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                             from (
-                                    select ROW_NUMBER() OVER ( order by firstname, id)             AS rowNum,
+                                    select 
                                     user_Sportsman.*
                                     from user_Sportsman`;
             query.additionalData = `left join competition_sportsman
