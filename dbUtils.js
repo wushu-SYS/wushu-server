@@ -2,15 +2,23 @@ const {MySQL} = require("mysql-promisify");
 const bcrypt = require('bcryptjs');
 const constants = require('./constants')
 
+
+const connectionUrl = process.env.JAWSDB_URL
+const database = connectionUrl.split('/')[connectionUrl.split('/').length-1]
+const host = (connectionUrl.split('@')[1]).split(':')[0]
+const user = (connectionUrl.split(':')[1]).split('//')[1]
+const pass = (connectionUrl.split(':')[2]).split('@')[0]
+
 const dbConnection = new MySQL({
-    host: 'zpfp07ebhm2zgmrm.chr7pe7iynqr.eu-west-1.rds.amazonaws.com',
-    user: 'msdtxxlhfavul98j',
-    password: 'rrmnue40gi3k6drk',
-    database: 'qvk6nuqemi5cc4pi',
+    host: host,
+    user: user,
+    password: pass,
+    database: database,
     charset: "utf8",
     timeout: 60000,
     connectionLimit: 5,
 });
+
 
 async function a() {
     let ans = new Object()
