@@ -104,9 +104,16 @@ let autoReminderForUploadCriminalRecord = schedule.scheduleJob({dayOfWeek: 0, ho
 //----------------------------------------------------------------------------------------------------------------------
 
 //----------------------------------------app uses----------------------------------------------------------------------
+app.use(cors());
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
+    next();
+});
 app.use(bodyParser.urlencoded({extend: true}));
 app.use(bodyParser.json());
-app.use(cors());
 app.use("/private", (req, res, next) => {
     const token = req.header("x-auth-token");
     if (!token) res.status(statusCode.unauthorized).send("Access denied. No token provided.");
