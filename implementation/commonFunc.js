@@ -24,6 +24,8 @@ function getArrayFromJson(row) {
  */
 function setMysqlDateFormat(date){
     if (date != undefined) {
+        if (date.split("-").length ==3)
+            return date
         let initial = date.split("/");
         if (initial.length == 3)
             if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1]))
