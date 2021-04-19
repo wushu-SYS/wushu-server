@@ -111,7 +111,7 @@ let sportsmanUpdateArrayVal={
     isTaullo: 10,
     isSanda: 11
 }
-let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "Phone", "Address", "BirthDate", "IdCoach", "Sex", "SportStyle", "SportClub"];
+let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "BirthDate", "IdCoach", "Sex", "SportStyle", "SportClub"];
 let sportsManFields = {
     idErr: "ת.ז. הינו שדה חובה",
     firstNameErr: "שם פרטי הינו שדה חובה",

@@ -66,9 +66,9 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         type: 'textLength',
         allowBlank: false,
         prompt: 'הכנס ת.ז ספורטאי',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
+        error: 'ת.ז צריכה להכיל 8-9 ספרות',
         sqref: 'A2:A100',
-        formulas: [9, 9],
+        formulas: [8, 9],
 
     });
     worksheet.addDataValidation({
@@ -177,9 +177,9 @@ async function createExcelRegisterCoaches(clubList) {
         type: 'textLength',
         allowBlank: false,
         prompt: 'הכנס ת.ז מאמן',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
+        error: 'ת.ז צריכה להכיל 8-9 ספרות',
         sqref: 'A2:A100',
-        formulas: [9, 9],
+        formulas: [8, 9],
 
     });
     worksheet.addDataValidation({
@@ -228,9 +228,9 @@ async function createExcelRegisterNewJudge() {
         type: 'textLength',
         allowBlank: false,
         prompt: 'הכנס ת.ז שופט',
-        error: 'ת.ז צריכה להכיל 9 ספרות',
+        error: 'ת.ז צריכה להכיל 8-9 ספרות',
         sqref: 'A2:A100',
-        formulas: [9, 9],
+        formulas: [8, 9],
 
     });
     worksheet.addDataValidation({

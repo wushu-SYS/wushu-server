@@ -2,12 +2,12 @@
  * validate user's fields
  */
 const constants = require("../../../constants")
-const validator =require('validator')
+const validator = require('validator')
 
 
 function checkId(id) {
     if (id != null) {
-        if (!(validator.isInt(id.toString()) && id.toString().length == 9))
+        if (!(validator.isInt(id.toString()) && (id.toString().length == 9 || id.toString().length == 8)))
             return constants.userError.idErr
     } else
         return constants.sportsManFields.idErr
@@ -30,7 +30,7 @@ function checkLastName(lastName) {
 }
 
 function checkAddress(address, userType) {
-    if (address != null) {
+    if (address != null  && address != "") {
         if (!(validator.matches(address.toString(), constants.constRegex.regexHebrewAndNumbers) && address.toString().length > 0))
             return constants.userError.addressErr
     } else switch (userType) {
@@ -44,7 +44,7 @@ function checkAddress(address, userType) {
 }
 
 function checkPhone(phone, userType) {
-    if (phone != null) {
+    if (phone != null && phone != "") {
         if (!(validator.isInt(phone.toString()) && phone.toString().length === 10))
             return constants.userError.phoneErr
     } else switch (userType) {
@@ -58,7 +58,7 @@ function checkPhone(phone, userType) {
 }
 
 function checkEmail(email, userType) {
-    if (email != null) {
+    if (email != null && email != "") {
         if (!validator.isEmail(email.toString()))
             return constants.userError.emailErr;
     } else switch (userType) {
@@ -89,7 +89,7 @@ function checkSportStyle(sportStyle) {
 
 function checkIdCoach(idCoach) {
     if (idCoach != null) {
-        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length === 9) || idCoach.toString().length ===8))
+        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length === 9) || idCoach.toString().length === 8))
             return constants.userError.idCoachErr
     } else if (constants.sportsManMandatoryFields.includes("IdCoach"))
         return constants.sportsManFields.idCoachErr

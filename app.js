@@ -185,7 +185,7 @@ app.use("/private/commonCoachManager", (req, res, next) => {
 //--------------------------------------------Login---------------------------------------------------------------------
 app.post("/loginFirstStep", async (req, res) => {
     let ans = await userPasswordModule.checkUserDetailsForLogin(req.body);
-    if (!ans.isPassed)
+    if (!ans.isPassed || ans.dbResults.usertype == constants.userType.SPORTSMAN)
         res.status(statusCode.unauthorized).send(ans.err);
     else
         res.status(statusCode.ok).send(ans)
