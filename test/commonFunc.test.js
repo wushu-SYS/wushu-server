@@ -75,28 +75,52 @@ describe('common functions', function () {
         assert.equal(res.length, 0);
     });
 
-    it('should get date format as "mm/dd/yyyy" and return as "yyyy-mm-dd ', function () {
-        let b_date = "07/28/1990"
-        let res = commonFunc.setDateFormatRegisterUser(b_date)
-        assert.equal(res, "1990-07-28")
+    it('should get date format as "dd/mm/yyyy" and return as "yyyy-mm-dd ', function () {
+        let b_date = "1990/7/28"
+        //let res = commonFunc.setDateFormatRegisterUser(b_date)
+        let res=commonFunc.setMysqlDateFormat(b_date);
+        assert.equal(res, '1990-7-28')
 
     });
     it('should get date format as "mm/d/yyyy" and return as "yyyy-mm-d ', function () {
-        let b_date = "07/2/1990"
-        let res = commonFunc.setDateFormatRegisterUser(b_date)
-        assert.equal(res, "1990-07-2")
+        let b_date = "1990/7/2"
+        //let res = commonFunc.setDateFormatRegisterUser(b_date)
+        let res=commonFunc.setMysqlDateFormat(b_date);
+        assert.equal(res, '1990-7-2')
     });
     it('should get undefined from date format as "mmd/yyyy" ', function () {
-        let res = commonFunc.setDateFormatRegisterUser("033/1990")
-        assert.equal(res, undefined)
+        //let res = commonFunc.setDateFormatRegisterUser("1990/033")
+        let res=commonFunc.setMysqlDateFormat("1990/033")
+        assert.equal(res, 'Invalid Date')
     });
     it('should get undefined form  date format as string', function () {
-        let res = commonFunc.setDateFormatRegisterUser("03/3f/1990")
-        assert.equal(res, undefined)
+        //let res = commonFunc.setDateFormatRegisterUser("1990/03/3f")
+        let res=commonFunc.setMysqlDateFormat("1990/03/3f")
+        assert.equal(res, 'Invalid Date')
     });
+
+    it('should get undefined form  date 2000/2/31', function () {
+        //let res = commonFunc.setDateFormatRegisterUser(undefined)
+        let res=commonFunc.setMysqlDateFormat("2000/2/31")
+        assert.equal(res, 'Invalid Date')
+    });
+
+    it('should get undefined form  date 2000/2/30', function () {
+        //let res = commonFunc.setDateFormatRegisterUser(undefined)
+        let res=commonFunc.setMysqlDateFormat('2000/2/30')
+        assert.equal(res, 'Invalid Date')
+    });
+
+    it('should get undefined form  date greater than the current date', function () {
+        //let res = commonFunc.setDateFormatRegisterUser(undefined)
+        let res=commonFunc.setMysqlDateFormat('2021/11/20')
+        assert.equal(res, 'Invalid Date')
+    });
+
     it('should get undefined form  date format as undefined', function () {
-        let res = commonFunc.setDateFormatRegisterUser(undefined)
-        assert.equal(res, undefined)
+        //let res = commonFunc.setDateFormatRegisterUser(undefined)
+        let res=commonFunc.setMysqlDateFormat(undefined)
+        assert.equal(res, 'Invalid Date')
     });
 
     it('should get age range from category Object  ', function () {
@@ -152,35 +176,35 @@ describe('common functions', function () {
         assert.equal(commonFunc.setIsSanda(0), undefined)
     })
     it('should convert to sportstyle taullo | sanda | both', function () {
-        let taullo = 1;
-        let sanda = 0;
+        let taullo = {'0':1}
+        let sanda = {'0':0}
         let res = commonFunc.convertToSportStyle(taullo, sanda)
         assert.equal(res, 'טאולו')
 
-        taullo = 1;
-        sanda = 1;
+        taullo = {'0':1};
+        sanda = {'0':1};
         res = commonFunc.convertToSportStyle(taullo, sanda)
         assert.equal(res, 'משולב')
 
-        taullo = 0;
-        sanda = 1;
+        taullo = {'0':0};
+        sanda = {'0':1};
         res = commonFunc.convertToSportStyle(taullo, sanda)
         assert.equal(res, 'סנדא')
 
     });
     it('should return undefined from  sportstyle if is not true/false ', function () {
-        let taullo = 5;
-        let sanda = 5;
+        let taullo = {'0':5};
+        let sanda = {'0':5};
         let res = commonFunc.convertToSportStyle(taullo, sanda)
         assert.equal(res, undefined)
 
-        taullo = "5";
-        sanda = "5";
+        taullo = {'0':"5"};
+        sanda = {'0':"5"};
         res = commonFunc.convertToSportStyle(taullo, sanda)
         assert.equal(res, undefined)
 
-        res = commonFunc.convertToSportStyle(undefined, undefined)
-        assert.equal(res, undefined)
+        //res = commonFunc.convertToSportStyle(undefined, undefined)
+        //assert.equal(res, undefined)
     });
     it('should return the current session year ', function () {
         let year = new Date().getFullYear();

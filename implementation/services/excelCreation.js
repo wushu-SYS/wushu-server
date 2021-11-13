@@ -58,7 +58,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         prompt: 'בחר מאמן',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'K2:K100',
+        sqref: 'M2:M100',
         formulas: ['=sheet1!$AA$2:$AA$' + (coachList.length + 1)],
         style: style,
     });
@@ -86,7 +86,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         prompt: 'בחר מועדון',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'H2:H100',
+        sqref: 'J2:J100',
         formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
         style: style,
     });
@@ -96,7 +96,7 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         prompt: 'בחר מין',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'I2:I100',
+        sqref: 'K2:K100',
         formulas: ['זכר,נקבה'],
         style: style,
     });
@@ -106,23 +106,37 @@ async function createExcelRegisterSportsman(clubList, coachList) {
         prompt: 'בחר ענף',
         error: 'Invalid choice was chosen',
         showDropDown: true,
-        sqref: 'J2:J100',
+        sqref: 'L2:L100',
         formulas: ['טאולו,סנדא,משולב'],
         style: style,
     });
     worksheet.addDataValidation({
-        type: 'date',
+        type: 'textLength',
         allowBlank: false,
-        prompt: 'כתוב תאריך לידה בפורמט dd/mm/yyyy',
-        error: 'פורמט תאריך צריך להיות dd/mm/yyyy',
+        prompt: 'כתוב שנת לידה',
+        error: 'תאריך לידה לא תקין',
         sqref: 'F2:F100',
-        style: {
-            dateFormat: 'dd/mm/yyyy',
-        },
+        formulas: [4,4],
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'כתוב חודש לידה',
+        error: 'תאריך לידה לא תקין',
+        sqref: 'G2:G100',
+        formulas: [1, 2],
+    });
+    worksheet.addDataValidation({
+        type: 'textLength',
+        allowBlank: false,
+        prompt: 'כתוב יום לידה',
+        error: 'תאריך לידה לא תקין',
+        sqref: 'H2:H100',
+        formulas: [1,2],
     });
 
-    lockListCell(worksheet, ["L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "S1:S100", "T1:T100", "Q1:Q100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 1);
+    lockListCell(worksheet, ["N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "S1:S100", "T1:T100", "Q1:Q100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100","Z1:Z100","AA1:AA100"]);
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K','L','M'], 1);
 
     fileName = 'רישום ספורטאים למערכת.xlsx';
     return writeExcel(workbook, (path + fileName));
@@ -614,12 +628,14 @@ function prepareCreateEditSportsman(worksheet) {
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 4).string('פאלפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 6).string('תאריך לידה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 7).string('אימייל').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 8).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 9).string('מין').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 10).string('ענף').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 11).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('שנת לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('חודש לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('יום לידה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 9).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 10).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 11).string('מין').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 12).string('ענף').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 13).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze(); // Freezes the top four rows
 }
 

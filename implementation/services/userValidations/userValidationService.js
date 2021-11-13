@@ -134,7 +134,7 @@ function checkExcelDataBeforeRegister(users, userType) {
     let errorUsers = [];
     let res = {};
     res.isPassed = true;
-    let line = 1;
+    let line = 0;
     users.forEach(function (user) {
         let userError = new Object();
         line++;
@@ -144,6 +144,7 @@ function checkExcelDataBeforeRegister(users, userType) {
                 user[constants.colRegisterSportsmanExcel.idCoach] = getCoachId(user[constants.colRegisterSportsmanExcel.idCoach]);
                 user.push(common_func.setIsTaullo(user[constants.colRegisterSportsmanExcel.sportStyle]));
                 user.push(common_func.setIsSanda(user[constants.colRegisterSportsmanExcel.sportStyle]));
+                user[constants.colRegisterSportsmanExcel.birthDate] = common_func.setMysqlDateFormat(user[constants.colRegisterSportsmanExcel.birthDateYear]+"/"+user[constants.colRegisterSportsmanExcel.birthDateMonth]+"/"+user[constants.colRegisterSportsmanExcel.birthDateDay]);
                 userError.errors = sportsManExcelValidations(user);
                 break;
             case "coach":
@@ -204,6 +205,17 @@ function checkDataBeforeRegister(user, userType) {
         res.isPassed = false;
     }
     res.results = errorUsers;
+    var size = 0,
+    key;
+    for (key in user) {
+        size++;
+    }
+    if(size==13){
+        let date_split=user.birthDate.split('-')
+        user.birthDateYear=date_split[0];
+        user.birthDateMonth=date_split[1];
+        user.birthDateDay=date_split[2];
+    }
     res.users = user;
 
     return res;

@@ -57,7 +57,25 @@ let colRegisterSportsmanExcel = {
     lastName: 2,
     phone: 3,
     address: 4,
-    birthDate: 5,
+    birthDateYear: 5,
+    birthDateMonth:6,
+    birthDateDay:7,
+    email: 8,
+    sportClub: 9,
+    sex: 10,
+    sportStyle: 11,
+    idCoach: 12,
+    isTaullo: 13,
+    isSanda: 14,
+    birthDate:15,
+}
+let colRegisterSportsman = {
+    idSportsman: 0,
+    firstName: 1,
+    lastName: 2,
+    phone: 3,
+    address: 4,
+    birthDate:5,
     email: 6,
     sportClub: 7,
     sex: 8,
@@ -65,10 +83,7 @@ let colRegisterSportsmanExcel = {
     idCoach: 10,
     isTaullo: 11,
     isSanda: 12,
-
-
 }
-
 let colRegisterCoachExcel = {
     idCoach: 0,
     firstName: 1,

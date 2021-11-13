@@ -17,20 +17,50 @@ function getArrayFromJson(row) {
     return tmp;
 }
 
+function getArrayUserFromJson(row) {
+    var tmp = []
+    for (var key in constants.colRegisterSportsmanExcel) {
+        if(key.localeCompare("idSportsman")==0){
+            tmp.push(row['id'])
+        }
+        else if(key.localeCompare("isTaullo")==0){
+            tmp.push(row['taullo'])
+        }
+        else if(key.localeCompare("isSanda")==0){
+            tmp.push(row['sanda'])
+        }
+        else{
+            tmp.push(row[key])
+        }
+    }
+    return tmp;
+}
 /**
  *
  * @param date - mm/dd/yyyy
  * @returns {string} yyyy-mm-dd
  */
 function setMysqlDateFormat(date){
-    if (date != undefined) {
-        if (date.split("-").length ==3)
-            return date
+    if (date != undefined && date != 'Invalid Date') {
+        if(date.includes('-')){
+            return date;
+        }
         let initial = date.split("/");
-        if (initial.length == 3)
-            if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1]))
-                return ([initial[2], initial[0], initial[1]].join('-'));
-    }
+        let objectDate=new Date(date);
+        if (initial.length == 3){
+            if(objectDate=='Invalid Date'){
+                return 'Invalid Date'
+            }
+            if(objectDate.getFullYear().toString().localeCompare(initial[0])!=0 || (objectDate.getMonth()+1).toString().localeCompare(initial[1])!=0 || objectDate.getDate().toString().localeCompare(initial[2])!=0){
+                return 'Invalid Date'
+            }
+            if(new Date().getTime()>objectDate.getTime()){
+                return ([initial[0], initial[1], initial[2]].join('-'));
+            }else{
+                return 'Invalid Date'
+            }
+        }  
+    }return 'Invalid Date'
 }
 
 function getAgeRange(category) {
@@ -147,6 +177,7 @@ function rollBackTrans(trans) {
 
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
+module.exports.getArrayUserFromJson=getArrayUserFromJson;
 //module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;

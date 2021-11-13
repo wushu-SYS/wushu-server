@@ -89,7 +89,7 @@ function checkSportStyle(sportStyle) {
 
 function checkIdCoach(idCoach) {
     if (idCoach != null) {
-        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length === 9) || idCoach.toString().length === 8))
+        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length == 9 || idCoach.toString().length == 8)))
             return constants.userError.idCoachErr
     } else if (constants.sportsManMandatoryFields.includes("IdCoach"))
         return constants.sportsManFields.idCoachErr
@@ -105,6 +105,11 @@ function checkSportClub(sportClub) {
 }
 
 function checkDate(birthDate) {
+    if(birthDate !=null){
+        if(birthDate=='Invalid Date' || birthDate==undefined){
+            return constants.userError.birthDateErr
+        }
+    }
     if (birthDate == null)
         if (constants.sportsManMandatoryFields.includes("BirthDate"))
             return constants.sportsManFields.birthDateErr

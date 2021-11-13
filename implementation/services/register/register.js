@@ -42,6 +42,7 @@ async function registerSportsman(users) {
     return ans
 }
 
+
 async function registerCoaches(users) {
     let ans = new Object()
     const trans = await dbConnection.getTransactionDb()
