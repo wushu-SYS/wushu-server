@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const constants = require('./constants')
 
 
-const connectionUrl = process.env.JAWSDB_URL
+const connectionUrl = 'mysql://msdtxxlhfavul98j:rrmnue40gi3k6drk@zpfp07ebhm2zgmrm.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/qvk6nuqemi5cc4pi'
 const database = connectionUrl.split('/')[connectionUrl.split('/').length-1]
 const host = (connectionUrl.split('@')[1]).split(':')[0]
 const user = (connectionUrl.split(':')[1]).split('//')[1]
