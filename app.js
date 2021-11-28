@@ -315,7 +315,7 @@ app.post("/private/manager/registerJudgeManual", async function (req, res) {
         ans = await registerService.registerNewJudge([ans.users]);
         res.status(ans.status).send(ans.results)
     } else
-        res.status(constants.statusCode.badRequest).send(ans.errors)
+        res.status(constants.statusCode.badRequest).send(ans.results)
 });
 app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
@@ -443,7 +443,7 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
     let clubs;
     if (access === constants.userType.MANAGER) {
         clubs = await sportClubModule.getSportClubs(undefined);
-        let excelFile = await excelCreation.createExcelRegisterNewJudge();
+        let excelFile = await excelCreation.createExcelRegisterNewJudge(clubs.results);
         res.downloadExcel = util.promisify(res.download);
         await res.downloadExcel(excelFile);
         fs.unlink(excelFile, function (err) {

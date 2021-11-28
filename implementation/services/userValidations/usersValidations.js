@@ -115,7 +115,20 @@ function checkDate(birthDate) {
             return constants.sportsManFields.birthDateErr
 }
 
-
+function checkLink(link,name){
+    if (link){
+        var i=link.search('/')
+        if(name.localeCompare("facebook")==0){
+            if(link.slice(0, i).localeCompare("www.facebook.com")!=0){
+                return constants.userError.linkFacebookErr
+            }
+        }else if(name.localeCompare("instagram")==0){
+            if(link.slice(0, i).localeCompare("www.instagram.com")!=0){
+                return constants.userError.linkInstagramErr
+            }
+        }
+    }
+}
 /**
  * needed validates for sportsman
  */
@@ -143,7 +156,8 @@ coachVal = {
     phoneVal: checkPhone,
     emailVal: checkEmail,
     sportStyleVal: checkSportStyle,
-    sportClubVal: checkSportClub
+    sportClubVal: checkSportClub,
+    checkLink : checkLink,
 };
 /**
  * needed validates for judge
@@ -153,7 +167,9 @@ judgeVal = {
     firstNameVal: checkFirstName,
     lastNameVal: checkLastName,
     phoneVal: checkPhone,
-    emailVal: checkEmail
+    emailVal: checkEmail,
+    sportClubVal: checkSportClub,
+    checkLink : checkLink,
 };
 
 module.exports = {

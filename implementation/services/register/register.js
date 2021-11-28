@@ -49,11 +49,14 @@ async function registerCoaches(users) {
     await userCoachModule.insertNewCoachDB(trans, users, users[0], 0)
         .then(async () => {
             await userPasswordModule.insertPasswordDB(trans, users, users[0], 0, constants.userType.COACH)
-                .then((result) => {
-                    //sendEmail(users);
-                    ans.status = constants.statusCode.ok;
-                    ans.results = constants.msg.registerSuccess;
-                    trans.commit();
+                .then(async () => {
+                    await userCoachModule.insertLinks(trans, users, users[0], 0)
+                        .then((result) => {
+                            //sendEmail(users);
+                            ans.status = constants.statusCode.ok;
+                            ans.results = constants.msg.registerSuccess;
+                            trans.commit();
+                        })
                 })
         }).catch((err) => {
             ans.status = constants.statusCode.badRequest;
@@ -75,19 +78,21 @@ async function registerNewJudge(judges) {
     await userJudgeModule.insertNewJudgeDB(trans, judges, judges[0], 0)
         .then(async () => {
             await userPasswordModule.insertPasswordDB(trans, judges, judges[0], 0, constants.userType.JUDGE)
-                .then(() => {
-                    //sendEmail(users);
-                    ans.status = constants.statusCode.ok;
-                    ans.results = constants.msg.registerSuccess;
-                    trans.commit();
-                })
-        }).catch((err) => {
-            ans.status = constants.statusCode.badRequest;
-            ans.results = err;
-            console.log(err)
-            trans.rollback();
-        })
-    return ans
+            .then(async () => {
+                await userJudgeModule.insertLinks(trans, judges, judges[0], 0)
+                    .then((result) => {
+                        //sendEmail(users);
+                        ans.status = constants.statusCode.ok;
+                        ans.results = constants.msg.registerSuccess;
+                        trans.commit();
+                    })
+            })
+    }).catch((err) => {
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err;
+        trans.rollback();
+    })
+return ans
 }
 
 async function registerAdmin(user) {

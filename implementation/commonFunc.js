@@ -37,32 +37,46 @@ function getArrayUserFromJson(row) {
 }
 /**
  *
- * @param date - mm/dd/yyyy
+ * @param date - yyyy/MM/dd
  * @returns {string} yyyy-mm-dd
  */
 function setMysqlDateFormat(date){
     if (date != undefined && date != 'Invalid Date') {
-        if(date.includes('-')){
-            return date;
-        }
         let initial = date.split("/");
         let objectDate=new Date(date);
         if (initial.length == 3){
             if(objectDate=='Invalid Date'){
                 return 'Invalid Date'
             }
-            if(objectDate.getFullYear().toString().localeCompare(initial[0])!=0 || (objectDate.getMonth()+1).toString().localeCompare(initial[1])!=0 || objectDate.getDate().toString().localeCompare(initial[2])!=0){
-                return 'Invalid Date'
-            }
+            //if(parseInt(objectDate.getFullYear()) != parseInt(initial[0]) || parseInt(objectDate.getMonth()+1)!=parseInt(initial[1]) || parseInt(objectDate.getDate())!=parseInt(initial[2])){
+            //    return 'Invalid Date'
+            //}
             if(new Date().getTime()>objectDate.getTime()){
-                return ([initial[0], initial[1], initial[2]].join('-'));
+                return ([objectDate.getFullYear(),objectDate.getMonth()+1,objectDate.getDate()].join('-'));
             }else{
                 return 'Invalid Date'
             }
         }  
     }return 'Invalid Date'
 }
-
+function setMysqlDateFormatCoach(date){
+    if (date != undefined) {
+        let initial = date.split("/");
+        let objectDate=new Date(date);
+        if (initial.length == 3){
+            if(objectDate=='Invalid Date'){
+                return 'Invalid Date'
+            }
+            if(parseInt(objectDate.getMonth()+1)!=parseInt(initial[0]) || parseInt(objectDate.getDate())!=parseInt(initial[1])){
+            //if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1])){
+                return 'Invalid Date'
+            }
+            if(new Date().getTime()>objectDate.getTime()){
+                return ([objectDate.getFullYear().toString(),(objectDate.getMonth()+1).toString(),objectDate.getDate().toString()].join('-'));
+            }
+        }
+    }
+}
 function getAgeRange(category) {
     if (!category || category.minAge == null)
         return undefined
@@ -188,3 +202,4 @@ module.exports.getSessionYear = getSessionYear;
 module.exports.completeIdUser = completeIdUser;
 module.exports.updateTrans = updateTrans
 module.exports.setMysqlDateFormat = setMysqlDateFormat
+module.exports.setMysqlDateFormatCoach=setMysqlDateFormatCoach

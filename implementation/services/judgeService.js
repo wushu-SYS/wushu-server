@@ -27,6 +27,7 @@ function combineData(data, profile) {
         lastName: data.lastName ? data.lastName : profile.lastname,
         phone: data.phone ? data.phone : profile.phone,
         email: data.email ? data.email : profile.email,
+        comment: data.comment ? data.comment : profile.comment,
         oldId: data.oldId ? data.oldId : profile.id
     }
     return user

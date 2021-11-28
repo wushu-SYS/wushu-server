@@ -62,8 +62,8 @@ async function getClubDetails(clubId) {
 async function addSportClub(data) {
     let ans = new Object();
     await dbConnection.query({
-        sql: `insert into sportclub (name, phone, address, contactname, amutaId, agudaId, ergonId)
-                        values (:name, :phone, :address, :contactname, :amutaId, :agudaId, :ergonId);`,
+        sql: `insert into sportclub (name, phone, address, contactname, amutaId, agudaId, ergonId,contactcoach, phonecoach, facebook, instagram, website, moredata)
+                        values (:name, :phone, :address, :contactname, :amutaId, :agudaId, :ergonId ,:contactcoach, :phonecoach, :facebook, :instagram, :website, :moredata);`,
         params: {
             name: data.clubName,
             phone: data.phone,
@@ -71,7 +71,13 @@ async function addSportClub(data) {
             contactname: data.contactname,
             amutaId: data.amutaId ? data.amutaId : 999999999,
             agudaId: data.agudaId,
-            ergonId: data.ergonId
+            ergonId: data.ergonId,
+            contactcoach: data.contactcoach,
+            phonecoach: data.phonecoach,
+            facebook: data.facebook,
+            instagram: data.instagram,
+            website: data.website,
+            moredata: data.moredata
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;

@@ -4,7 +4,7 @@ const dbConnection = require('../../dbUtils').dbConnection
 async function getAddresses() {
     let ans = new Object();
     await dbConnection.query({
-        sql: 'select * from sportclub group by address order by address'
+        sql: 'SELECT DISTINCT address FROM sportclub order by address;'
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
         ans.results = results.results

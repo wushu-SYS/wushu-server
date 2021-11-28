@@ -159,7 +159,7 @@ async function createExcelRegisterCoaches(clubList) {
     worksheet.cell(1, 1).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 2).string('שם פרטי').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
-    worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 4).string('פלאפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('כתובת').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 6).string('אימייל').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 7).string('תאריך לידה').style(style).style(({font: {bold: true}}));
@@ -224,7 +224,7 @@ async function createExcelRegisterCoaches(clubList) {
 
 }
 
-async function createExcelRegisterNewJudge() {
+async function createExcelRegisterNewJudge(clubList) {
     let {workbook, worksheet} = createWorkBook();
 
     worksheet.cell(1, 1).string('ת.ז שופט').style(style).style(({font: {bold: true}}));
@@ -232,11 +232,32 @@ async function createExcelRegisterNewJudge() {
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 4).string('פאלאפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('מועדון ספורט').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
+    let row = 2;
+    worksheet.cell(1, 26).string("מועדנים").style(style).style({font: {color: 'white'}});
+    for (let i = 0; i < clubList.length; i++) {
+        worksheet.cell(row, 26).string(clubList[i].name + ' ' + setIdCategory(clubList[i])).style(style).style(({
+            font: {color: 'white'},
+            alignment: {horizontal: 'right'}
+        }));
+        row++;
+    }
 
     enableStartingfromZero(worksheet,1)
     enableStartingfromZero(worksheet,4)
+
+    worksheet.addDataValidation({
+        type: 'list',
+        allowBlank: false,
+        prompt: 'בחר מועדון',
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        sqref: 'F2:F100',
+        formulas: ['=sheet1!$Z$2:$Z$' + (clubList.length + 1)],
+        style: style,
+    });
 
     worksheet.addDataValidation({
         type: 'textLength',
@@ -257,8 +278,8 @@ async function createExcelRegisterNewJudge() {
 
     });
 
-    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E'], 1);
-    lockListCell(worksheet, ["F1:F100", "G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "T1:T100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
+    lockListValueCell(worksheet, ['A', 'B', 'C', 'D', 'E','F'], 1);
+    lockListCell(worksheet, ["G1:G100", "H1:H100", "I1:I100", "J1:J100", "K1:K100", "L1:L100", "M1:M100", "N1:N100", "O1:O100", "P1:P100", "Q1:Q100", "R1:R100", "T1:T100", "Z1:Z100", "W1:W100", "X1:X100", "Y1:Y100"]);
 
 
     fileName = 'רישום שופטים למערכת.xlsx';
