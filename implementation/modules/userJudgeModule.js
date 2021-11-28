@@ -19,7 +19,7 @@ async function insertNewJudgeDB(trans, judges, judge, number) {
         }
     }).then(async function () {
         if (number + 1 < judges.length)
-            await insertNewJudgeDB(trans, judges, judge[number + 1], number + 1)
+            await insertNewJudgeDB(trans, judges, judges[number + 1], number + 1)
     })
 }
 async function insertLinks(trans, judges, judge, i) {
