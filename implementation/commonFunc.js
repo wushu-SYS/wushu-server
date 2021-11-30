@@ -17,22 +17,66 @@ function getArrayFromJson(row) {
     return tmp;
 }
 
+function getArrayUserFromJson(row) {
+    var tmp = []
+    for (var key in constants.colRegisterSportsmanExcel) {
+        if(key.localeCompare("idSportsman")==0){
+            tmp.push(row['id'])
+        }
+        else if(key.localeCompare("isTaullo")==0){
+            tmp.push(row['taullo'])
+        }
+        else if(key.localeCompare("isSanda")==0){
+            tmp.push(row['sanda'])
+        }
+        else{
+            tmp.push(row[key])
+        }
+    }
+    return tmp;
+}
 /**
  *
- * @param date - mm/dd/yyyy
+ * @param date - yyyy/MM/dd
  * @returns {string} yyyy-mm-dd
  */
 function setMysqlDateFormat(date){
-    if (date != undefined) {
-        if (date.split("-").length ==3)
-            return date
+    if (date != undefined && date != 'Invalid Date') {
         let initial = date.split("/");
-        if (initial.length == 3)
-            if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1]))
-                return ([initial[2], initial[0], initial[1]].join('-'));
+        let objectDate=new Date(date);
+        if (initial.length == 3){
+            if(objectDate=='Invalid Date'){
+                return 'Invalid Date'
+            }
+            //if(parseInt(objectDate.getFullYear()) != parseInt(initial[0]) || parseInt(objectDate.getMonth()+1)!=parseInt(initial[1]) || parseInt(objectDate.getDate())!=parseInt(initial[2])){
+            //    return 'Invalid Date'
+            //}
+            if(new Date().getTime()>objectDate.getTime()){
+                return ([objectDate.getFullYear(),objectDate.getMonth()+1,objectDate.getDate()].join('-'));
+            }else{
+                return 'Invalid Date'
+            }
+        }  
+    }return 'Invalid Date'
+}
+function setMysqlDateFormatCoach(date){
+    if (date != undefined) {
+        let initial = date.split("/");
+        let objectDate=new Date(date);
+        if (initial.length == 3){
+            if(objectDate=='Invalid Date'){
+                return 'Invalid Date'
+            }
+            if(parseInt(objectDate.getMonth()+1)!=parseInt(initial[0]) || parseInt(objectDate.getDate())!=parseInt(initial[1])){
+            //if (isNumeric(initial[2]) && isNumeric(initial[0]) && isNumeric(initial[1])){
+                return 'Invalid Date'
+            }
+            if(new Date().getTime()>objectDate.getTime()){
+                return ([objectDate.getFullYear().toString(),(objectDate.getMonth()+1).toString(),objectDate.getDate().toString()].join('-'));
+            }
+        }
     }
 }
-
 function getAgeRange(category) {
     if (!category || category.minAge == null)
         return undefined
@@ -149,6 +193,7 @@ function rollBackTrans(trans) {
 
 module.exports.getArrayFromJsonArray = getArrayFromJsonArray;
 module.exports.getArrayFromJson = getArrayFromJson;
+module.exports.getArrayUserFromJson=getArrayUserFromJson;
 //module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;
@@ -159,3 +204,4 @@ module.exports.getSessionYear = getSessionYear;
 module.exports.completeIdUser = completeIdUser;
 module.exports.updateTrans = updateTrans
 module.exports.setMysqlDateFormat = setMysqlDateFormat
+module.exports.setMysqlDateFormatCoach=setMysqlDateFormatCoach

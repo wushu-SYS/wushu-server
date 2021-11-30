@@ -20,7 +20,7 @@ describe('user data checks ', function () {
 
             id = "22222222"
             err = dataCheck.sportsman.idVal(id)
-            assert.equal(err, constants.userError.idErr)
+            assert.equal(err, undefined)
 
             id = "222222"
             err = dataCheck.sportsman.idVal(id)
@@ -87,10 +87,10 @@ describe('user data checks ', function () {
 
             address = ""
             err = dataCheck.sportsman.addressVal(address, userType)
-            assert.equal(err, constants.userError.addressErr)
+            assert.equal(err, undefined)
 
             err = dataCheck.sportsman.addressVal(undefined, userType)
-            assert.equal(err, constants.sportsManFields.addressErr)
+            assert.equal(err,undefined)
 
         });
         it('should check for sportsman valid phone', function () {
@@ -110,11 +110,11 @@ describe('user data checks ', function () {
 
             phone = ""
             err = dataCheck.sportsman.phoneVal(phone, userType)
-            assert.equal(err, constants.userError.phoneErr)
+            assert.equal(err, undefined)
 
 
             err = dataCheck.sportsman.phoneVal(undefined, userType)
-            assert.equal(err, constants.sportsManFields.phoneErr)
+            assert.equal(err, undefined)
 
 
         });
@@ -134,7 +134,7 @@ describe('user data checks ', function () {
             assert.equal(err, constants.userError.emailErr)
 
             err = dataCheck.sportsman.emailVal(undefined, userType)
-            assert.equal(err, constants.sportsManFields.emailErr)
+            assert.equal(err, undefined)
 
 
         });
@@ -193,7 +193,7 @@ describe('user data checks ', function () {
 
             id = "22222222"
             err = dataCheck.sportsman.idCoachVal(id)
-            assert.equal(err, constants.userError.idCoachErr)
+            assert.equal(err, undefined)
 
             id = "222222"
             err = dataCheck.sportsman.idCoachVal(id)
@@ -213,7 +213,7 @@ describe('user data checks ', function () {
 
         });
         it('should check for sportsman date  ', function () {
-            let date = "24/01/1990"
+            let date = "1990/01/24"
             let err = dataCheck.sportsman.setBirthDate(date)
             assert.equal(err, undefined)
 
@@ -256,7 +256,7 @@ describe('user data checks ', function () {
 
             id = "22222222"
             err = dataCheck.judge.idVal(id)
-            assert.equal(err, constants.userError.idErr)
+            assert.equal(err, undefined)
 
             id = "222222"
             err = dataCheck.judge.idVal(id)
@@ -328,7 +328,7 @@ describe('user data checks ', function () {
 
             phone = ""
             err = dataCheck.judge.phoneVal(phone, userType)
-            assert.equal(err, constants.userError.phoneErr)
+            assert.equal(err, constants.sportsManFields.phoneErr)
 
 
             err = dataCheck.judge.phoneVal(undefined, userType)
@@ -375,7 +375,7 @@ describe('user data checks ', function () {
 
             id = "22222222"
             err = dataCheck.coach.idVal(id)
-            assert.equal(err, constants.userError.idErr)
+            assert.equal(err, undefined)
 
             id = "222222"
             err = dataCheck.coach.idVal(id)
@@ -442,7 +442,7 @@ describe('user data checks ', function () {
 
             address = ""
             err = dataCheck.coach.addressVal(address, userType)
-            assert.equal(err, constants.userError.addressErr)
+            assert.equal(err, constants.sportsManFields.addressErr)
 
             err = dataCheck.coach.addressVal(undefined, userType)
             assert.equal(err, constants.sportsManFields.addressErr)
@@ -465,7 +465,7 @@ describe('user data checks ', function () {
 
             phone = ""
             err = dataCheck.coach.phoneVal(phone, userType)
-            assert.equal(err, constants.userError.phoneErr)
+            assert.equal(err, constants.sportsManFields.phoneErr)
 
 
             err = dataCheck.coach.phoneVal(undefined, userType)

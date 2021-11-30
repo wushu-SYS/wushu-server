@@ -49,7 +49,12 @@ let colRegisterJudgeExcel = {
     lastName: 2,
     phone: 3,
     email: 4,
-    numCell: 5
+    sportClub: 5,
+    //numCell: 5
+    facebook: 6,
+    instagram: 7,
+    anotherLink: 8,
+    comment: 9,
 }
 let colRegisterSportsmanExcel = {
     idSportsman: 0,
@@ -57,16 +62,17 @@ let colRegisterSportsmanExcel = {
     lastName: 2,
     phone: 3,
     address: 4,
-    birthDate: 5,
-    email: 6,
-    sportClub: 7,
-    sex: 8,
-    sportStyle: 9,
-    idCoach: 10,
-    isTaullo: 11,
-    isSanda: 12,
-
-
+    birthDateYear: 5,
+    birthDateMonth:6,
+    birthDateDay:7,
+    email: 8,
+    sportClub: 9,
+    sex: 10,
+    sportStyle: 11,
+    idCoach: 12,
+    isTaullo: 13,
+    isSanda: 14,
+    birthDate:15,
 }
 
 let colRegisterCoachExcel = {
@@ -78,7 +84,11 @@ let colRegisterCoachExcel = {
     email: 5,
     birthDate: 6,
     sportClub: 7,
-    numCell: 8
+    //numCell: 8,
+    facebook: 8,
+    instagram: 9,
+    anotherLink: 10,
+    comment : 11,
 };
 
 let sexEnum = {
@@ -109,7 +119,7 @@ let sportsmanUpdateArrayVal={
     oldId :8,
     sportStyle: 9,
     isTaullo: 10,
-    isSanda: 11
+    isSanda: 11,
 }
 let sportsManMandatoryFields = ["Id", "FirstName", "LastName", "BirthDate", "IdCoach", "Sex", "SportStyle", "SportClub"];
 let sportsManFields = {
@@ -145,7 +155,9 @@ let userError = {
     sportTypeErr: 'נא הכנס ענף תקין, סנדא/טאולו',
     idCoachErr: 'ת.ז מאמן לא תקינה,נא הכנס תעודת זהות תקינה',
     sportClubErr: 'מספר מזהה מועדון לא תקין',
-    birthDateErr: 'תאריך לידה לא תקין '
+    birthDateErr: 'תאריך לידה לא תקין ',
+    linkFacebookErr: 'נא הכנס אתר פייסבוק תקין ',
+    linkInstagramErr: 'נא הכנס אתר אינסטגרם תקין ',
 
 }
 let errorMsg = {

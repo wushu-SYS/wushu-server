@@ -89,7 +89,7 @@ function checkSportStyle(sportStyle) {
 
 function checkIdCoach(idCoach) {
     if (idCoach != null) {
-        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length === 9) || idCoach.toString().length === 8))
+        if (!(validator.isInt(idCoach.toString()) && (idCoach.toString().length == 9 || idCoach.toString().length == 8)))
             return constants.userError.idCoachErr
     } else if (constants.sportsManMandatoryFields.includes("IdCoach"))
         return constants.sportsManFields.idCoachErr
@@ -105,12 +105,30 @@ function checkSportClub(sportClub) {
 }
 
 function checkDate(birthDate) {
+    if(birthDate !=null){
+        if(birthDate=='Invalid Date' || birthDate==undefined){
+            return constants.userError.birthDateErr
+        }
+    }
     if (birthDate == null)
         if (constants.sportsManMandatoryFields.includes("BirthDate"))
             return constants.sportsManFields.birthDateErr
 }
 
-
+function checkLink(link,name){
+    if (link){
+        var i=link.search('/')
+        if(name.localeCompare("facebook")==0){
+            if(link.slice(0, i).localeCompare("www.facebook.com")!=0){
+                return constants.userError.linkFacebookErr
+            }
+        }else if(name.localeCompare("instagram")==0){
+            if(link.slice(0, i).localeCompare("www.instagram.com")!=0){
+                return constants.userError.linkInstagramErr
+            }
+        }
+    }
+}
 /**
  * needed validates for sportsman
  */
@@ -138,7 +156,8 @@ coachVal = {
     phoneVal: checkPhone,
     emailVal: checkEmail,
     sportStyleVal: checkSportStyle,
-    sportClubVal: checkSportClub
+    sportClubVal: checkSportClub,
+    checkLink : checkLink,
 };
 /**
  * needed validates for judge
@@ -148,7 +167,9 @@ judgeVal = {
     firstNameVal: checkFirstName,
     lastNameVal: checkLastName,
     phoneVal: checkPhone,
-    emailVal: checkEmail
+    emailVal: checkEmail,
+    sportClubVal: checkSportClub,
+    checkLink : checkLink,
 };
 
 module.exports = {

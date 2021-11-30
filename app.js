@@ -33,6 +33,7 @@ const competitionSportsmanModule = require('./implementation/modules/competition
 const competitionJudgeModule = require('./implementation/modules/competitionJudgeModule')
 const sportClubModule = require('./implementation/modules/sportClubModule')
 const userCoachModule = require('./implementation/modules/userCoachModule')
+const addressModule=require('./implementation/modules/addressModule')
 const sportsmanCoachModule = require('./implementation/modules/sportsmanCoachModule')
 const sportcenterModule = require('./implementation/modules/sportcenterModule')
 const amutaModule = require('./implementation/modules/amutaModule')
@@ -82,7 +83,7 @@ let statusCode = {
     unauthorized: 401,
     notFound: 404,
     Conflict: 409,
-    initialServerError: 500
+    initialServerError: 500,
 };
 
 
@@ -223,18 +224,56 @@ app.post("/private/commonCoachManager/registerSportsmenExcel", async function (r
         res.status(statusCode.badRequest).send({line: 0, errors: [constants.errorMsg.emptyExcel]});
     else {
         let checkData = userVaildationService.checkExcelDataBeforeRegister(usersToRegister, "sportsman");
+        let line=1;
+        let index=0;
+        var bool=false;
+        let ids=[]
+        for(var user_check_id in usersToRegister){
+            let checkUser= await userService.checkUserExist(usersToRegister[user_check_id][constants.colRegisterSportsmanExcel.idSportsman])
+            ids.forEach(element => {
+                if(element.localeCompare(usersToRegister[user_check_id][constants.colRegisterSportsmanExcel.idSportsman])==0){
+                    checkUser.status=200;
+                }
+            });
+            if(checkUser.status==200){
+                if(checkData.results.length===0)
+                    checkData.results=[]
+                
+                for (let i = 0; i < checkData.results.length; i++) {
+                    element=checkData.results[i];
+                    if (line==element.line){
+                        bool=true;
+                        index=i;
+                    }
+                }
+
+                if(!bool){
+                    checkData.results.push(new Object());
+                    index=checkData.results.length-1
+                    checkData.results[index].errors=[]
+                }
+                checkData.results[index].line=line;
+                checkData.results[index].errors.push("ת.ז ספורטאי כבר רשומה במערכת")
+                checkData.isPassed=false;
+                bool=false;
+            }
+            line++;
+            ids.push(usersToRegister[user_check_id][constants.colRegisterSportsmanExcel.idSportsman]);
+        }
         if (checkData.isPassed) {
             let registerStatus = await registerService.registerSportsman(checkData.users);
             res.status(registerStatus.status).send(registerStatus.results);
         } else
             res.status(statusCode.badRequest).send(checkData.results);
+            
     }
 });
 app.post("/private/commonCoachManager/registerSportsmanManual", async function (req, res) {
     let user = req.body[0];
     let ans = await userVaildationService.checkDataBeforeRegister(user, "sportsman");
     if (ans.isPassed) {
-        ans.users = common_function.getArrayFromJson(ans.users);
+        //ans.users = common_function.getArrayFromJson(ans.users);
+        ans.users = common_function.getArrayUserFromJson(ans.users);
         ans = await registerService.registerSportsman([ans.users]);
         res.status(ans.status).send(ans.results);
     } else
@@ -276,7 +315,7 @@ app.post("/private/manager/registerJudgeManual", async function (req, res) {
         ans = await registerService.registerNewJudge([ans.users]);
         res.status(ans.status).send(ans.results)
     } else
-        res.status(constants.statusCode.badRequest).send(ans.errors)
+        res.status(constants.statusCode.badRequest).send(ans.results)
 });
 app.post("/private/commonCoachManager/regExcelCompetitionSportsmen", async function (req, res) {
     let ans;
@@ -404,7 +443,7 @@ app.get('/downloadExcelFormatJudge/:token', async (req, res) => {
     let clubs;
     if (access === constants.userType.MANAGER) {
         clubs = await sportClubModule.getSportClubs(undefined);
-        let excelFile = await excelCreation.createExcelRegisterNewJudge();
+        let excelFile = await excelCreation.createExcelRegisterNewJudge(clubs.results);
         res.downloadExcel = util.promisify(res.download);
         await res.downloadExcel(excelFile);
         fs.unlink(excelFile, function (err) {
@@ -589,6 +628,10 @@ app.get("/private/commonCoachManager/getSportsmen/count", async function (req, r
 });
 app.post("/private/commonCoachManager/getClubs", async function (req, res) {
     let ans = await sportClubModule.getSportClubs();
+    res.status(ans.status).send(ans.results)
+});
+app.post("/private/commonCoachManager/getAddresses", async function (req, res) {
+    let ans = await addressModule.getAddresses();
     res.status(ans.status).send(ans.results)
 });
 app.get("/private/commonCoachManager/getClubs/:clubId", async function (req, res) {

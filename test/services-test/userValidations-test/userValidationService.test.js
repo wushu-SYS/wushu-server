@@ -13,7 +13,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19", 
             "email": "dror@gmail.com",
             "sportClub": 7,
             "sex": "זכר",
@@ -23,6 +23,9 @@ describe('user validations service ', function () {
         let res = dataCheck.checkDataBeforeRegister(user,constants.userType.sportsman)
         assert.equal(res.isPassed,true)
         assert.equal(res.results.length,0)
+        user.birthDateYear='1995';
+        user.birthDateMonth='1';
+        user.birthDateDay='19';
         assert.deepEqual(res.users ,user)
 
         user.id ="333"
@@ -36,7 +39,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
             "sex": "hhhh",
@@ -57,7 +60,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": null,
             "sportClub": 7,
             "sex": "זכר",
@@ -65,10 +68,8 @@ describe('user validations service ', function () {
             "idCoach": 305077915
         }
         res = dataCheck.checkDataBeforeRegister(user,constants.userType.sportsman)
-        assert.equal(res.isPassed,false)
-        assert.equal(res.results.length,1)
-        assert.equal(res.results[0].errors.length,1)
-        assert.equal(res.results[0].errors[0],constants.sportsManFields.emailErr)
+        assert.equal(res.isPassed,true)
+        assert.equal(res.results.length,0)
 
     });
     it('should validate sportsman data before update', function () {
@@ -78,7 +79,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
             "sex": "זכר",
@@ -94,7 +95,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
             "sex": "זכר",
@@ -111,7 +112,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528ree272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
             "sex": "זכר",
@@ -130,7 +131,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
         }
@@ -145,7 +146,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
         }
@@ -163,7 +164,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
         }
@@ -176,7 +177,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "0528272772",
             "address": "כגדכ",
-            "birthDate": "01/19/1995",
+            "birthDate": "1995/1/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
         }
@@ -190,7 +191,7 @@ describe('user validations service ', function () {
             "lastName": "ניזכ",
             "phone": "052fds8272772",
             "address": "כגדכ",
-            "birthDate": "01fds/19/1995",
+            "birthDate": "1995/01fds/19",
             "email": "dror@gmail.com",
             "sportClub": 7,
         }

@@ -29,6 +29,7 @@ function combineData(data, profile) {
         email: data.email ? data.email : profile.email,
         birthDate: data.birthDate ? data.birthDate : (new Date(profile.birthdate)).toLocaleDateString(),
         address: data.address ? data.address : profile.address,
+        comment: data.comment ? data.comment : profile.comment,
         oldId: data.oldId ? data.oldId : profile.id
     }
     return user

@@ -1,25 +1,43 @@
 const constants = require('../../constants')
 const {dbConnection} = require("../../dbUtils");
+const bcrypt = require('bcryptjs');
 
 async function insertNewJudgeDB(trans, judges, judge, number) {
     return trans.query({
-        sql: ` INSERT INTO user_Judge (id, firstname, lastname, phone, email,photo)
-                                    VALUES (:idSportsman, :firstName, :lastName, :phone, :email ,:photo)`,
+        sql: ` INSERT INTO user_Judge (id, firstname, lastname, phone, email,sportclub,photo,comment)
+                                    VALUES (:idSportsman, :firstName, :lastName, :phone, :email,:sportClub ,:photo,:comment)`,
         params: {
             idSportsman: judge[constants.colRegisterJudgeExcel.id],
             firstName: judge[constants.colRegisterJudgeExcel.firstName],
             lastName: judge[constants.colRegisterJudgeExcel.lastName],
             phone: judge[constants.colRegisterJudgeExcel.phone],
             email: judge[constants.colRegisterJudgeExcel.email],
+            sportClub: judge[constants.colRegisterJudgeExcel.sportClub],
+            comment: judge[constants.colRegisterJudgeExcel.comment],
             photo: constants.defaultProfilePic
 
         }
     }).then(async function () {
         if (number + 1 < judges.length)
-            await insertNewJudgeDB(trans, judges, judge[number + 1], number + 1)
+            await insertNewJudgeDB(trans, judges, judges[number + 1], number + 1)
     })
 }
+async function insertLinks(trans, judges, judge, i) {
+    return trans.query({
+        sql: ` INSERT INTO links (id, facebook, instagram, anotherLink)
+                                    VALUES (:id, :facebook, :instagram, :anotherLink)`,
+        params: {
+            id: judge[constants.colRegisterJudgeExcel.id],
+            facebook : judge[constants.colRegisterJudgeExcel.facebook],
+            instagram : judge[constants.colRegisterJudgeExcel.instagram],
+            anotherLink : judge[constants.colRegisterJudgeExcel.anotherLink],
+        }
+    }).then(async function () {
+        if (i + 1 < judges.length)
+            await insertLinks(trans, judges, judge[i + 1], i + 1)
+    })
 
+}
 /**
  * handle registration of coach as a judge in the system
  * :param judges
@@ -29,8 +47,8 @@ async function registerCoachAsJudge(judges) {
     let ans = new Object();
     const trans = await dbConnection.getTransactionDb()
     await trans.query({
-        sql: `Insert into user_Judge (id,firstname,lastname,phone,photo,email)
-                        SELECT id, firstname, lastname, phone,photo,email
+        sql: `Insert into user_Judge (id,firstname,lastname,phone,photo,email,sportclub,comment)
+                        SELECT id, firstname, lastname, phone,photo,email,sportclub,comment
                         from user_Coach
                         where id in (${judges})`
     }).then(async function () {
@@ -65,7 +83,10 @@ async function getJudges() {
 async function getJudgeProfileById(id) {
     let ans = new Object();
     await dbConnection.query({
-        sql: `Select user_Judge.*, criminalRecord from user_Judge left join judge_files on user_Judge.id = judge_files.id where user_Judge.id = :idJudge`,
+        //sql: `Select user_Judge.*, criminalRecord from user_Judge left join judge_files on user_Judge.id = judge_files.id where user_Judge.id = :idJudge`,
+        sql: `Select user_Judge.*, criminalRecord,facebook,instagram,anotherLink from user_Judge
+                left join judge_files on user_Judge.id = judge_files.id 
+                left join links on user_Judge.id=links.id where user_Judge.id = :idJudge`,
         params: {
             idJudge: id
         }
@@ -95,6 +116,13 @@ async function deleteJudge(judgeId) {
             sql: `DELETE FROM user_Judge WHERE id = :judgeId;`,
             params: {judgeId: judgeId}
         })
+    }).then(async function(){
+        await trans.query({
+            sql : `DELETE FROM links WHERE id = :judgeId;`,
+            params:{
+                judgeId : judgeId
+            }
+        })
     }).then(async function () {
         //TODO: delete judge directory on drive - job name deleteSportsmanFilesFromGoogleDrive
         ans.status = constants.statusCode.ok;
@@ -118,7 +146,8 @@ async function updateJudgeProfile(user) {
                                                             firstname = ifnull(:firstName, firstname),
                                                             lastname  = ifnull(:lastName, lastname),
                                                             phone     = ifnull(:phone, phone),
-                                                            email     = ifnull(:email, email)
+                                                            email     = ifnull(:email, email),
+                                                            comment   = ifnull(:comment,comment)
                                                                where id = :oldId;`,
         params: {
             id: user[0],
@@ -126,11 +155,12 @@ async function updateJudgeProfile(user) {
             lastName: user[2],
             phone: user[3],
             email: user[4],
-            oldId: user[5],
+            comment: user[5],
+            oldId: user[6],
         }
     }).then(async function () {
         let newId = user[0];
-        let oldId = user[5];
+        let oldId = user[6];
         if (newId != oldId) {
             await trans.query({
                 sql: `UPDATE user_Passwords SET id = :id WHERE id = :oldId;`,
@@ -174,3 +204,4 @@ module.exports.getJudgeProfileById = getJudgeProfileById
 module.exports.deleteJudge = deleteJudge
 module.exports.updateJudgeProfile = updateJudgeProfile
 module.exports.getJudgesForReminder = getJudgesForReminder
+module.exports.insertLinks = insertLinks

@@ -82,6 +82,8 @@ function buildOrderBy_forGetSportsmen_forRowNumber(queryData) {
 
 function buildConditions_forGetSportsmen(queryData, id) {
     let club = queryData.club;
+    let amuta = queryData.amuta;
+    let address=queryData.address;
     let sex = queryData.sex;
     let sportStyle = queryData.sportStyle;
     let compId = queryData.competition;
@@ -103,6 +105,12 @@ function buildConditions_forGetSportsmen(queryData, id) {
     }
     if (club !== '' && club !== undefined) {
         conditions.push("sportclub like :club");
+    }
+    if (amuta !== '' && amuta !== undefined) {
+        conditions.push("amutaId like :amuta");
+    }
+    if (address !== '' && address !== undefined) {
+        conditions.push("sportclub.address like :address");
     }
     if (sex !== '' && sex !== undefined) {
         conditions.push("sex like :sex");
@@ -246,6 +254,8 @@ async function getSportsmen_Manager(queryData) {
             isTaullo: queryData.isTaullo,
             isSanda: queryData.isSanda,
             club: queryData.club,
+            amuta:queryData.amuta,
+            address:queryData.address,
             sex: queryData.sex,
             compId: queryData.competition,
             startIndex: queryData.startIndex-1,
@@ -291,7 +301,18 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
             on user_Sportsman.id = sportsman_sportStyle.id`;
         query.queryCount = `select count(*) as count from user_Sportsman join sportsman_sportStyle
             on user_Sportsman.id = sportsman_sportStyle.id`;
-    } else if (queryData.competition !== undefined) {
+    }else if(queryData.amuta!=undefined){
+        query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportclub
+            on user_Sportsman.sportclub = sportclub.id`;
+        query.queryCount = `select count(*) as count from user_Sportsman join sportclub
+            on user_Sportsman.sportclub = sportclub.id`;
+    }else if(queryData.address!=undefined){
+        query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportclub
+            on user_Sportsman.sportclub = sportclub.id`;
+        query.queryCount = `select count(*) as count from user_Sportsman join sportclub
+            on user_Sportsman.sportclub = sportclub.id`;
+    }
+    else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
             query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                             from (
@@ -383,6 +404,8 @@ async function getSportsmenCount_Manager(queryData) {
             isTaullo: queryData.isTaullo,
             isSanda: queryData.isSanda,
             club: queryData.club,
+            amuta:queryData.amuta,
+            address:queryData.address,
             sex: queryData.sex,
             compId: queryData.competition,
 

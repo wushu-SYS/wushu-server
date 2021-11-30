@@ -57,13 +57,19 @@ function sportsmanManualValidations(user, isUpdate) {
  * @param user - to validate
  * @return list of errors, return empty list if all fields are valid
  */
-function judgeManualValidation(user) {
+function judgeManualValidation(user,isUpdate) {
     let errList = [];
     pushErrorsToList(errList, userValidation.judge.idVal(user.id));
     pushErrorsToList(errList, userValidation.judge.firstNameVal(user.firstName));
     pushErrorsToList(errList, userValidation.judge.lastNameVal(user.lastName));
     pushErrorsToList(errList, userValidation.judge.emailVal(user.email, constants.userType.judge));
     pushErrorsToList(errList, userValidation.judge.phoneVal(user.phone, constants.userType.judge));
+    pushErrorsToList(errList,userValidation.judge.checkLink(user.facebook,'facebook'));
+    pushErrorsToList(errList,userValidation.judge.checkLink(user.instagram,'instagram'));
+    //pushErrorsToList(errList,userValidation.coach.checkLink(user.anotherLink,'anotherLink'));
+    if (!isUpdate) {
+        pushErrorsToList(errList, userValidation.judge.sportClubVal(user.sportClub));
+    }
     return errList
 
 }
@@ -82,6 +88,9 @@ function coachManualValidation(user, isUpdate) {
     pushErrorsToList(errList, userValidation.coach.emailVal(user.email, constants.userType.coach));
     pushErrorsToList(errList, userValidation.coach.phoneVal(user.phone, constants.userType.coach));
     pushErrorsToList(errList, userValidation.coach.addressVal(user.address, constants.userType.coach));
+    pushErrorsToList(errList,userValidation.coach.checkLink(user.facebook,'facebook'));
+    pushErrorsToList(errList,userValidation.coach.checkLink(user.instagram,'instagram'));
+    //pushErrorsToList(errList,userValidation.coach.checkLink(user.anotherLink,'anotherLink'));
 
     if (!isUpdate) {
         pushErrorsToList(errList, userValidation.coach.sportClubVal(user.sportClub));
@@ -119,7 +128,8 @@ function judgeExcelValidation(user) {
     pushErrorsToList(errList, userValidation.judge.firstNameVal(user[constants.colRegisterJudgeExcel.firstName]));
     pushErrorsToList(errList, userValidation.judge.lastNameVal(user[constants.colRegisterJudgeExcel.lastName]));
     pushErrorsToList(errList, userValidation.judge.emailVal(user[constants.colRegisterJudgeExcel.email]));
-    pushErrorsToList(errList, userValidation.coach.phoneVal(user[constants.colRegisterJudgeExcel.phone]));
+    pushErrorsToList(errList, userValidation.judge.sportClubVal(user[constants.colRegisterJudgeExcel.sportClub]));
+    pushErrorsToList(errList, userValidation.judge.phoneVal(user[constants.colRegisterJudgeExcel.phone]));
 
     return errList
 }
@@ -134,7 +144,7 @@ function checkExcelDataBeforeRegister(users, userType) {
     let errorUsers = [];
     let res = {};
     res.isPassed = true;
-    let line = 1;
+    let line = 0;
     users.forEach(function (user) {
         let userError = new Object();
         line++;
@@ -144,13 +154,16 @@ function checkExcelDataBeforeRegister(users, userType) {
                 user[constants.colRegisterSportsmanExcel.idCoach] = getCoachId(user[constants.colRegisterSportsmanExcel.idCoach]);
                 user.push(common_func.setIsTaullo(user[constants.colRegisterSportsmanExcel.sportStyle]));
                 user.push(common_func.setIsSanda(user[constants.colRegisterSportsmanExcel.sportStyle]));
+                user[constants.colRegisterSportsmanExcel.birthDate] = common_func.setMysqlDateFormat(user[constants.colRegisterSportsmanExcel.birthDateYear]+"/"+user[constants.colRegisterSportsmanExcel.birthDateMonth]+"/"+user[constants.colRegisterSportsmanExcel.birthDateDay]);
                 userError.errors = sportsManExcelValidations(user);
                 break;
             case "coach":
                 user[constants.colRegisterCoachExcel.sportClub] = getClubId(user[constants.colRegisterCoachExcel.sportClub]);
+                user[constants.colRegisterCoachExcel.birthDate] = common_func.setMysqlDateFormatCoach(user[constants.colRegisterCoachExcel.birthDate]);
                 userError.errors = coachExcelValidation(user);
                 break;
             case 'judge':
+                user[constants.colRegisterJudgeExcel.sportClub] = getClubId(user[constants.colRegisterJudgeExcel.sportClub]);
                 userError.errors = judgeExcelValidation(user);
 
 
@@ -204,6 +217,19 @@ function checkDataBeforeRegister(user, userType) {
         res.isPassed = false;
     }
     res.results = errorUsers;
+    if(userType=="sportsman"){
+        var size = 0,
+        key;
+        for (key in user) {
+            size++;
+        }
+        if(size==13){
+            let date_split=user.birthDate.split('-')
+            user.birthDateYear=date_split[0];
+            user.birthDateMonth=date_split[1];
+            user.birthDateDay=date_split[2];
+        }
+    }
     res.users = user;
 
     return res;
@@ -238,7 +264,7 @@ function validateUserDetails(user, userType) {
             userError = coachManualValidation(user, true);
             break;
         case "judge":
-            userError = judgeManualValidation(user);
+            userError = judgeManualValidation(user,true);
             break;
 
     }
