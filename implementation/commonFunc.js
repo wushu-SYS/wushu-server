@@ -143,6 +143,8 @@ function sortUsers(users) {
                 name: currUser.categoryName,
                 minAge: currUser.minAge,
                 maxAge: currUser.maxAge,
+                address:currUser.address,
+                birthdate:currUser.birthdate,
                 sex: currUser.categorySex
             };
         });
