@@ -179,12 +179,12 @@ async function updateCoachProfile(coachDetails) {
             birthDate: coachDetails[5],
             address: coachDetails[6],
             comment: coachDetails[7],
-            oldId: coachDetails[8],
+            oldId: coachDetails[11],
 
         }
     }).then(async function () {
         let newId = coachDetails[0];
-        let oldId = coachDetails[8];
+        let oldId = coachDetails[11];
         if (newId != oldId) {
             await trans.query({
                 sql: `UPDATE user_Passwords SET id = :id WHERE id = :oldId;`,
@@ -194,6 +194,21 @@ async function updateCoachProfile(coachDetails) {
                 }
             })
         }
+    }).then(async function () {
+        await trans.query({
+            sql: `UPDATE links SET id = ifnull(:id, id),
+                                    facebook = ifnull(:facebook,facebook),
+                                    instagram = ifnull(:instagram,instagram),
+                                    anotherLink = ifnull(:anotherLink,anotherLink)
+                                    WHERE id = :oldId;`,
+            params: {
+                id: coachDetails[0],
+                facebook: coachDetails[8],
+                instagram: coachDetails[9],
+                anotherLink: coachDetails[10],
+                oldId: coachDetails[11],
+            }
+        })
     }).then(function () {
         //sendUpdateEmail(coachDetails)
         ans.status = constants.statusCode.ok;

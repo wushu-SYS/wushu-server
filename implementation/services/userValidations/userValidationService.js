@@ -206,6 +206,7 @@ function checkDataBeforeRegister(user, userType) {
             break;
         case "judge":
             userError = new Object();
+            user.international = common_func.setInternational(user.internationalStyle)
             userError.errors = judgeManualValidation(user, false);
             break;
     }
@@ -270,6 +271,7 @@ function validateUserDetails(user, userType) {
     }
     let ans = new Object();
     ans.canUpdate = (userError.length == 0);
+    ans.error=userError
     ans.data = user;
     return ans
 }

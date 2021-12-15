@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 
 async function insertNewJudgeDB(trans, judges, judge, number) {
     return trans.query({
-        sql: ` INSERT INTO user_Judge (id, firstname, lastname, phone, email,sportclub,photo,comment)
-                                    VALUES (:idSportsman, :firstName, :lastName, :phone, :email,:sportClub ,:photo,:comment)`,
+        sql: ` INSERT INTO user_Judge (id, firstname, lastname, phone, email,sportclub,photo,comment,international)
+                                    VALUES (:idSportsman, :firstName, :lastName, :phone, :email,:sportClub ,:photo,:comment,:international)`,
         params: {
             idSportsman: judge[constants.colRegisterJudgeExcel.id],
             firstName: judge[constants.colRegisterJudgeExcel.firstName],
@@ -14,6 +14,7 @@ async function insertNewJudgeDB(trans, judges, judge, number) {
             email: judge[constants.colRegisterJudgeExcel.email],
             sportClub: judge[constants.colRegisterJudgeExcel.sportClub],
             comment: judge[constants.colRegisterJudgeExcel.comment],
+            international:judge[constants.colRegisterJudgeExcel.international],
             photo: constants.defaultProfilePic
 
         }
@@ -156,11 +157,11 @@ async function updateJudgeProfile(user) {
             phone: user[3],
             email: user[4],
             comment: user[5],
-            oldId: user[6],
+            oldId: user[9],
         }
     }).then(async function () {
         let newId = user[0];
-        let oldId = user[6];
+        let oldId = user[9];
         if (newId != oldId) {
             await trans.query({
                 sql: `UPDATE user_Passwords SET id = :id WHERE id = :oldId;`,
@@ -170,6 +171,21 @@ async function updateJudgeProfile(user) {
                 }
             })
         }
+    }).then(async function () {
+        await trans.query({
+            sql: `UPDATE links SET id = ifnull(:id, id),
+                                    facebook = ifnull(:facebook,facebook),
+                                    instagram = ifnull(:instagram,instagram),
+                                    anotherLink = ifnull(:anotherLink,anotherLink)
+                                    WHERE id = :oldId;`,
+            params: {
+                id: user[0],
+                facebook: user[6],
+                instagram: user[7],
+                anotherLink: user[8],
+                oldId: user[9],
+            }
+        })
     }).then(function () {
         //sendJudgeUpdateEmail(user)
         ans.status = constants.statusCode.ok;

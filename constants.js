@@ -55,6 +55,7 @@ let colRegisterJudgeExcel = {
     instagram: 7,
     anotherLink: 8,
     comment: 9,
+    international: 11
 }
 let colRegisterSportsmanExcel = {
     idSportsman: 0,
@@ -230,7 +231,10 @@ let sportStyle={
     sanda: 'סנדא',
     both : 'משולב'
 }
-
+let internationalStyle={
+    international :'בינלאומי',
+    national: 'לאומי',
+}
 let numFieldsTaulloExcelUploadGrade = 5 //include avg grade without num of judge
 let excelCompUploadGradeErrMsg ={
     fieldsMissing : 'אנא מלא את כל התאים , ציון של כל שופט לכל ספורטאי וציון ממוצע',
@@ -273,6 +277,7 @@ module.exports = {
     googleDrivePath:googleDrivePath,
     googleDriveRootFoldersName :googleDriveRootFoldersName,
     sportStyle: sportStyle,
+    internationalStyle: internationalStyle,
     sportsmanUpdateArrayVal:sportsmanUpdateArrayVal,
     numFieldsTaulloExcelUploadGrade:numFieldsTaulloExcelUploadGrade,
     excelCompUploadGradeErrMsg:excelCompUploadGradeErrMsg,

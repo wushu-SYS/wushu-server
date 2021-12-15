@@ -12,9 +12,11 @@ async function updateProfile(data, access, id, profile) {
             ans = await userJudgeModule.updateJudgeProfile(common_func.getArrayFromJson(ans.data));
             return ans
         }
+        error=ans.error
         ans = []
         ans[0] = new Object()
         ans[0].status = constants.statusCode.badRequest
+        ans[0].errors = error
         return ans
     }
 }
@@ -27,7 +29,10 @@ function combineData(data, profile) {
         lastName: data.lastName ? data.lastName : profile.lastname,
         phone: data.phone ? data.phone : profile.phone,
         email: data.email ? data.email : profile.email,
-        comment: data.comment ? data.comment : profile.comment,
+        comment: data.comment,
+        facebook: data.facebook,
+        instagram: data.instagram,
+        anotherLink: data.anotherLink,
         oldId: data.oldId ? data.oldId : profile.id
     }
     return user

@@ -97,7 +97,14 @@ function setIsTaullo(sportStyle) {
             return 1;
     }
 }
-
+function setInternational(internationalStyle){
+    switch (internationalStyle) {
+        case constants.internationalStyle.national :
+            return 0;
+        case constants.internationalStyle.international :
+            return 1;
+    }
+}
 function setIsSanda(sportStyle) {
     switch (sportStyle) {
         case constants.sportStyle.taullo :
@@ -195,6 +202,7 @@ module.exports.getArrayUserFromJson=getArrayUserFromJson;
 //module.exports.sendEmail = sendMail;
 module.exports.getAgeRange = getAgeRange;
 module.exports.setIsTaullo = setIsTaullo;
+module.exports.setInternational = setInternational; 
 module.exports.setIsSanda = setIsSanda;
 module.exports.convertToSportStyle = convertToSportStyle;
 module.exports.sortUsers = sortUsers;

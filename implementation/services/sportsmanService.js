@@ -353,7 +353,7 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
                     where idCompetition = :compId) as t`;
         }
     } else {
-        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub from user_Sportsman';
+        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub,user_sportsman.address,contactname,sportclub.name from user_Sportsman join sportclub on sportclub.id = user_Sportsman.sportclub';
         query.queryCount = 'Select count(*) as count from user_Sportsman';
     }
     return query;
@@ -467,9 +467,11 @@ async function updateProfile(data, access, id, profile) {
             return ans
         }
     }
+    error=ans.error
     ans = []
     ans[0] = new Object()
     ans[0].status = constants.statusCode.badRequest
+    ans[0].errors = error
     return ans
 }
 

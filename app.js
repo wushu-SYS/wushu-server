@@ -841,30 +841,35 @@ app.post("/private/allUser/updateProfile", async function (req, res) {
     let userTypes = await userTypesModule.getUserTypes(data.id)
     let sportsmanUpdate, coachUpdate, judgeUpdate;
     let canUpdate = true
+    let error = null
     if (userTypes.status == constants.statusCode.ok) {
         if (userTypes.results.find(type => type.usertype == constants.userType.SPORTSMAN)) {
             let sportsmanProfile = await userSportsmanModule.sportsmanProfile(data.id);
             sportsmanUpdate = await sportsmanService.updateProfile(data, access, id, sportsmanProfile.results)
             if (sportsmanUpdate[0].status != constants.statusCode.ok)
                 canUpdate = false;
+                error = sportsmanUpdate[0].errors
         }
         if (userTypes.results.find(type => type.usertype == constants.userType.COACH)) {
             let coachProfile = await userCoachModule.getCoachProfileById(data.id);
             coachUpdate = await coachService.updateProfile(data, access, id, coachProfile.results)
             if (coachUpdate[0].status != constants.statusCode.ok)
                 canUpdate = false;
+                error = coachUpdate[0].errors
         }
         if (userTypes.results.find(type => type.usertype == constants.userType.JUDGE)) {
             let judgeProfile = await userJudgeModule.getJudgeProfileById(data.id);
             judgeUpdate = await judgeService.updateProfile(data, access, id, judgeProfile.results)
             if (judgeUpdate[0].status != constants.statusCode.ok)
                 canUpdate = false;
+                error = judgeUpdate[0].errors
         }
         common_function.updateTrans(canUpdate, sportsmanUpdate, coachUpdate, judgeUpdate)
         if (canUpdate) {
             res.status(constants.statusCode.ok).send(constants.msg.updateUserDetails)
         } else {
-            res.status(constants.statusCode.badRequest).send(constants.errorMsg.accessDenied)
+            //res.status(constants.statusCode.badRequest).send(constants.errorMsg.accessDenied)
+            res.status(constants.statusCode.badRequest).send(error)
         }
     } else {
         res.status(constants.statusCode.badRequest).send(constants.errorMsg.accessDenied)

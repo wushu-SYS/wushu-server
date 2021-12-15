@@ -13,9 +13,11 @@ async function updateProfile(data, access, id, profile) {
             ans = await userCoachModule.updateCoachProfile(common_func.getArrayFromJson(ans.data));
             return ans
         }
+        error=ans.error
         ans = []
         ans[0] = new Object()
         ans[0].status = constants.statusCode.badRequest
+        ans[0].errors = error
         return ans
     }
 }
@@ -29,7 +31,10 @@ function combineData(data, profile) {
         email: data.email ? data.email : profile.email,
         birthDate: data.birthDate ? data.birthDate : (new Date(profile.birthdate)).toLocaleDateString(),
         address: data.address ? data.address : profile.address,
-        comment: data.comment ? data.comment : profile.comment,
+        comment: data.comment,
+        facebook: data.facebook,
+        instagram: data.instagram,
+        anotherLink: data.anotherLink ,
         oldId: data.oldId ? data.oldId : profile.id
     }
     return user
