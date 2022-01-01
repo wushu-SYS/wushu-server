@@ -58,6 +58,8 @@ async function getClubParticipateSportsmanCompetitions(clubId) {
                         (select (select count(compCount) as sportsmanComp from(
                        SELECT COUNT(*) as compCount
                        FROM competition_sportsman
+                        join user_sportsman
+                        on user_sportsman.sportclub = :sportClubId
                         join events_competition
                         on competition_sportsman.idCompetition = events_competition.idCompetition
                         join events

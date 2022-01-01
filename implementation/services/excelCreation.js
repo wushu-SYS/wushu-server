@@ -545,6 +545,10 @@ async function createCoachExcel(coaches) {
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('עיר').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('שם מועדון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('הערות').style(style).style(({font: {bold: true}}));
+
     worksheet.row(1).freeze();
 
     enableStartingfromZero(worksheet,1)
@@ -556,6 +560,13 @@ async function createCoachExcel(coaches) {
         worksheet.cell(row, 3).string(coaches[i].lastname).style(style);
         worksheet.cell(row, 4).string(coaches[i].phone).style(style);
         worksheet.cell(row, 5).string(coaches[i].email).style(style);
+        worksheet.cell(row, 6).string(coaches[i].address).style(style);
+        worksheet.cell(row, 7).string(coaches[i].sportclubName).style(style);
+        if (coaches[i].comment!=null){
+            worksheet.cell(row, 8).string(coaches[i].comment).style(style);
+        }else{
+            worksheet.cell(row, 8).string('').style(style);
+        }
         row++;
     }
 
@@ -571,6 +582,7 @@ async function createJudgeExcel(judges) {
     worksheet.cell(1, 3).string('שם משפחה').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 4).string('טלפון').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('אימייל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 6).string('הערות').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
     enableStartingfromZero(worksheet,1)
     enableStartingfromZero(worksheet,4)
@@ -582,6 +594,11 @@ async function createJudgeExcel(judges) {
         worksheet.cell(row, 3).string(judges[i].lastname).style(style);
         worksheet.cell(row, 4).string(judges[i].phone).style(style);
         worksheet.cell(row, 5).string(judges[i].email).style(style);
+        if (judges[i].comment!=null){
+            worksheet.cell(row, 6).string(judges[i].comment).style(style);
+        }else{
+            worksheet.cell(row, 6).string('').style(style);
+        }
         row++;
     }
 

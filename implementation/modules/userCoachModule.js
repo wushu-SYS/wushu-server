@@ -64,7 +64,8 @@ async function getClubCoaches(clubId) {
 async function getCoaches() {
     let ans = new Object();
     await dbConnection.query({
-        sql: `Select * from user_Coach`
+        sql: `Select user_Coach.*,sportclub.name as sportclubName
+         from user_Coach join sportclub on user_Coach.sportclub = sportclub.id`
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
         ans.results = results.results
