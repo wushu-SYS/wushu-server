@@ -353,7 +353,7 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
                     where idCompetition = :compId) as t`;
         }
     } else {
-        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub,user_sportsman.address,contactname,sportclub.name from user_Sportsman join sportclub on sportclub.id = user_Sportsman.sportclub';
+        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub,user_sportsman.address,contactname,sportclub.name as sportclubName,sportclub.address as sportclubAddress,sportsman_coach.idCoach ,sportclub.amutaId,amuta.name as amutaName,taullo,sanda from user_Sportsman join sportsman_sportstyle on sportsman_sportstyle.id = user_Sportsman.id join sportclub on sportclub.id = user_Sportsman.sportclub join sportsman_coach on sportsman_coach.idSportman = user_Sportsman.id join amuta on amuta.id = sportclub.amutaId';
         query.queryCount = 'Select count(*) as count from user_Sportsman';
     }
     return query;

@@ -492,6 +492,15 @@ async function createSportsmenExcel(sportsmen) {
     worksheet.cell(1, 4).string('מספר תחרויות').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 5).string('מין').style(style).style(({font: {bold: true}}));
     worksheet.cell(1, 6).string('גיל').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 7).string('כתובת').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 8).string('ענף').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 9).string('שם מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 10).string('ת.ז מאמן').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 11).string('שם מועדון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 12).string('שם עמותה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 13).string('מספר עמותה').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 14).string('עיר מעודון').style(style).style(({font: {bold: true}}));
+    worksheet.cell(1, 15).string('תוקף בדיקות רפואית').style(style).style(({font: {bold: true}}));
     worksheet.row(1).freeze();
 
     enableStartingfromZero(worksheet,1)
@@ -502,7 +511,25 @@ async function createSportsmenExcel(sportsmen) {
         worksheet.cell(row, 3).string(sportsmen[i].lastname).style(style);
         worksheet.cell(row, 4).number(sportsmen[i].competitionCount).style(style);
         worksheet.cell(row, 5).string(sportsmen[i].sex).style(style);
-        worksheet.cell(row, 6).number(sportsmen[i].age).style(style);
+        if (sportsmen[i].age==null){
+            worksheet.cell(row, 6).number(0).style(style);
+        }else{
+            worksheet.cell(row, 6).number(sportsmen[i].age).style(style);
+        }
+        worksheet.cell(row, 7).string(sportsmen[i].address).style(style);
+        if (sportsmen[i].sanda == "1" && sportsmen[i].taullo == "1"){
+            worksheet.cell(row, 8).string("משולב").style(style);
+        }else if(sportsmen[i].sanda == "1"){
+            worksheet.cell(row, 8).string("סנדא").style(style);
+        }else{
+            worksheet.cell(row, 8).string("טלאו").style(style);
+        }
+        worksheet.cell(row, 9).string(sportsmen[i].contactname).style(style);
+        worksheet.cell(row, 10).string(common_func.completeIdUser(sportsmen[i].idCoach)).style(style);
+        worksheet.cell(row, 11).string(sportsmen[i].sportclubName).style(style);
+        worksheet.cell(row, 12).string(sportsmen[i].amutaName).style(style);
+        worksheet.cell(row, 13).number(sportsmen[i].amutaId).style(style);
+        worksheet.cell(row, 14).string(sportsmen[i].sportclubAddress).style(style);
         row++;
     }
 
