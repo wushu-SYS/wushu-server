@@ -27,6 +27,7 @@ let constRegex = {
 };
 
 let defaultProfilePic = 'https://drive.google.com/uc?id=1N6w5EY8m6haL0ijtHW7Sgbu8W96S0GYW'
+//let defaultClubProfilePic = ""
 let excelCompetitionEroorMsg = {
     sameCategory: 'קטגוריות זהות',
     ageFail: 'הספורטאי לא בטווח הגילאים של הקטגוריה',
@@ -231,6 +232,10 @@ let sportStyle={
     sanda: 'סנדא',
     both : 'משולב'
 }
+let statusEnum={
+    active :'פעיל',
+    notActive: 'לא פעיל',
+}
 let internationalStyle={
     international :'בינלאומי',
     national: 'לאומי',
@@ -270,6 +275,7 @@ module.exports = {
     sportsManFields: sportsManFields,
     excelCompetitionEroorMsg: excelCompetitionEroorMsg,
     defaultProfilePic: defaultProfilePic,
+    //defaultClubProfilePic: defaultClubProfilePic,
     colRegisterCoachExcel: colRegisterCoachExcel,
     colRegisterJudgeExcel: colRegisterJudgeExcel,
     databaseUserTableName:databaseUserTableName,
@@ -277,6 +283,7 @@ module.exports = {
     googleDrivePath:googleDrivePath,
     googleDriveRootFoldersName :googleDriveRootFoldersName,
     sportStyle: sportStyle,
+    statusEnum:statusEnum,
     internationalStyle: internationalStyle,
     sportsmanUpdateArrayVal:sportsmanUpdateArrayVal,
     numFieldsTaulloExcelUploadGrade:numFieldsTaulloExcelUploadGrade,

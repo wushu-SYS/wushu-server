@@ -1,5 +1,6 @@
 const constants = require('../../constants')
 const dbConnection = require('../../dbUtils').dbConnection
+const common_func = require('../commonFunc')
 
 async function getSportClubs(idCoach) {
     let ans = new Object();
@@ -30,6 +31,7 @@ async function getClubDetails(clubId) {
             ' where sportclub.id = :id',
         params: {id: clubId}
     }).then(async function (results) {
+        results.results[0].status = common_func.setStatus(results.results[0].status);
         await dbConnection.query({
             sql: 'select id, firstname, lastname from user_Coach where sportclub = :id',
             params: {id: clubId}
@@ -62,8 +64,8 @@ async function getClubDetails(clubId) {
 async function addSportClub(data) {
     let ans = new Object();
     await dbConnection.query({
-        sql: `insert into sportclub (name, phone, address, contactname, amutaId, agudaId, ergonId,contactcoach, phonecoach, facebook, instagram, website, moredata)
-                        values (:name, :phone, :address, :contactname, :amutaId, :agudaId, :ergonId ,:contactcoach, :phonecoach, :facebook, :instagram, :website, :moredata);`,
+        sql: `insert into sportclub (name, phone, address, contactname, amutaId, agudaId, ergonId,contactcoach, phonecoach, facebook, instagram, website, moredata,status)
+                        values (:name, :phone, :address, :contactname, :amutaId, :agudaId, :ergonId ,:contactcoach, :phonecoach, :facebook, :instagram, :website, :moredata,:status);`,
         params: {
             name: data.clubName,
             phone: data.phone,
@@ -77,7 +79,9 @@ async function addSportClub(data) {
             facebook: data.facebook,
             instagram: data.instagram,
             website: data.website,
-            moredata: data.moredata
+            moredata: data.moredata,
+            status:data.status
+            //photo: constants.defaultClubProfilePic
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
@@ -94,7 +98,7 @@ async function updateSportClubDetails(sportClubDetails) {
     let ans = new Object();
     await dbConnection.query({
         sql: `update sportclub set name=:name,address =:address,contactname =:contactname ,phone=:phone ,amutaId= :amutaId ,agudaId =:agudaId
-                    ,ergonId=:ergonId where id = :id `,
+                    ,ergonId=:ergonId,status=:status where id = :id `,
         params: {
             name: sportClubDetails.name,
             phone: sportClubDetails.phone,
@@ -103,6 +107,7 @@ async function updateSportClubDetails(sportClubDetails) {
             amutaId: sportClubDetails.amutaId ? sportClubDetails.amutaId : 999999999,
             agudaId: sportClubDetails.agudaId,
             ergonId: sportClubDetails.ergonId,
+            status: sportClubDetails.status,
             id: sportClubDetails.id
         }
     }).then(function (results) {
