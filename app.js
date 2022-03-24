@@ -909,6 +909,34 @@ app.post("/private/uploadUserProfileImage/:id/:userType", async function (req, r
     });
 
 });
+/*
+app.post("/private/uploadClubProfileImage/:id", async function (req, res) {
+    //TODO : try to send to picture directly from the client
+    // TODO : try to limit the size of the pic +send correct status of the upload
+    let form = new formidable.IncomingForm();
+    form.parse(req, async function (err, fields, files) {
+        let id = req.params.id;
+        let picName = id + '_pic.jpeg';
+        //let userType = "club";
+        let old_path = files.file.path;
+        let new_path = __dirname + '/resources/profilePics/' + picName;
+        fs.copyFileSync(old_path, new_path)
+        let path = undefined
+        await googleDrive.uploadClubPicture(authGoogleDrive, id, new_path, picName).then((res) => {
+            fs.unlinkSync(new_path)
+            path = constants.googleDrivePath.profilePicPath + res
+        }).catch((err) => {
+            console.log(err)
+        });
+        let userTypes = await userTypesModule.getUserTypes(id)
+        let ans = new Object()
+        for (const userType1 of userTypes.results) {
+            ans = await userService.updateProfilePic(path, id, userType1.usertype);
+        }
+        res.status(ans.status).send(ans.results)
+    });
+
+});*/
 app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res) {
     let form = new formidable.IncomingForm();
     let fileName = Date.now().toString() + ".pdf";

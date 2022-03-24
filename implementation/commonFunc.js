@@ -115,7 +115,14 @@ function setIsSanda(sportStyle) {
             return 1;
     }
 }
-
+function setStatus(status){
+    switch (status) {
+        case 1:
+            return constants.statusEnum.active;
+        case 0:
+            return constants.statusEnum.notActive;
+    }
+}
 function convertToSportStyle(isTaullo, isSanda) {
     isTaullo =  isTaullo[0]
     isSanda =  isSanda[0]
@@ -213,3 +220,4 @@ module.exports.completeIdUser = completeIdUser;
 module.exports.updateTrans = updateTrans
 module.exports.setMysqlDateFormat = setMysqlDateFormat
 module.exports.setMysqlDateFormatCoach=setMysqlDateFormatCoach
+module.exports.setStatus = setStatus
