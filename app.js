@@ -58,6 +58,7 @@ const sportsmanService = require('./implementation/services/sportsmanService')
 const competitionService = require('./implementation/services/competitionService')
 const userService = require('./implementation/services/userService')
 const sportClubService = require('./implementation/services/sportclubService')
+const sportAmutaService = require('./implementation/services/sportamutaService')
 const coachService = require('./implementation/services/coachService')
 const judgeService = require('./implementation/services/judgeService')
 const judgementService = require('./implementation/services/judgementService')
@@ -712,6 +713,10 @@ app.post("/private/allUsers/checkExistUser", async function (req, res) {
     let ans = await userService.checkUserExist(userId)
     res.status(ans.status).send(ans.results);
 });
+app.post("/private/commonCoachManager/checkExistAmuta", async function (req, res) {
+    let ans = await sportAmutaService.checkAmutaExist(req.body.Id)
+    res.status(ans.status).send(ans.results);
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -794,6 +799,14 @@ app.post("/private/manager/addClub", async function (req, res) {
     let ans = sportClubService.validateSportClubDetails(req.body)
     if (ans.isPassed) {
         ans = await sportClubModule.addSportClub(req.body);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(constants.statusCode.badRequest).send(ans.results)
+})
+app.post("/private/manager/addAmuta", async function (req, res) {
+    let ans = sportAmutaService.validateSportAmutaDetails(req.body)
+    if (ans.isPassed) {
+        ans = await amutaModule.addSportAmuta(req.body);
         res.status(ans.status).send(ans.results)
     } else
         res.status(constants.statusCode.badRequest).send(ans.results)
