@@ -65,15 +65,13 @@ async function updateHealthInsuranceDB(path, id) {
 async function updatemoreFilesDB(path, id) {
     let sql = `INSERT INTO sportman_files (id, insurance,medicalscan,moreFiles) VALUES (:id,:insurance,:medicalscan,:moreFiles)`;
     if (await checkIfNeedUpdate(id))
-        sql = `UPDATE sportman_files SET insurance = :insurance Where id= :id`;
+        sql = `UPDATE sportman_files SET moreFiles = :moreFiles Where id= :id`;
     let ans = new Object();
     await dbConnection.query({
         sql: sql,
         params: {
             id: id,
-            insurance: path,
-            moreFiles:''
-            
+            moreFiles: path            
         }
     }).then(function (results) {
         ans.status = constants.statusCode.ok;
@@ -89,3 +87,4 @@ async function updatemoreFilesDB(path, id) {
 
 module.exports.updateMedicalScanDB = updateMedicalScanDB
 module.exports.updateHealthInsuranceDB = updateHealthInsuranceDB
+module.exports.updatemoreFilesDB = updatemoreFilesDB

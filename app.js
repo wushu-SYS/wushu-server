@@ -966,7 +966,7 @@ app.post("/private/uploadSportsmanFile/:id/:fileType", async function (req, res)
                 ans = await sportsmanFilesModule.updateHealthInsuranceDB(path, id);
                 break;
             case 'moreFiles' :
-                await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', constants.googleDriveFolderNames.insurance).then(async (res) => {
+                await googleDrive.uploadGoogleDriveFile(authGoogleDrive, id, new_path, fileName, 'sportsman', constants.googleDriveFolderNames.moreFiles).then(async (res) => {
                     fs.unlinkSync(new_path)
                     path = constants.googleDrivePath.pdfPreviewPath + res + "/preview";
                 }).catch((err) => {
@@ -992,6 +992,15 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
                         })
                     });
                 break;
+            case 'moreFiles':
+                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'moreFiles.pdf')
+                    .then(async (result) => {
+                        res.downloadmoreFiles = util.promisify(res.download);
+                        await res.downloadmoreFiles(result.path);
+                        fs.unlink(result.path, function (err) {
+                        })
+                    });
+                break; 
             case 'healthInsurance':
                 await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'healthInsurance.pdf')
                     .then(async (result) => {
@@ -1001,15 +1010,7 @@ app.get("/downloadSportsmanFile/:token/:fileId/:sportsmanId/:fileType", async fu
                         })
                     });
                 break;
-            case 'moreFiles':
-                await googleDrive.downloadFileFromGoogleDrive(authGoogleDrive, fileId, __dirname, req.params.sportsmanId, 'moreFiles.pdf')
-                    .then(async (result) => {
-                        res.downloadmoreFiles = util.promisify(res.download);
-                        await res.downloadmoreFiles(result.path);
-                        fs.unlink(result.path, function (err) {
-                        })
-                    });
-                break;
+           
         }
 
     else

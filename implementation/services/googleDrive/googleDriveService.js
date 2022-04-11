@@ -186,7 +186,9 @@ async function createSubGoogleDriveFolder(auth,parentFolderId,userType){
     switch (userType) {
         case constants.userType.sportsman:
             await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.medical,parentFolderId);
-            await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.insurance,parentFolderId)
+            await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.insurance,parentFolderId);
+            await createGoogleDriveFolder(auth,constants.googleDriveFolderNames.moreFiles,parentFolderId)
+
         case constants.userType.coach:
             break;
         case constants.userType.judge:

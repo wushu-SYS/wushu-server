@@ -214,6 +214,7 @@ let statusCode = {
 let googleDriveFolderNames = {
     medical :'medical scan',
     insurance :'Insurance',
+    moreFiles : 'moreFiles',
     criminalRecord : 'criminal record'
 
 };
