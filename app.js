@@ -36,7 +36,7 @@ const userCoachModule = require('./implementation/modules/userCoachModule')
 const addressModule=require('./implementation/modules/addressModule')
 const sportsmanCoachModule = require('./implementation/modules/sportsmanCoachModule')
 const sportcenterModule = require('./implementation/modules/sportcenterModule')
-const amutaModule = require('./implementation/modules/amutaModule')
+const sportAmutaModule = require('./implementation/modules/amutaModule')
 const agudaModule = require('./implementation/modules/agudaModule')
 const msgBoardModule = require('./implementation/modules/msgBoardModule')
 const eventsModule = require('./implementation/modules/eventsModule')
@@ -58,6 +58,7 @@ const sportsmanService = require('./implementation/services/sportsmanService')
 const competitionService = require('./implementation/services/competitionService')
 const userService = require('./implementation/services/userService')
 const sportClubService = require('./implementation/services/sportclubService')
+const sportAmutaService = require('./implementation/services/sportamutaService')
 const coachService = require('./implementation/services/coachService')
 const judgeService = require('./implementation/services/judgeService')
 const judgementService = require('./implementation/services/judgementService')
@@ -643,7 +644,11 @@ app.post("/private/commonCoachManager/getErgons", async function (req, res) {
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/commonCoachManager/getAmutas", async function (req, res) {
-    let ans = await amutaModule.getAmutas();
+    let ans = await sportAmutaModule.getAmutas();
+    res.status(ans.status).send(ans.results)
+});
+app.get("/private/commonCoachManager/getAmutas/:amutaId", async function (req, res) {
+    let ans = await sportAmutaModule.getAmutasById(req.params.amutaId);
     res.status(ans.status).send(ans.results)
 });
 app.post("/private/commonCoachManager/getAgudas", async function (req, res) {
@@ -710,6 +715,10 @@ app.post("/private/commonCoachManager/getClubCoaches", async function (req, res)
 app.post("/private/allUsers/checkExistUser", async function (req, res) {
     let userId = req.body.userId
     let ans = await userService.checkUserExist(userId)
+    res.status(ans.status).send(ans.results);
+});
+app.post("/private/commonCoachManager/checkExistAmuta", async function (req, res) {
+    let ans = await sportAmutaService.checkAmutaExist(req.body.id)
     res.status(ans.status).send(ans.results);
 });
 
@@ -781,6 +790,10 @@ app.post("/private/manager/deleteAdmin", async function (req, res) {
     } else
         res.status(constants.statusCode.badRequest).send(constants.errorMsg.accessDenied)
 });
+app.post("/private/manager/deleteAmutaProfile", async function (req, res) {
+    let ans = await sportAmutaModule.deleteProfile(req.body.id);
+    res.status(ans.status).send(ans.results)
+});
 //----------------------------------------------------------------------------------------------------------------------
 
 //-------------------------------------------------Add------------------------------------------------------------------
@@ -794,6 +807,14 @@ app.post("/private/manager/addClub", async function (req, res) {
     let ans = sportClubService.validateSportClubDetails(req.body)
     if (ans.isPassed) {
         ans = await sportClubModule.addSportClub(req.body);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(constants.statusCode.badRequest).send(ans.results)
+})
+app.post("/private/manager/addAmuta", async function (req, res) {
+    let ans = sportAmutaService.validateSportAmutaDetails(req.body)
+    if (ans.isPassed) {
+        ans = await sportAmutaModule.addSportAmuta(req.body);
         res.status(ans.status).send(ans.results)
     } else
         res.status(constants.statusCode.badRequest).send(ans.results)
@@ -828,6 +849,16 @@ app.post("/private/manager/updateClubDetails", async function (req, res) {
     } else
         res.status(constants.statusCode.badRequest).send(ans.results)
 });
+app.post("/private/manager/updateAmutaDetails", async function (req, res) {
+    let sportsAmutaDetails = req.body
+    let ans = sportAmutaService.validateSportAmutaDetails(sportsAmutaDetails)
+    if (ans.isPassed) {
+        ans = await sportAmutaModule.updateSportAmutaDetails(sportsAmutaDetails);
+        res.status(ans.status).send(ans.results)
+    } else
+        res.status(constants.statusCode.badRequest).send(ans.results)
+});
+
 app.post("/private/commonCoachManager/changeSportsmanCoach", async function (req, res) {
     let coachId = req.body.coachId
     let sportsmanId = req.body.sportsmanId

@@ -193,6 +193,7 @@ let msg = {
     categoryRegistrationSuccess: ' add to user category successfully',
     eventAdded: 'event have been created successfully',
     clubAdded: 'sport club have been created successfully',
+    amutaAdded: 'sport amuta have been created successfully',
     profilePicUpdate: 'profile picture updated successfully'
 
 }
