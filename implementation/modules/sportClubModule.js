@@ -121,7 +121,48 @@ async function updateSportClubDetails(sportClubDetails) {
     return ans;
 }
 
+async function updateSportClubPhoto(path, id) {
+    sql = `UPDATE sportclub SET photo = :photo Where id= :id`;
+    let ans = new Object();
+    await dbConnection.query({
+        sql: sql,
+        params: {
+            id: id,
+            photo: path
+        }
+    }).then(function (results) {
+        ans.status = constants.statusCode.ok;
+        ans.results = "upload"
+
+    }).catch(function (err) {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err
+    });
+    return ans;
+}
+
+async function deleteProfile(id) {
+    let ans = new Object();
+    await dbConnection.query({
+        sql: `delete from sportclub where id = :id;`,
+        params: {
+            id: id
+        }
+    }).then(function(results) {
+        ans.status = constants.statusCode.ok;
+        ans.results = constants.msg.clubDeleted;
+    }).catch(function(err) {
+        console.log(err)
+        ans.status = constants.statusCode.badRequest;
+        ans.results = err
+    });
+    return ans;
+}
+
 module.exports.getSportClubs = getSportClubs
 module.exports.getClubDetails = getClubDetails
 module.exports.addSportClub = addSportClub
 module.exports.updateSportClubDetails = updateSportClubDetails
+module.exports.updateSportClubPhoto = updateSportClubPhoto
+module.exports.deleteProfile = deleteProfile

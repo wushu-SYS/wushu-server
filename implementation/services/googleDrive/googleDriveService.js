@@ -118,7 +118,7 @@ async function uploadUserPicture(auth,id,file_path,picName,userType){
         }).catch((err)=>{console.log(err)})
     return fileId;
 }
-/*
+
 async function uploadClubPicture(auth,id,file_path,picName){
     let parentsFolder = await findFolderByName(auth,id,[]);
     let folderId =parentsFolder.folderID;
@@ -132,7 +132,7 @@ async function uploadClubPicture(auth,id,file_path,picName){
 
         }).catch((err)=>{console.log(err)})
     return fileId;
-}*/
+}
 /**
  * create google tree folder, parent and sub folder according to the user type
  * @param auth - authentication
@@ -394,8 +394,6 @@ async function downloadFileFromGoogleDrive(auth,fileId,homeDir,id,fileType){
 
 module.exports.authorize = authorize;
 module.exports.uploadUserPicture = uploadUserPicture;
-//module.exports.uploadClubPicture = uploadClubPicture;
+module.exports.uploadClubPicture = uploadClubPicture;
 module.exports.uploadGoogleDriveFile = uploadGoogleDriveFile;
 module.exports.downloadFileFromGoogleDrive = downloadFileFromGoogleDrive;
-
-

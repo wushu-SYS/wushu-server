@@ -297,24 +297,24 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
     query.query = `select * from (select  
                     ${numCompQuery}  AS competitionCount, `;
     if (queryData.sportStyle != undefined) {
-        query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportsman_sportStyle
+        query.query += `user_Sportsman.id, firstname, lastname, user_Sportsman.photo from user_Sportsman join sportsman_sportStyle
             on user_Sportsman.id = sportsman_sportStyle.id`;
         query.queryCount = `select count(*) as count from user_Sportsman join sportsman_sportStyle
             on user_Sportsman.id = sportsman_sportStyle.id`;
     }else if(queryData.amuta!=undefined){
-        query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportclub
+        query.query += `user_Sportsman.id, firstname, lastname, user_Sportsman.photo from user_Sportsman join sportclub
             on user_Sportsman.sportclub = sportclub.id`;
         query.queryCount = `select count(*) as count from user_Sportsman join sportclub
             on user_Sportsman.sportclub = sportclub.id`;
     }else if(queryData.address!=undefined){
-        query.query += `user_Sportsman.id, firstname, lastname, photo from user_Sportsman join sportclub
+        query.query += `user_Sportsman.id, firstname, lastname, user_Sportsman.photo from user_Sportsman join sportclub
             on user_Sportsman.sportclub = sportclub.id`;
         query.queryCount = `select count(*) as count from user_Sportsman join sportclub
             on user_Sportsman.sportclub = sportclub.id`;
     }
     else if (queryData.competition !== undefined) {
         if (queryData.competitionOperator == undefined) {
-            query.query = `select id, firstname, lastname, photo, category, idCompetition, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
+            query.query = `select id, firstname, lastname, user_Sportsman.photo, category, idCompetition, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                             from (
                                     select 
                                     user_Sportsman.*
@@ -324,7 +324,7 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
             query.queryCount = `Select count(*) as count
                     from user_Sportsman`;
         } else if (queryData.competitionOperator === '==') {
-            query.query += `user_Sportsman.id, firstname, lastname, photo
+            query.query += `user_Sportsman.id, firstname, lastname, user_Sportsman.photo
                     from user_Sportsman
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman`;
@@ -333,27 +333,27 @@ function buildQuery_forGetSportsman_Manager(queryData, orderBy) {
                     join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman`;
         } else if (queryData.competitionOperator === '!=') {
-            query.query += `id, firstname, lastname, photo, sex, age, sportclub from
-                (Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
+            query.query += `id, firstname, lastname, user_Sportsman.photo, sex, age, sportclub from
+                (Select user_Sportsman.id, firstname, lastname, user_Sportsman.photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                     from user_Sportsman
                 except
-                Select user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
+                Select user_Sportsman.id, firstname, lastname, user_Sportsman.photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub
                     from user_Sportsman
                     left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
                     where idCompetition = :compId) as t`;
             query.queryCount = `Select count(*) as count from
-                (Select user_Sportsman.id, firstname, lastname, photo
+                (Select user_Sportsman.id, firstname, lastname, user_Sportsman.photo
                     from user_Sportsman
                 except
-                Select user_Sportsman.id, firstname, lastname, photo
+                Select user_Sportsman.id, firstname, lastname, user_Sportsman.photo
                     from user_Sportsman
                     left join competition_sportsman
                     on user_Sportsman.id = competition_sportsman.idSportsman
                     where idCompetition = :compId) as t`;
         }
     } else {
-        query.query += 'user_Sportsman.id, firstname, lastname, photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub,user_sportsman.address,contactname,sportclub.name as sportclubName,sportclub.address as sportclubAddress,sportsman_coach.idCoach ,sportclub.amutaId,amuta.name as amutaName,taullo,sanda from user_Sportsman join sportsman_sportstyle on sportsman_sportstyle.id = user_Sportsman.id join sportclub on sportclub.id = user_Sportsman.sportclub join sportsman_coach on sportsman_coach.idSportman = user_Sportsman.id join amuta on amuta.id = sportclub.amutaId';
+        query.query += 'user_Sportsman.id, firstname, lastname, user_Sportsman.photo, sex, FLOOR(DATEDIFF(now(), birthdate) / 365.25) as age, sportclub,user_sportsman.address,contactname,sportclub.name as sportclubName,sportclub.address as sportclubAddress,sportsman_coach.idCoach ,sportclub.amutaId,amuta.name as amutaName,taullo,sanda from user_Sportsman join sportsman_sportstyle on sportsman_sportstyle.id = user_Sportsman.id join sportclub on sportclub.id = user_Sportsman.sportclub join sportsman_coach on sportsman_coach.idSportman = user_Sportsman.id join amuta on amuta.id = sportclub.amutaId';
         query.queryCount = 'Select count(*) as count from user_Sportsman';
     }
     return query;

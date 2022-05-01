@@ -188,12 +188,13 @@ let msg = {
     registerSuccess: 'register successfully',
     competitionUpdate: 'competition update successfully',
     addCategory: 'category added successfully',
-    closeRegistration: 'Register have been closed',
+    closeRegistration: 'Register has been closed',
     updateUserDetails: 'user details update successfully',
     categoryRegistrationSuccess: ' add to user category successfully',
-    eventAdded: 'event have been created successfully',
-    clubAdded: 'sport club have been created successfully',
-    amutaAdded: 'sport amuta have been created successfully',
+    eventAdded: 'event has been created successfully',
+    clubAdded: 'sport club has been created successfully',
+    clubDeleted: 'sport club has been deleted successfully',
+    amutaAdded: 'sport amuta has been created successfully',
     profilePicUpdate: 'profile picture updated successfully'
 
 }
