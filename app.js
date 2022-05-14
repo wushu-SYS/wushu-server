@@ -746,6 +746,18 @@ app.post("/private/allUsers/sportsmanProfile", async function (req, res) {
         res.status(ans.status).send(ans.results)
     }
 });
+app.post("/private/allUsers/sportsmanArchivedFiles", async function (req, res) {
+    if (req.body.id !== undefined && access === constants.userType.SPORTSMAN && id !== req.body.id)
+        res.status(statusCode.badRequest).send(constants.errorMsg.accessDenied);
+    else {
+        let ans;
+        if (req.body.id !== undefined)
+            ans = await userSportsmanModule.sportsmanArchivedFiles(req.body.id);
+        else
+            ans = await userSportsmanModule.sportsmanArchivedFiles(id);
+        res.status(ans.status).send(ans.results)
+    }
+});
 app.post("/private/commonCoachManager/getRefereeProfile", async function (req, res) {
     let ans;
     if (req.body.id !== undefined)

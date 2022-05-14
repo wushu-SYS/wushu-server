@@ -52,6 +52,25 @@ async function sportsmanProfile(id) {
     return ans;
 }
 
+async function sportsmanArchivedFiles(id) {
+    let ans = new Object();
+    await dbConnection.query({
+        sql: `Select sportman_id as id, file_type, url, replaced_at
+                from sportman_files_archive
+                where sportman_id = :id`,
+        params: { id: id }
+    })
+        .then(function (results) {
+            ans.results = results.results
+            ans.status = constants.statusCode.ok;
+        }).catch(function (err) {
+            console.log(err)
+            ans.status = constants.statusCode.badRequest;
+            ans.results = err
+        });
+    return ans;
+}
+
 async function deleteSportsman(sportsmanId) {
     let ans = new Object();
     const trans = await dbConnection.getTransactionDb()
@@ -144,3 +163,4 @@ module.exports.insertSportsmanDB = insertSportsmanDB
 module.exports.sportsmanProfile = sportsmanProfile
 module.exports.deleteSportsman = deleteSportsman
 module.exports.updateSportsmanProfile = updateSportsmanProfile
+module.exports.sportsmanArchivedFiles = sportsmanArchivedFiles

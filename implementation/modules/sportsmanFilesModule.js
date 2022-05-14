@@ -7,7 +7,7 @@ async function updateMedicalScanDB(path, id) {
                       SELECT id, 'medicalscan', medicalscan, now()
                       FROM sportman_files
                       WHERE id = :id
-                      AND medicalscan IS NOT NULL`;
+                      AND NULLIF(medicalscan, '') IS NOT NULL`;
     let sql = `INSERT INTO sportman_files (id, medicalscan) VALUES (:id,:medicalScan)`;
     if (await checkIfNeedUpdate(id))
         sql = `UPDATE sportman_files SET medicalscan = :medicalScan Where id= :id`
@@ -39,26 +39,14 @@ async function updateMedicalScanDB(path, id) {
 
 async function deleteMedicalScanDB(id) {
     sql = `UPDATE sportman_files SET medicalscan = null Where id = :id`
-    let archiveSql = `INSERT INTO sportman_files_archive (sportman_id, file_type, url, replaced_at) 
-                      SELECT id, 'medicalscan', medicalscan, now()
-                      FROM sportman_files
-                      WHERE id = :id
-                      AND medicalscan IS NOT NULL`;
 
     let ans = new Object();
 
     await dbConnection.query({
-        sql: archiveSql,
+        sql: sql,
         params: {
             id: id
         }
-    }).then(async function() {
-        await dbConnection.query({
-            sql: sql,
-            params: {
-                id: id
-            }
-        })
     }).then(function() {
         ans.status = constants.statusCode.ok;
         ans.results = "delete"
@@ -95,7 +83,7 @@ async function updateHealthInsuranceDB(path, id) {
                       SELECT id, 'insurance', insurance, now()
                       FROM sportman_files
                       WHERE id = :id
-                      AND insurance IS NOT NULL`;
+                      AND NULLIF(insurance, '') IS NOT NULL`;
 
     let ans = new Object();
 
@@ -125,26 +113,14 @@ async function updateHealthInsuranceDB(path, id) {
 }
 async function deleteHealthInsuranceDB(id) {
     sql = `UPDATE sportman_files SET insurance = null Where id = :id`;
-    let archiveSql = `INSERT INTO sportman_files_archive (sportman_id, file_type, url, replaced_at) 
-                      SELECT id, 'insurance', insurance, now()
-                      FROM sportman_files
-                      WHERE id = :id
-                      AND insurance IS NOT NULL`;
 
     let ans = new Object();
 
     await dbConnection.query({
-        sql: archiveSql,
+        sql: sql,
         params: {
             id: id
         }
-    }).then(async function() {
-        await dbConnection.query({
-            sql: sql,
-            params: {
-                id: id
-            }
-        })
     }).then(function(results) {
         ans.status = constants.statusCode.ok;
         ans.results = "delete"
@@ -164,7 +140,7 @@ async function updatemoreFilesDB(path, id) {
                       SELECT id, 'moreFiles', moreFiles, now()
                       FROM sportman_files
                       WHERE id = :id
-                      AND moreFiles IS NOT NULL`;
+                      AND NULLIF(moreFiles, '') IS NOT NULL`;
 
     let ans = new Object();
 
@@ -194,26 +170,14 @@ async function updatemoreFilesDB(path, id) {
 }
 async function deletemoreFilesDB(id) {
     sql = `UPDATE sportman_files SET moreFiles = null Where id = :id`;
-    let archiveSql = `INSERT INTO sportman_files_archive (sportman_id, file_type, url, replaced_at) 
-                      SELECT id, 'moreFiles', moreFiles, now()
-                      FROM sportman_files
-                      WHERE id = :id
-                      AND moreFiles IS NOT NULL`;
 
     let ans = new Object();
 
     await dbConnection.query({
-        sql: archiveSql,
+        sql: sql,
         params: {
             id: id
         }
-    }).then(async function() {
-        await dbConnection.query({
-            sql: sql,
-            params: {
-                id: id
-            }
-        })
     }).then(function(results) {
         ans.status = constants.statusCode.ok;
         ans.results = "delete"
